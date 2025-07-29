@@ -65,6 +65,45 @@ setTimeout(() => {
         
         // Set up data refresh
         setupDataRefresh();
+            // ===== AGREGAR ESTA SECCIÓN =====
+        // Force immediate marker initialization
+        setTimeout(() => {
+            console.log('Force initializing markers...');
+            try {
+                const features = map.querySourceFeatures(MAP_LAYERS.source, {
+                    sourceLayer: MAP_LAYERS.sourceLayer
+                });
+                
+                if (features && features.length > 0) {
+                    console.log('Found features, creating markers...');
+                    features.forEach(feature => {
+                        if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
+                            if (!markers.has(feature.properties.name)) {
+                                const el = createMarkerElement('#cccccc', '...');
+                                const marker = new mapboxgl.Marker({ element: el })
+                                    .setLngLat(feature.geometry.coordinates)
+                                    .addTo(map);
+                                markers.set(feature.properties.name, marker);
+                                console.log('Created marker for:', feature.properties.name);
+                            }
+                        }
+                    });
+                    
+                    // Update markers with real data
+                    setTimeout(() => {
+                        console.log('Updating marker data...');
+                        updateMarkerData();
+                    }, 500);
+                } else {
+                    console.log('No features found, retrying...');
+                    // Retry after another second if no features found
+                    setTimeout(arguments.callee, 1000);
+                }
+            } catch (error) {
+                console.error('Error initializing markers:', error);
+            }
+        }, 1500);
+        // ===== FIN DE SECCIÓN AGREGADA =====
         
         // ======= AGREGAR ESTAS LÍNEAS =======
         // Initialize IAS values after map loads
