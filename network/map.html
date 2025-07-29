@@ -10,10 +10,6 @@
     
     <!-- Custom CSS -->
     <link href="assets/css/map.css" rel="stylesheet" />
-    
-    <!-- External JavaScript Libraries -->
-    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
@@ -54,11 +50,27 @@
         <span>AIre</span>
     </a>
 
-    <!-- JavaScript Modules -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/sensors.js"></script>
-    <script src="assets/js/chart.js"></script>
-    <script src="assets/js/map.js"></script>
+    <!-- External JavaScript Libraries -->
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- JavaScript Modules - ORDEN CRÍTICO -->
+    <script src="assets/js/config.js"></script>      <!-- 1. Configuración -->
+    <script src="assets/js/utils.js"></script>       <!-- 2. Utilidades -->
+    <script src="assets/js/sensors.js"></script>     <!-- 3. Sensores -->
+    <script src="assets/js/chart.js"></script>       <!-- 4. Gráficos -->
+    
+    <!-- IMPORTANTE: map.js debe cargarse AL FINAL después de que Mapbox esté listo -->
+    <script>
+        // Esperar a que Mapbox esté completamente cargado
+        if (typeof mapboxgl !== 'undefined') {
+            // Cargar map.js después de que todo esté listo
+            const script = document.createElement('script');
+            script.src = 'assets/js/map.js';
+            document.head.appendChild(script);
+        } else {
+            console.error('Mapbox GL JS not loaded');
+        }
+    </script>
 </body>
 </html>
