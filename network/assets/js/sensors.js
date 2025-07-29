@@ -94,7 +94,7 @@ async function fetchSensorDataWithProxy(hours = 24, sensorId = '12', token = nul
 
     const baseUrl = API_CONFIG.dataUrl;
     const params = new URLSearchParams({
-        token: token || API_CONFIG.tokens['Hipódromo'], // Default to Hipódromo token
+        token: token || API_CONFIG.tokens['Hipódromo'],
         idSensor: sensorId,
         dtStart: startDateStr,
         dtEnd: endDateStr
@@ -192,12 +192,10 @@ function initializeMarkers(features) {
         }
     });
     
-    // Initial update of marker data
     updateMarkerData();
 }
 
-// ===== CRÍTICO: Hacer funciones disponibles globalmente =====
-// ¡ESTAS LÍNEAS FALTABAN! Sin ellas, los popups no funcionan
+// Make functions available globally
 window.fetchWithCurrentProxy = fetchWithCurrentProxy;
 window.fetchSensorData = fetchSensorData;
 window.fetchSensorDataWithProxy = fetchSensorDataWithProxy;
