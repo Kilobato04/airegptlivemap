@@ -1,17 +1,36 @@
-// Configuration file for the Smability Network Map
+// Configuration file - Global variables
 
-// Mapbox Configuration
-const MAPBOX_CONFIG = {
+window.MAPBOX_CONFIG = {
     accessToken: 'pk.eyJ1Ijoia2lsb2JhdG8iLCJhIjoiYTU2YmIyYzZiNjUxOGI5MDQ5YWVmNmRkZDg5ZTQ0NDQifQ.U_W7cH_L3M5l4DZX3fbljA',
     style: 'mapbox://styles/kilobato/clxo1i3qd02th01qm2op9h1a1',
     center: [-99.167213, 19.414855],
     zoom: 12.5
 };
 
-// API Configuration
-const API_CONFIG = {
+window.APP_SETTINGS = {
+    refreshInterval: 3000,
+    maxRetries: 3,
+    activeStations: ['Hipódromo', 'UNAM', 'CENTRUS 3', 'INSYC-Smability'],
+    whatsappNumber: '525519566483',
+    brandUrl: 'http://www.smability.io'
+};
+
+window.AQI_THRESHOLDS = {
+    good: { max: 50, color: '#00ff00', status: 'Good', risk: 'Low' },
+    acceptable: { max: 100, color: '#ffff00', status: 'Acceptable', risk: 'Moderate' },
+    bad: { max: 150, color: '#ff8000', status: 'Bad', risk: 'High' },
+    veryBad: { max: 200, color: '#ff0000', status: 'Very Bad', risk: 'Very High' },
+    extremelyBad: { color: '#800080', status: 'Extremely Bad', risk: 'Extremely High' }
+};
+
+window.MAP_LAYERS = {
+    source: 'simat_centrus_2024',
+    vectorTileUrl: 'mapbox://kilobato.clxnxjdmp10lc1prmk88qghyw-9frgp',
+    sourceLayer: 'simat_centrus_2024'
+};
+
+window.API_CONFIG = {
     baseUrl: 'http://smability.sidtecmx.com/SmabilityAPI/BioBox',
-    dataUrl: 'http://smability.sidtecmx.com/SmabilityAPI/GetData',
     tokens: {
         'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
         'UNAM': '349b1230277f1c67577e4f5bee6ba486',
@@ -20,69 +39,13 @@ const API_CONFIG = {
     }
 };
 
-// CORS Proxy Configuration
-const CORS_PROXIES = [
-    {
-        name: 'allOrigins',
-        url: 'https://api.allorigins.win/raw?url='
-    },
-    {
-        name: 'corsproxy.io',
-        url: 'https://corsproxy.io/?'
-    },
-    {
-        name: 'cors.sh',
-        url: 'https://cors.sh/'
-    },
-    {
-        name: 'thingproxy',
-        url: 'https://thingproxy.freeboard.io/fetch/'
-    },
-    {
-        name: 'proxy.cors.sh',
-        url: 'https://proxy.cors.sh/'
-    }
+window.CORS_PROXIES = [
+    { name: 'allOrigins', url: 'https://api.allorigins.win/raw?url=' },
+    { name: 'corsproxy.io', url: 'https://corsproxy.io/?' }
 ];
 
-// Sensor Configuration for Charts
-const SENSOR_CONFIG = {
-    '12': { name: 'Temperature', units: '°C', color: '#4264fb' },
-    '2': { name: 'Carbon Monoxide', units: 'ppb', color: '#ff7043' },
-    '3': { name: 'Relative Humidity', units: '%', color: '#4caf50' },
-    '7': { name: 'Ozone', units: 'ppb', color: '#9c27b0' },
-    '9': { name: 'PM2.5', units: 'μg/m³', color: '#ff9800' }
-};
+window.currentProxyIndex = 0;
+window.retryCount = 0;
+window.markers = new Map();
 
-// Map Layer Configuration
-const MAP_LAYERS = {
-    source: 'simat_centrus_2024',
-    vectorTileUrl: 'mapbox://kilobato.clxnxjdmp10lc1prmk88qghyw-9frgp',
-    sourceLayer: 'simat_centrus_2024'
-};
-
-// Application Settings
-const APP_SETTINGS = {
-    refreshInterval: 3000, // milliseconds
-    maxRetries: 3,
-    activeStations: ['Hipódromo', 'UNAM', 'CENTRUS 3', 'INSYC-Smability'],
-    whatsappNumber: '525519566483',
-    brandUrl: 'http://www.smability.io',
-    aiAssistantUrl: 'https://smability.netlify.app/'
-};
-
-// Air Quality Index Thresholds and Colors
-const AQI_THRESHOLDS = {
-    good: { max: 50, color: '#00ff00', status: 'Good', risk: 'Low' },
-    acceptable: { max: 100, color: '#ffff00', status: 'Acceptable', risk: 'Moderate' },
-    bad: { max: 150, color: '#ff8000', status: 'Bad', risk: 'High' },
-    veryBad: { max: 200, color: '#ff0000', status: 'Very Bad', risk: 'Very High' },
-    extremelyBad: { color: '#800080', status: 'Extremely Bad', risk: 'Extremely High' }
-};
-
-// Global variables for runtime state
-let currentProxyIndex = 0;
-let retryCount = 0;
-let markers = new Map();
-let currentLocation = null;
-let timeframeListener = null;
-let sensorListener = null;
+console.log('Config loaded successfully');
