@@ -1,0 +1,46 @@
+{
+  "name": "airegpt-live-map",
+  "version": "1.0.0",
+  "description": "Real-time air quality monitoring map application for Mexico City using Smability Network sensors",
+  "main": "network/map.html",
+  "scripts": {
+    "start": "npx serve . -p 8000",
+    "dev": "npx serve . -p 3000",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "echo 'Deployment handled by cPanel Git integration'",
+    "lint": "echo 'Add linting configuration as needed'",
+    "test": "echo 'Add testing framework as needed'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/airegptlivemap.git"
+  },
+  "keywords": [
+    "air-quality",
+    "mexico-city",
+    "real-time",
+    "mapbox",
+    "sensors",
+    "environmental",
+    "smability",
+    "pollution",
+    "monitoring"
+  ],
+  "author": "Smability Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/airegptlivemap/issues"
+  },
+  "homepage": "https://smability.io/network/map.html",
+  "devDependencies": {
+    "serve": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
