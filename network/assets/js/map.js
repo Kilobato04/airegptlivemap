@@ -333,8 +333,7 @@ setTimeout(() => {
     }
 
     /**
-     * Update marker color and IAS value
-     * @param {string} location - Location name
+     * Update marker color and size with IAS value
      */
     async function updateMarkerColor(location) {
         if (!markers.has(location)) return;
@@ -347,24 +346,25 @@ setTimeout(() => {
                 const { color } = getIndicatorColor(sensorData.dataIAS);
                 const el = marker.getElement();
                 
-                // Update marker color
+                // Update marker: smaller size + IAS value + BLACK text
                 el.style.backgroundColor = color;
-                
-                // Update marker size to be 35% smaller
-                el.style.width = '24px';  // 35% smaller than 37.5px
+                el.style.width = '24px';  // 35% smaller
                 el.style.height = '24px';
-                
-                // Add IAS value inside marker
                 el.textContent = Math.round(sensorData.dataIAS);
                 el.style.fontSize = '10px';
                 el.style.fontWeight = 'bold';
-                el.style.color = 'white';
+                el.style.color = '#000000';  // BLACK text instead of white
                 el.style.display = 'flex';
                 el.style.alignItems = 'center';
                 el.style.justifyContent = 'center';
+                el.style.border = '2px solid white';
+                el.style.borderRadius = '50%';
+                el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+                
+                console.log(`Updated marker for ${location}: IAS=${sensorData.dataIAS}, Color=${color}`);
             }
         } catch (error) {
-            console.error(`Error updating marker color for ${location}:`, error);
+            console.error(`Error updating marker for ${location}:`, error);
         }
     }
     
@@ -465,21 +465,23 @@ setTimeout(() => {
     }
     // ======= FIN DE NUEVAS FUNCIONES =======
 
-    /**
-     * Set up automatic data refresh
-     */
-function setupDataRefresh() {
+    function setupDataRefresh() {
         setInterval(async () => {
+            console.log('Refreshing marker data...');
+            
             // Update marker colors and IAS values for active stations
             if (typeof updateMarkerData === 'function') {
-                updateMarkerData();
+                await updateMarkerData();
             }
             
-            // Update IAS values in markers
-            updateAllMarkerIAS();
-
-            // Skip automatic popup updates to avoid LngLatLike errors
-            // Users can click markers again to refresh popup data if needed
+            // Force update of all markers
+            for (const location of APP_SETTINGS.activeStations) {
+                if (markers.has(location)) {
+                    await updateMarkerColor(location);
+                }
+            }
+            
+            console.log('Marker refresh complete');
             
         }, APP_SETTINGS.refreshInterval);
     }
