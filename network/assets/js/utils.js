@@ -19,11 +19,11 @@ function getIndicatorColor(value) {
  * @returns {string} - Appropriate emoji
  */
 function getIASEmoji(value) {
-    if (value <= 50) return '😊';  // Smiling face for Good
-    if (value <= 100) return '😐';  // Neutral face for Acceptable
-    if (value <= 150) return '😷';  // Face with mask for Bad
-    if (value <= 200) return '😨';  // Fearful face for Very Bad
-    return '😱';  // Face screaming in fear for Extremely Bad
+    if (value <= 50) return '😊';
+    if (value <= 100) return '😐';
+    if (value <= 150) return '😷';
+    if (value <= 200) return '😨';
+    return '😱';
 }
 
 /**
@@ -266,8 +266,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// ===== CRÍTICO: Hacer funciones disponibles globalmente =====
-// Sin estas líneas, los popups NO funcionarán
+// Make functions available globally
 window.getIndicatorColor = getIndicatorColor;
 window.getIASEmoji = getIASEmoji;
 window.translateMode = translateMode;
