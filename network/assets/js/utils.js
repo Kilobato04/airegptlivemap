@@ -182,42 +182,27 @@ function createLegendHTML() {
     html += '</div>';
     html += '<div class="legend-content">';
     
-    // Legend items with proper styling
-    html += '<div class="legend-item">';
-    html += '<div class="legend-color" style="background-color: #00ff00"></div>';
-    html += '<span>Good (0-50)</span>';
-    html += '</div>';
-    
-    html += '<div class="legend-item">';
-    html += '<div class="legend-color" style="background-color: #ffff00"></div>';
-    html += '<span>Acceptable (51-100)</span>';
-    html += '</div>';
-    
-    html += '<div class="legend-item">';
-    html += '<div class="legend-color" style="background-color: #ff8000"></div>';
-    html += '<span>Bad (101-150)</span>';
-    html += '</div>';
-    
-    html += '<div class="legend-item">';
-    html += '<div class="legend-color" style="background-color: #ff0000"></div>';
-    html += '<span>Very Bad (151-200)</span>';
-    html += '</div>';
-    
-    html += '<div class="legend-item">';
-    html += '<div class="legend-color" style="background-color: #800080"></div>';
-    html += '<span>Extremely Bad (>201)</span>';
-    html += '</div>';
+    // AQI Colors (igual que antes)
+    html += '<div class="legend-item"><div class="legend-color" style="background-color: #00ff00"></div><span>Good (0-50)</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background-color: #ffff00"></div><span>Acceptable (51-100)</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff8000"></div><span>Bad (101-150)</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff0000"></div><span>Very Bad (151-200)</span></div>';
+    html += '<div class="legend-item"><div class="legend-color" style="background-color: #800080"></div><span>Extremely Bad (>201)</span></div>';
 
-    // Toggle button for SIMAT network
-    html += '<div style="margin: 10px 0;">';
-    html += '<button id="toggleOffMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">SIMAT Network</button>';
+    // LAYERS section
+    html += '<div style="margin: 15px 0; border-top: 1px solid #ddd; padding-top: 10px;">';
+    html += '<div style="font-weight: bold; margin-bottom: 8px; font-size: 10px;">LAYERS</div>';
+    
+    // SIMAT Network toggle
+    html += '<div style="margin: 8px 0;"><button id="toggleOffMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">SIMAT Network</button></div>';
+    
+    // Smability Network toggle (NUEVO)
+    html += '<div style="margin: 8px 0;"><button id="toggleSmabilityMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">Smability Network</button></div>';
+    
     html += '</div>';
 
     // Branding
-    html += '<div class="legend-branding">';
-    html += '<a href="' + APP_SETTINGS.brandUrl + '" target="_blank" class="brand-text">smability.io</a>';
-    html += '</div>';
-    
+    html += '<div class="legend-branding"><a href="' + APP_SETTINGS.brandUrl + '" target="_blank" class="brand-text">smability.io</a></div>';
     html += '</div>';
     return html;
 }
