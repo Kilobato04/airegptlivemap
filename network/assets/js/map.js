@@ -65,6 +65,14 @@ setTimeout(() => {
         
         // Set up data refresh
         setupDataRefresh();
+        
+        // ======= AGREGAR ESTAS LÍNEAS =======
+        // Initialize IAS values after map loads
+        setTimeout(() => {
+            console.log('Initializing IAS values...');
+            updateAllMarkerIAS();
+        }, 2000);
+        // ======= FIN DE LÍNEAS AGREGADAS =======
 
         console.log('Map setup complete');
     });
@@ -164,8 +172,8 @@ setTimeout(() => {
             'type': 'vector',
             'url': MAP_LAYERS.vectorTileUrl
         });
-
-        // Add circle layer for stations
+    
+        // Add circle layer for stations - 35% smaller (6 instead of 9)
         map.addLayer({
             'id': 'smaa_network',
             'type': 'circle',
@@ -178,13 +186,41 @@ setTimeout(() => {
                     '#4264fb', // Color for active stations
                     'gray'    // Color for others
                 ],
-                'circle-radius': 9,
-                'circle-stroke-width': 1.7,
+                'circle-radius': 6, // Reduced from 9 to 6 (35% smaller)
+                'circle-stroke-width': 1.2, // Reduced proportionally
                 'circle-stroke-color': '#ffffff'
             }
         });
-
-        // Add text labels for active stations
+    
+        // Add IAS values inside markers - UPDATED with feature-state
+        map.addLayer({
+            'id': 'smaa_network_ias',
+            'type': 'symbol',
+            'source': MAP_LAYERS.source,
+            'source-layer': MAP_LAYERS.sourceLayer,
+            'layout': {
+                'text-field': [
+                    'case',
+                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
+                    [
+                        'case',
+                        ['!=', ['feature-state', 'iasValue'], null],
+                        ['to-string', ['feature-state', 'iasValue']],
+                        '...'
+                    ],
+                    '' // Empty for inactive stations
+                ],
+                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+                'text-size': 10,
+                'text-allow-overlap': true,
+                'text-ignore-placement': true
+            },
+            'paint': {
+                'text-color': '#FFFFFF'
+            }
+        });
+    
+        // Add station labels for active stations - positioned below circles
         map.addLayer({
             'id': 'smaa_network_labels',
             'type': 'symbol',
@@ -198,12 +234,13 @@ setTimeout(() => {
                     '' // Otherwise
                 ],
                 'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
-                'text-size': 8,
+                'text-size': 6, // Smaller text for smaller circles
                 'text-allow-overlap': true,
-                'text-ignore-placement': true
+                'text-ignore-placement': true,
+                'text-offset': [0, 1.5] // Position below the circle
             },
             'paint': {
-                'text-color': '#FFFFFF'
+                'text-color': '#4264fb'
             }
         });
     }
@@ -264,38 +301,67 @@ setTimeout(() => {
         });
     }
 
+    // ======= AGREGAR ESTAS NUEVAS FUNCIONES AQUÍ =======
+    /**
+     * Update IAS values in markers
+     * @param {string} location - Location name
+     * @param {number} iasValue - IAS value to display
+     */
+    function updateMarkerIAS(location, iasValue) {
+        if (!map.getSource(MAP_LAYERS.source)) return;
+        
+        try {
+            const features = map.querySourceFeatures(MAP_LAYERS.source, {
+                sourceLayer: MAP_LAYERS.sourceLayer,
+                filter: ['==', 'name', location]
+            });
+            
+            if (features.length > 0) {
+                map.setFeatureState(
+                    { source: MAP_LAYERS.source, sourceLayer: MAP_LAYERS.sourceLayer, id: features[0].id },
+                    { iasValue: iasValue }
+                );
+            }
+        } catch (error) {
+            console.error('Error updating marker IAS:', error);
+        }
+    }
+
+    /**
+     * Update all marker IAS values
+     */
+    async function updateAllMarkerIAS() {
+        for (const location of APP_SETTINGS.activeStations) {
+            try {
+                if (typeof fetchSensorData === 'function') {
+                    const sensorData = await fetchSensorData(location);
+                    if (sensorData && sensorData.dataIAS !== 'N/A') {
+                        updateMarkerIAS(location, sensorData.dataIAS);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching IAS for ${location}:`, error);
+            }
+        }
+    }
+    // ======= FIN DE NUEVAS FUNCIONES =======
+
     /**
      * Set up automatic data refresh
      */
-    function setupDataRefresh() {
+function setupDataRefresh() {
         setInterval(async () => {
-            // Update marker colors for active stations
+            // Update marker colors and IAS values for active stations
             if (typeof updateMarkerData === 'function') {
                 updateMarkerData();
             }
-
-            // Update visible popups
-            const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
-            if (visiblePopups.length > 0) {
-                try {
-                    // Get the popup's coordinates and find matching features
-                    const popupLngLat = visiblePopups[0]._lngLat;
-                    const features = map.queryRenderedFeatures(
-                        map.project(popupLngLat), 
-                        { layers: ['smaa_network'] }
-                    );
             
-                    if (features.length && APP_SETTINGS.activeStations.includes(features[0].properties.name)) {
-                        const sensorData = await fetchSensorData(features[0].properties.name);
-                        const popupContent = visiblePopups[0].querySelector('.mapboxgl-popup-content');
-                        if (popupContent) {
-                            popupContent.innerHTML = createPopupContent(features[0], sensorData);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error updating popup data:', error);
-                }
-            }
+            // Update IAS values in markers
+            updateAllMarkerIAS();
+
+            // Skip automatic popup updates to avoid LngLatLike errors
+            // Users can click markers again to refresh popup data if needed
+            
         }, APP_SETTINGS.refreshInterval);
     }
 
