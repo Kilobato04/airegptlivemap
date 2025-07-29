@@ -166,84 +166,79 @@ setTimeout(() => {
     /**
      * Add map layers and sources
      */
-    function addMapLayers() {
-        // Add vector tile source
-        map.addSource(MAP_LAYERS.source, {
-            'type': 'vector',
-            'url': MAP_LAYERS.vectorTileUrl
-        });
-    
-        // Add circle layer for stations - 35% smaller (6 instead of 9)
-        map.addLayer({
-            'id': 'smaa_network',
-            'type': 'circle',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'paint': {
-                'circle-color': [
-                    'case',
-                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-                    '#4264fb', // Color for active stations
-                    'gray'    // Color for others
-                ],
-                'circle-radius': 6, // Reduced from 9 to 6 (35% smaller)
-                'circle-stroke-width': 1.2, // Reduced proportionally
-                'circle-stroke-color': '#ffffff'
-            }
-        });
-    
-        // Add IAS values inside markers - UPDATED with feature-state
-        map.addLayer({
-            'id': 'smaa_network_ias',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'layout': {
-                'text-field': [
-                    'case',
-                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-                    [
-                        'case',
-                        ['!=', ['feature-state', 'iasValue'], null],
-                        ['to-string', ['feature-state', 'iasValue']],
-                        '...'
-                    ],
-                    '' // Empty for inactive stations
-                ],
-                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
-                'text-size': 10,
-                'text-allow-overlap': true,
-                'text-ignore-placement': true
-            },
-            'paint': {
-                'text-color': '#FFFFFF'
-            }
-        });
-    
-        // Add station labels for active stations - positioned below circles
-        map.addLayer({
-            'id': 'smaa_network_labels',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'layout': {
-                'text-field': [
-                    'case',
-                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-                    'ON', // If name is in active stations
-                    '' // Otherwise
-                ],
-                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
-                'text-size': 6, // Smaller text for smaller circles
-                'text-allow-overlap': true,
-                'text-ignore-placement': true,
-                'text-offset': [0, 1.5] // Position below the circle
-            },
-            'paint': {
-                'text-color': '#4264fb'
-            }
-        });
-    }
+function addMapLayers() {
+    // Add vector tile source
+    map.addSource(MAP_LAYERS.source, {
+        'type': 'vector',
+        'url': MAP_LAYERS.vectorTileUrl
+    });
+
+    // Add circle layer for stations - 35% smaller
+    map.addLayer({
+        'id': 'smaa_network',
+        'type': 'circle',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'paint': {
+            'circle-color': [
+                'case',
+                ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
+                '#4264fb', // Color for active stations
+                'gray'    // Color for others
+            ],
+            'circle-radius': 6, // 35% smaller
+            'circle-stroke-width': 1.2,
+            'circle-stroke-color': '#ffffff'
+        }
+    });
+
+    // Add IAS values as simple text - will be updated by markers
+    map.addLayer({
+        'id': 'smaa_network_ias',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'layout': {
+            'text-field': [
+                'case',
+                ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
+                '...', // Default placeholder
+                ''
+            ],
+            'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 10,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true
+        },
+        'paint': {
+            'text-color': '#FFFFFF'
+        }
+    });
+
+    // Add station labels
+    map.addLayer({
+        'id': 'smaa_network_labels',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'layout': {
+            'text-field': [
+                'case',
+                ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
+                'ON',
+                ''
+            ],
+            'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+            'text-size': 6,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true,
+            'text-offset': [0, 1.5]
+        },
+        'paint': {
+            'text-color': '#4264fb'
+        }
+    });
+}
 
     /**
      * Set up map click handlers
@@ -299,6 +294,48 @@ setTimeout(() => {
         map.on('mouseleave', 'smaa_network', () => {
             map.getCanvas().style.cursor = '';
         });
+    }
+
+        /**
+     * Update marker color and size with IAS value
+     */
+    async function updateMarkerColor(location) {
+        if (!markers.has(location)) return;
+        
+        try {
+            const sensorData = await fetchSensorData(location);
+            const marker = markers.get(location);
+            
+            if (sensorData && sensorData.dataIAS !== 'N/A') {
+                const { color } = getIndicatorColor(sensorData.dataIAS);
+                const el = marker.getElement();
+                
+                // Update marker: smaller size + IAS value
+                el.style.backgroundColor = color;
+                el.style.width = '24px';  // 35% smaller
+                el.style.height = '24px';
+                el.textContent = Math.round(sensorData.dataIAS);
+                el.style.fontSize = '10px';
+                el.style.fontWeight = 'bold';
+                el.style.color = 'white';
+                el.style.display = 'flex';
+                el.style.alignItems = 'center';
+                el.style.justifyContent = 'center';
+            }
+        } catch (error) {
+            console.error(`Error updating marker for ${location}:`, error);
+        }
+    }
+    
+    /**
+     * Update all marker data
+     */
+    async function updateMarkerData() {
+        for (const location of APP_SETTINGS.activeStations) {
+            if (markers.has(location)) {
+                await updateMarkerColor(location);
+            }
+        }
     }
 
     // ======= AGREGAR ESTAS NUEVAS FUNCIONES AQUÍ =======
