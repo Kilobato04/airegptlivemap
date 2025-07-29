@@ -1,0 +1,11 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/username/public_html/
+    - /bin/cp -R network $DEPLOYPATH
+    - /bin/cp -R assets $DEPLOYPATH
+    - /bin/cp favicon.ico $DEPLOYPATH 2>/dev/null || true
+    - find $DEPLOYPATH -name "*.html" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -name "*.css" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -name "*.js" -exec chmod 644 {} \;
+    - find $DEPLOYPATH -type d -exec chmod 755 {} \;
