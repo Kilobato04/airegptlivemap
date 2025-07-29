@@ -405,17 +405,19 @@ function setupDataRefresh() {
     /**
      * Initialize markers for map features (if needed)
      */
+
     map.on('sourcedata', e => {
         if (e.sourceId === MAP_LAYERS.source && e.isSourceLoaded) {
             const features = map.querySourceFeatures(MAP_LAYERS.source, {
                 sourceLayer: MAP_LAYERS.sourceLayer
             });
             
-            // Initialize markers for active stations if marker system is being used
+            // Initialize markers for active stations
             features.forEach(feature => {
                 if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-                    if (typeof createMarkerElement === 'function' && !markers.has(feature.properties.name)) {
-                        const el = createMarkerElement('#4264fb', '');
+                    if (!markers.has(feature.properties.name)) {
+                        // Create marker with correct size and placeholder
+                        const el = createMarkerElement('#cccccc', '...');
                         const marker = new mapboxgl.Marker({ element: el })
                             .setLngLat(feature.geometry.coordinates)
                             .addTo(map);
@@ -424,10 +426,10 @@ function setupDataRefresh() {
                 }
             });
             
-            // Initial update of marker data
-            if (typeof updateMarkerData === 'function') {
+            // Initial update of marker data after a short delay
+            setTimeout(() => {
                 updateMarkerData();
-            }
+            }, 1000);
         }
     });
 
