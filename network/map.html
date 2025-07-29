@@ -4,17 +4,14 @@
     <meta charset="utf-8" />
     <title>Smability Network</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no" />
-    
-    <!-- External CSS -->
     <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
-    
-    <!-- Custom CSS -->
     <link href="assets/css/map.css" rel="stylesheet" />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 <body>
     <div id="map"></div>
     
-    <!-- Chart Panel -->
     <div id="chartPanel" class="chart-panel" style="display: none;">
         <div class="chart-panel-header">
             <button class="chart-panel-close" onclick="closeChartPanel()">×</button>
@@ -36,41 +33,19 @@
                 </select>
             </div>
         </div>
-        
         <div class="chart-container">
             <div id="iasChart"></div>
         </div>
-        <div class="chart-panel-branding">
-            <small><a href="http://www.smability.io" target="_blank" class="brand-text">smability.io</a></small>
-        </div>
     </div>
 
-    <!-- AI Float Button -->
     <a href="https://smability.netlify.app/" target="_blank" class="ai-float-button">
         <span>AIre</span>
     </a>
 
-    <!-- External JavaScript Libraries -->
-    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-
-    <!-- JavaScript Modules - ORDEN CRÍTICO -->
-    <script src="assets/js/config.js"></script>      <!-- 1. Configuración -->
-    <script src="assets/js/utils.js"></script>       <!-- 2. Utilidades -->
-    <script src="assets/js/sensors.js"></script>     <!-- 3. Sensores -->
-    <script src="assets/js/chart.js"></script>       <!-- 4. Gráficos -->
-    
-    <!-- IMPORTANTE: map.js debe cargarse AL FINAL después de que Mapbox esté listo -->
-    <script>
-        // Esperar a que Mapbox esté completamente cargado
-        if (typeof mapboxgl !== 'undefined') {
-            // Cargar map.js después de que todo esté listo
-            const script = document.createElement('script');
-            script.src = 'assets/js/map.js';
-            document.head.appendChild(script);
-        } else {
-            console.error('Mapbox GL JS not loaded');
-        }
-    </script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/sensors.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/map.js"></script>
 </body>
 </html>
