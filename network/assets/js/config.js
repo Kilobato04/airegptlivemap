@@ -15,6 +15,7 @@ window.APP_SETTINGS = {
     brandUrl: 'http://www.smability.io'
 };
 
+// Air Quality Index Thresholds and Colors - OFFICIAL COLORS
 window.AQI_THRESHOLDS = {
     good: { max: 50, color: '#00ff00', status: 'Good', risk: 'Low' },
     acceptable: { max: 100, color: '#ffff00', status: 'Acceptable', risk: 'Moderate' },
