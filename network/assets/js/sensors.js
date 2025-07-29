@@ -195,3 +195,12 @@ function initializeMarkers(features) {
     // Initial update of marker data
     updateMarkerData();
 }
+
+// ===== CRÍTICO: Hacer funciones disponibles globalmente =====
+// ¡ESTAS LÍNEAS FALTABAN! Sin ellas, los popups no funcionan
+window.fetchWithCurrentProxy = fetchWithCurrentProxy;
+window.fetchSensorData = fetchSensorData;
+window.fetchSensorDataWithProxy = fetchSensorDataWithProxy;
+window.updateMarkerColor = updateMarkerColor;
+window.updateMarkerData = updateMarkerData;
+window.initializeMarkers = initializeMarkers;
