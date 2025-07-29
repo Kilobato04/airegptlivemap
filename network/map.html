@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Smability Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no" />
+    
+    <!-- External CSS -->
+    <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+    
+    <!-- Custom CSS -->
+    <link href="assets/css/map.css" rel="stylesheet" />
+    
+    <!-- External JavaScript Libraries -->
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- Chart Panel -->
+    <div id="chartPanel" class="chart-panel" style="display: none;">
+        <div class="chart-panel-header">
+            <button class="chart-panel-close" onclick="closeChartPanel()">×</button>
+            <div class="chart-panel-title"></div>
+            <div class="select-container">
+                <select id="sensorSelect" class="panel-select">
+                    <option value="7">Ozone (ppb)</option>
+                    <option value="2">Carbon Monoxide (ppb)</option>
+                    <option value="9">PM2.5 (μg/m³)</option>
+                    <option value="12">Temperature (°C)</option>
+                    <option value="3">Relative Humidity (%)</option>
+                </select>
+                <select id="timeframeSelect" class="panel-select">
+                    <option value="168">Last 7 days</option>
+                    <option value="24">Last 24 hours</option>
+                    <option value="12">Last 12 hours</option>
+                    <option value="8">Last 8 hours</option>
+                    <option value="4">Last 4 hours</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div id="iasChart"></div>
+        </div>
+        <div class="chart-panel-branding">
+            <small><a href="http://www.smability.io" target="_blank" class="brand-text">smability.io</a></small>
+        </div>
+    </div>
+
+    <!-- AI Float Button -->
+    <a href="https://smability.netlify.app/" target="_blank" class="ai-float-button">
+        <span>AIre</span>
+    </a>
+
+    <!-- JavaScript Modules -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/sensors.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/map.js"></script>
+</body>
+</html>
