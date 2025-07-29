@@ -135,6 +135,36 @@ function createPopupContent(feature, sensorData = null) {
                     </div>
 
                     <div class="reading" style="font-size: 0.85em;">
+                        <span class="reading-label">CO <small>8hr:</small></span>
+                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASCO} ppb</span>
+                    </div>
+
+                    <div class="reading" style="font-size: 0.85em;">
+                        <span class="reading-label">O3 <small>1hr:</small></span>
+                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASO3} ppb</span>
+                    </div>
+
+                    <div class="reading" style="font-size: 0.85em;">
+                        <span class="reading-label">PM10 <small>12hr:</small></span>
+                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASPM10} μg/m³</span>
+                    </div>
+
+                    <div class="reading" style="font-size: 0.85em;">
+                        <span class="reading-label">PM2.5 <small>12hr:</small></span>
+                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASPM2_5} μg/m³</span>
+                    </div>
+
+                    <div class="reading" style="font-size: 0.85em;">
+                        <span class="reading-label">Temperature:</span>
+                        <span class="reading-value" style="font-size: inherit;">${sensorData.temperature} ℃</span>
+                    </div>
+
+                    <div class="reading" style="font-size: 0.85em;">
+                        <span class="reading-label">Relative Humidity:</span>
+                        <span class="reading-value" style="font-size: inherit;">${sensorData.humidity} %</span>
+                    </div>
+
+                    <div class="reading" style="font-size: 0.85em;">
                         <span class="reading-label">Device Mode:</span>
                         <span class="reading-value" style="font-size: inherit;">${translateMode(sensorData.modesensor)}</span>
                     </div>
@@ -234,34 +264,16 @@ function createLegendHTML() {
  */
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-}CO <small>8hr:</small></span>
-                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASCO} ppb</span>
-                    </div>
+}
 
-                    <div class="reading" style="font-size: 0.85em;">
-                        <span class="reading-label">O3 <small>1hr:</small></span>
-                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASO3} ppb</span>
-                    </div>
-
-                    <div class="reading" style="font-size: 0.85em;">
-                        <span class="reading-label">PM10 <small>12hr:</small></span>
-                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASPM10} μg/m³</span>
-                    </div>
-
-                    <div class="reading" style="font-size: 0.85em;">
-                        <span class="reading-label">PM2.5 <small>12hr:</small></span>
-                        <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASPM2_5} μg/m³</span>
-                    </div>
-
-                    <div class="reading" style="font-size: 0.85em;">
-                        <span class="reading-label">Temperature:</span>
-                        <span class="reading-value" style="font-size: inherit;">${sensorData.temperature} ℃</span>
-                    </div>
-
-                    <div class="reading" style="font-size: 0.85em;">
-                        <span class="reading-label">Relative Humidity:</span>
-                        <span class="reading-value" style="font-size: inherit;">${sensorData.humidity} %</span>
-                    </div>
-
-                    <div class="reading" style="font-size: 0.85em;">
-                        <span class="reading-label">
+// ===== CRÍTICO: Hacer funciones disponibles globalmente =====
+// Sin estas líneas, los popups NO funcionarán
+window.getIndicatorColor = getIndicatorColor;
+window.getIASEmoji = getIASEmoji;
+window.translateMode = translateMode;
+window.translateLocation = translateLocation;
+window.formatDateForAPI = formatDateForAPI;
+window.createMarkerElement = createMarkerElement;
+window.createPopupContent = createPopupContent;
+window.createLegendHTML = createLegendHTML;
+window.sleep = sleep;
