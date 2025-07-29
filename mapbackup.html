@@ -1,0 +1,1417 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Smability Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no" />
+        <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" />
+		<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+		<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      .mapboxgl-popup-content {
+        padding: 15px;
+        max-width: 300px;
+      }
+      .monitor-readings {
+        margin-top: 15px;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+      }
+      .reading {
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .reading.ias-reading {
+        margin: 15px 0;
+      }
+      .reading-label {
+        color: #666;
+        font-size: 14px;
+      }
+      .reading-label.ias-label {
+        font-size: 1.5em;
+        color: #000000;  /* Changed to black */
+        font-weight: bold;  /* Added bold */
+      }
+      .reading-value {
+        font-weight: bold;
+        color: #000000;
+        display: flex;
+        align-items: center;
+      }
+      .ias-reading .reading-value {
+        font-size: 1.5em;
+      }
+      .loading { 
+        color: #6b7280; 
+        font-style: italic; 
+      }
+      .status-container {
+          margin: 8px 0;
+        }
+
+        .status-text {
+        font-size: 14px;
+        color: #000000;  /* Black text */
+        margin: 4px 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;  /* Back to left alignment */
+        text-align: left;  /* Ensures text is left-aligned */
+        font-weight: bold;  /* Added bold text */
+      }
+      .indicator {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        margin-right: 12px;
+        display: inline-block;
+        border: 1.5px solid #999;
+      }
+      .marker-pin {
+        cursor: pointer;
+        width: 37.5px;
+        height: 37.5px;
+      }
+      .contact-links {
+  	  margin-top: 10px;
+      display: flex;
+      align-items: center;
+     gap: 8px;
+     }
+
+    .whatsapp-icon {
+    width: 24px;
+    height: 24px;
+    }
+    
+  .legend {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.75);
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    font-size: 11px;
+    z-index: 1;
+    transition: all 0.3s ease;
+    min-width: 150px;
+  	}
+
+  	.legend-content {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  	}
+
+  	.legend.collapsed {
+    min-width: auto;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+  	}
+
+    .legend.collapsed .legend-content {
+      max-height: 0;
+    }
+
+  .legend-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .legend-toggle {
+    border: none;
+    background: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    padding: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000000;  /* Changed to black */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+  }
+
+  .legend.collapsed .legend-toggle {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.75);  /* Matched with legend background */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+
+
+  .legend-title {
+    font-weight: bold;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .legend.collapsed .legend-title {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  .legend-branding {
+    margin-top: 5px;
+    padding-top: 4px;
+    border-top: 0px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .brand-text {
+    font-family: Arial, sans-serif;
+    font-weight: '';
+    color: #888888;
+    font-size: 11px;
+    text-decoration: none;
+  }
+
+  .copyright {
+    color: #888888;
+    font-size: 11px;
+  }
+
+
+  .chart-panel {
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    padding: 16px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+  }
+
+/* Desktop styles */
+@media (min-width: 768px) {
+  .chart-panel {
+    bottom: 20px;
+    right: 20px;
+    width: 600px;
+    height: 400px;
+    border-radius: 12px;
+  }
+  
+  .chart-panel-header {
+    flex-direction: row;
+    height: 40px;
+  }
+  
+  .chart-panel-title {
+    margin-left: 48px;
+    margin-right: 200px; /* Space for dropdowns */
+  }
+  
+  .select-container {
+    position: absolute;
+    right: 16px;
+    top: 12px;
+  }
+}
+
+/* Mobile styles */
+@media (max-width: 765px) {
+  .chart-panel {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 95%;
+    height: 40vh;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .chart-panel-header {
+    flex-direction: column;
+    height: auto;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+  
+  .chart-panel-title {
+    margin-left: 48px;
+    margin-right: 16px;
+    font-size: 13px; /* Slightly smaller font for mobile */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .select-container {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    padding-left: 48px;
+    padding-right: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .panel-select {
+    flex: 1;
+    min-width: 0; /* Allows select to shrink */
+    font-size: 12px; /* Smaller font for mobile */
+  }
+}
+
+  .chart-panel-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  .chart-panel-title {
+    font-family: "Open Sans", Arial, sans-serif;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .chart-panel-close {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
+    transition: all 0.2s ease;
+    z-index: 2;
+	}
+
+  .select-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .chart-container {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    min-height: 0; /* Allows container to shrink */
+  }
+
+  #iasChart {
+    width: 100%;
+    height: 100%;
+  }
+
+  .chart-link {
+    text-decoration: none;
+    color: #666;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 2px solid #e8e8e8;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: rgba(232, 232, 232, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+	}
+
+  .chart-link:hover {
+    background-color: rgba(232, 232, 232, 0.2);
+    border-color: #4264fb;
+    color: #4264fb;
+  	}
+
+  .chart-link span {
+    font-size: 20px;  /* Size for the robot emoji */
+  }
+  
+  .ai-float-button {
+  position: fixed;
+  bottom: 25px;
+  left: 20px;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #4264fb;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  font-family: 'DIN Pro', Arial, sans-serif;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  border: 2px solid white;
+}
+
+  .ai-float-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    background-color: #3251d8;
+  }
+
+  /* Optional animation for the AI text */
+  .ai-float-button span {
+    animation: pulse 2s infinite;
+  }
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+</style>
+ </head>
+  <body>
+    
+    <div id="map"></div>
+    <script>
+      mapboxgl.accessToken = 'pk.eyJ1Ijoia2lsb2JhdG8iLCJhIjoiYTU2YmIyYzZiNjUxOGI5MDQ5YWVmNmRkZDg5ZTQ0NDQifQ.U_W7cH_L3M5l4DZX3fbljA';
+ 
+      const API_URL = 'http://smability.sidtecmx.com/SmabilityAPI/BioBox';
+      const API_TOKENS = {
+        'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
+        'UNAM': '349b1230277f1c67577e4f5bee6ba486',
+        'CENTRUS 3': '3843693a0dc1e3aca614cf3e71976527',
+        'INSYC-Smability':'3d820ec8b5149f835f6c5cc338d247e2'
+      };
+      
+      let currentProxyIndex = 0;
+      let retryCount = 0;
+      const MAX_RETRIES = 3;
+
+      const CORS_PROXIES = [
+          {
+              name: 'allOrigins',
+              url: 'https://api.allorigins.win/raw?url='
+          },
+          {
+              name: 'corsproxy.io',
+              url: 'https://corsproxy.io/?'
+          },
+          {
+              name: 'cors.sh',
+              url: 'https://cors.sh/'
+          },
+          {
+              name: 'thingproxy',
+              url: 'https://thingproxy.freeboard.io/fetch/'
+          },
+          {
+              name: 'proxy.cors.sh',
+              url: 'https://proxy.cors.sh/'
+          }
+      ];
+
+      const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/kilobato/clxo1i3qd02th01qm2op9h1a1',
+        center: [-99.167213, 19.414855],
+        zoom: 12.5
+   
+      });
+      
+      map.addControl(
+        new mapboxgl.GeolocateControl({
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+        
+            trackUserLocation: true,
+            
+            showUserHeading: true
+        	})
+    	);
+    	map.dragRotate.disable();
+    	map.touchZoomRotate.disableRotation();
+    	map.addControl(new mapboxgl.NavigationControl());
+      
+    
+      
+      function getIndicatorColor(value) {
+        if (value <= 50) return { color: '#00ff00', status: 'Good', risk: 'Low' };
+        if (value <= 100) return { color: '#ffff00', status: 'Acceptable', risk: 'Moderate' };
+        if (value <= 150) return { color: '#ff8000', status: 'Bad', risk: 'High' };
+        if (value <= 200) return { color: '#ff0000', status: 'Very Bad', risk: 'Very High' };
+        return { color: '#800080', status: 'Extremely Bad', risk: 'Extremely High' };
+      }
+
+      async function fetchWithCurrentProxy(location) {
+          const proxy = CORS_PROXIES[currentProxyIndex];
+          const token = API_TOKENS[location];
+          const encodedUrl = encodeURIComponent(`${API_URL}?token=${token}`);
+          const proxyUrl = `${proxy.url}${encodedUrl}`;
+          
+          console.log(`Attempting with proxy: ${proxy.name} for location: ${location}`);
+
+          const response = await fetch(proxyUrl, {
+              method: 'GET',
+              headers: {
+                  'Accept': 'application/json'
+              }
+          });
+
+          if (!response.ok) {
+              throw new Error(`Proxy ${proxy.name} failed with status: ${response.status}`);
+          }
+
+          return await response.json();
+      }
+
+      async function fetchSensorData(location) {
+          try {
+              const data = await fetchWithCurrentProxy(location);
+              console.log(`Received data for ${location}:`, data);
+
+              if (!data) {
+                  throw new Error('Empty response received');
+              }
+
+              retryCount = 0;
+              
+              return {
+                  dataIAS: parseFloat(data.DataIAS || data.dataIAS || data.data_ias) || 'N/A',
+                  temperature: parseFloat(data.Temperature || data.temperature || data.temp) || 'N/A',
+                  humidity: parseFloat(data.Humidity || data.humidity) || 'N/A',
+                  sensorIAS: data.SensorIAS || 'N/A',
+                  concentracionIASCO: parseFloat(data.ConcentracionIASCO) || 'N/A',
+                  concentracionIASO3: parseFloat(data.ConcentracionIASO3) || 'N/A',
+                  concentracionIASPM10: parseFloat(data.ConcentracionIASPM10) || 'N/A',
+                  concentracionIASPM2_5: parseFloat(data.ConcentracionIASPM2_5) || 'N/A',
+                  modesensor: data.ModeSensor || 'N/A',
+                  locationsensor: data.LocationSensor || 'N/A'
+              };
+
+          } catch (error) {
+              console.error(`Error fetching sensor data for ${location}:`, error);
+              
+              if (retryCount < MAX_RETRIES) {
+                  retryCount++;
+                  console.log(`Retry ${retryCount}/${MAX_RETRIES} with current proxy...`);
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  return fetchSensorData(location);
+              } else {
+                  retryCount = 0;
+                  currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+                  console.log(`Switching to next proxy: ${CORS_PROXIES[currentProxyIndex].name}`);
+                  return fetchSensorData(location);
+              }
+          }
+      }
+      
+ //Add background color pop up    
+      function createPopupContent(feature, sensorData = null) {
+  const baseContent = `
+    <h3>Name: ${feature.properties.name}</h3>
+    <p>Key: ${feature.properties.key} - Entity: ${feature.properties.entity}</p>
+    <p>Parameter: ${feature.properties.parameter}</p>
+  `;
+
+  if (feature.properties.name === 'Hipódromo' || feature.properties.name === 'UNAM'|| feature.properties.name === 'CENTRUS 3'|| feature.properties.name === 'INSYC-Smability') {
+    if (sensorData === null) {
+      return baseContent + '<p class="loading">Loading sensor data...</p>';
+    }
+
+    const { color, status, risk } = getIndicatorColor(sensorData.dataIAS);
+    const translateMode = (mode) => mode === 'Fijo' ? 'Fix' : mode;
+    const translateLocation = (location) => location === 'Exterior' ? 'Outdoors' : location;
+
+    // Function to get emoji based on IAS value
+    const getIASEmoji = (value) => {
+      if (value <= 50) return '😊';  // Smiling face for Good
+      if (value <= 100) return '😐';  // Neutral face for Acceptable
+      if (value <= 150) return '😷';  // Face with mask for Bad
+      if (value <= 200) return '😨';  // Fearful face for Very Bad
+      return '😱';  // Face screaming in fear for Extremely Bad
+    };
+
+    const emoji = getIASEmoji(sensorData.dataIAS);
+
+    return `
+      <div style="background-color: ${color}33; padding: 15px; border-radius: 10px;">
+        ${baseContent}
+        <div class="monitor-readings">
+          <div class="reading ias-reading">
+            <span class="reading-label ias-label">IAS:</span>
+            <span class="reading-value" style="display: flex; align-items: center; gap: 2px;">
+              <span style="font-size: 22px; line-height: 1;">${emoji}</span>
+              <span class="indicator" style="background-color: ${color}"></span>
+              ${sensorData.dataIAS}
+            </span>
+          </div>
+          
+          <div class="status-container">
+            <p class="status-text">Status: ${status}</p>
+            <p class="status-text">Risk: ${risk}</p>
+          </div>
+
+          <div class="reading" style="font-size: 0.9em;">
+            <span class="reading-label">Dominant Pollutant:</span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.sensorIAS}</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">CO <small>8hr:</small></span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASCO} ppb</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">O3 <small>1hr:</small></span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASO3} ppb</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">PM10 <small>12hr:</small></span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASPM10} μg/m³</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">PM2.5 <small>12hr:</small></span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.concentracionIASPM2_5} μg/m³</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">Temperature:</span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.temperature} ℃</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">Relative Humidity:</span>
+            <span class="reading-value" style="font-size: inherit;">${sensorData.humidity} %</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">Device Mode:</span>
+            <span class="reading-value" style="font-size: inherit;">${translateMode(sensorData.modesensor)}</span>
+          </div>
+
+          <div class="reading" style="font-size: 0.85em;">
+            <span class="reading-label">Device Location:</span>
+            <span class="reading-value" style="font-size: inherit;">${translateLocation(sensorData.locationsensor)}</span>
+          </div>
+      
+          <div class="reading" style="margin-top: 4px; width: 100%;">
+            <a href="#" class="chart-link" onclick="toggleChartPanel(event, '${feature.properties.name}')">
+              📊 View Historical Data
+            </a>
+          </div>
+        </div>
+
+        <div class="contact-links" style="flex-direction: column; align-items: flex-start;">
+          <a href="https://wa.me/525519566483" target="_blank" style="text-decoration: none; width: 100%;">
+            <div style="margin-top: 4px; display: flex; align-items: center; gap: 8px; border: 2px solid #25D366; padding: 8px; border-radius: 8px; background-color: rgba(37, 211, 102, 0.1); cursor: pointer; transition: background-color 0.2s;">
+              <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="#25D366">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              <span style="font-size: 0.9em; color: #666;">Chat with AIre - Your AirBot Quality Assistant</span>
+            </div>
+          </a>
+          <div style="margin-top: 8px;">
+            <small>Last updated: ${new Date().toLocaleTimeString()}</small>
+            <br>
+            <small><a href="http://www.smability.io" target="_blank" class="brand-text">smability.io</a></small>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  return baseContent;
+}
+
+    const legendContainer = document.createElement('div');
+    legendContainer.className = 'legend';
+    legendContainer.innerHTML = `
+    
+    
+    <div class="legend-header">
+      <button class="legend-toggle">−</button>
+      <div class="legend-title">Air Quality Index (IAS)</div>
+    </div>
+    <div class="legend-content">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #00ff00"></div>
+        <span>Good (0-50)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ffff00"></div>
+        <span>Acceptable (51-100)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ff8000"></div>
+        <span>Bad (101-150)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #ff0000"></div>
+        <span>Very Bad (151-200)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: #800080"></div>
+        <span>Extremely Bad (>201)</span>
+      </div>
+      <div style="margin: 10px 0;">
+        <button id="toggleOffMarkers" style="
+          width: 100%; 
+          padding: 5px; 
+          border: 1px solid #ccc; 
+          border-radius: 4px; 
+          background: #e2e2e2; 
+          color: #333;
+          cursor: pointer; 
+          font-size: 11px; 
+          transition: all 0.3s ease;
+          font-weight: 500;">
+          SIMAT Network
+        </button>
+      </div>
+      <div class="legend-branding">
+        <a href="http://www.smability.io" target="_blank" class="brand-text">smability.io</a>
+        <span class="copyright"></span>
+      </div>
+    </div>
+`;
+
+  document.getElementById('map').appendChild(legendContainer);
+      const legendToggle = legendContainer.querySelector('.legend-toggle');
+  legendToggle.addEventListener('click', () => {
+    legendContainer.classList.toggle('collapsed');
+    legendToggle.textContent = legendContainer.classList.contains('collapsed') ? '+' : '−';
+  });
+
+    let offMarkersVisible = true;
+    document.getElementById('toggleOffMarkers').addEventListener('click', () => {
+        offMarkersVisible = !offMarkersVisible;
+    
+    // Toggle visibility of the circle layer
+    const visibility = offMarkersVisible ? 'visible' : 'none';
+    map.setFilter('smaa_network', offMarkersVisible ? 
+        null : 
+        ['in', ['get', 'name'], ['literal', ['Hipódromo', 'UNAM', 'CENTRUS 3','INSYC-Smability']]]
+    );
+
+    
+    // Update button text
+    const button = document.getElementById('toggleOffMarkers');
+    if (offMarkersVisible) {
+        button.style.backgroundColor = '#4264fb';
+        button.style.color = '#ffffff';
+        button.style.borderColor = '#4264fb';
+    } else {
+        button.style.backgroundColor = '#e2e2e2';
+        button.style.color = '#333';
+        button.style.borderColor = '#ccc';
+        }
+    });
+	
+    //update 0.0
+
+    
+	map.on('load', async () => {
+        map.addSource('simat_centrus_2024', {
+          'type': 'vector',
+          'url': 'mapbox://kilobato.clxnxjdmp10lc1prmk88qghyw-9frgp'
+        })
+    
+    //EndCode Update 0
+    
+    //StartCode Update 1
+	map.addLayer({
+          'id': 'smaa_network',
+          'type': 'circle',
+          'source': 'simat_centrus_2024',
+          'source-layer': 'simat_centrus_2024',
+          'paint': {
+    		'circle-color': [
+    		  'case',
+      		 [
+       		 'any',
+       		 ['==', ['get', 'name'], 'Hipódromo'],
+       		 ['==', ['get', 'name'], 'UNAM'],
+             ['==', ['get', 'name'], 'CENTRUS 3'],
+             ['==', ['get', 'name'], 'INSYC-Smability'],
+      		],
+      		'#4264fb', // Color for "Hipódromo" and "UNAM"
+      		'gray'    // Color for others
+    		],
+            'circle-radius': 9,
+            'circle-stroke-width': 1.7,
+            'circle-stroke-color': '#ffffff'
+          }
+        });
+    // StarCode text 1
+          map.addLayer({
+        'id': 'smaa_network_labels',
+        'type': 'symbol',
+        'source': 'simat_centrus_2024',
+        'source-layer': 'simat_centrus_2024',
+        'layout': {
+          'text-field': [
+            'case',
+            ['in', ['get', 'name'], ['literal', ['Hipódromo', 'UNAM','CENTRUS 3','INSYC-Smability']]],
+            'ON', // If name is "Hipodrómo" or "UNAM"
+            '' // Otherwise
+          ],
+          'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 8,
+          'text-allow-overlap': true,
+          'text-ignore-placement': true
+        },
+        'paint': {
+          'text-color': '#FFFFFF'
+        }
+      });
+    
+    async function updateSourceData(location) {
+      if (!map.getSource('simat_centrus_2024')) return;
+
+      try {
+        const sensorData = await fetchSensorData(location);
+        const features = map.querySourceFeatures('simat_centrus_2024', {
+          sourceLayer: 'simat_centrus_2024'
+        });
+    
+        features.forEach(feature => {
+          if (feature.properties.name === location && typeof sensorData.dataIAS === 'number') {
+            feature.properties.dataIAS = sensorData.dataIAS;
+            map.setFeatureState(
+              { source: 'simat_centrus_2024', id: feature.id },
+              { dataIAS: sensorData.dataIAS }
+            );
+          }
+        });
+      } catch (error) {
+        console.error(`Error updating source data for ${location}:`, error);
+      }
+    }
+        // Initialize markers for API locations
+        map.on('sourcedata', e => {
+          if (e.sourceId === 'simat_centrus_2024' && e.isSourceLoaded) {
+            const features = map.querySourceFeatures('simat_centrus_2024', {
+              sourceLayer: 'simat_centrus_2024'
+            });
+            
+            features.forEach(feature => {
+              if (feature.properties.name === 'Hipódromo' || feature.properties.name === 'UNAM' || feature.properties.name === 'CENTRUS 3' || feature.properties.name === 'INSYC-Smability') {
+                if (!markers.has(feature.properties.name)) {
+                  const el = createMarkerElement('#4264fb', '');
+                  const marker = new mapboxgl.Marker({ element: el })
+                    .setLngLat(feature.geometry.coordinates)
+                    .addTo(map);
+                  markers.set(feature.properties.name, marker);
+                }
+              }
+            });
+            
+            // Initial update of marker data
+            updateMarkerData();
+          }
+        });
+
+        // Set up the refresh interval
+        setInterval(updateMarkerData, 3000);
+  
+  	//EndCode Update 2
+    
+     	map.on('sourcedata', e => {
+        	if (e.sourceId === 'simat_centrus_2024' && e.isSourceLoaded) {
+         	 const features = map.querySourceFeatures('simat_centrus_2024', {
+            sourceLayer: 'simat_centrus_2024'
+         	 });
+          initializeMarkers(features);
+        	}
+      	});
+    
+        try {
+          const features = map.querySourceFeatures('simat_centrus_2024');
+          
+          if (!features || features.length === 0) {
+            console.error('No features found in the dataset. Please check if the dataset is properly loaded.');
+            return;
+          }
+//add sensor name - token
+          features.forEach(feature => {
+            if (feature.properties.name === 'Hipódromo' || feature.properties.name === 'UNAM' || feature.properties.name === 'CENTRUS 3' || feature.properties.name === 'INSYC-Smability') {
+              const el = createMarkerElement('#cccccc');
+              const marker = new mapboxgl.Marker({ element: el })
+                .setLngLat(feature.geometry.coordinates)
+                .addTo(map);
+              
+              markers.set(feature.properties.name, marker);
+              updateMarkerColor(feature.properties.name);
+            }
+          });
+        } catch (error) {
+          console.error('Error loading map features:', error);
+        }
+      });
+
+	map.on('click','smaa_network', async (event) => {
+    const features = map.queryRenderedFeatures(event.point, {
+      layers: ['smaa_network']
+    });
+    
+        if (!features.length) {
+          return;
+        }
+
+        const feature = features[0];
+        const popup = new mapboxgl.Popup({ offset: [0, -15] })
+          .setLngLat(feature.geometry.coordinates);
+//add sensor name - token
+        if (feature.properties.name === 'Hipódromo' || feature.properties.name === 'UNAM' || 			feature.properties.name === 'CENTRUS 3'|| 			feature.properties.name === 'INSYC-Smability') {
+          popup.setHTML(createPopupContent(feature, null)).addTo(map);
+          const sensorData = await fetchSensorData(feature.properties.name);
+          popup.setHTML(createPopupContent(feature, sensorData));
+          updateMarkerColor(feature.properties.name);
+        } else {
+          popup.setHTML(createPopupContent(feature)).addTo(map);
+        }
+      });
+
+        setInterval(async () => {
+         updateMarkerData();
+
+        const visiblePopups = document.querySelectorAll('.mapboxgl-	popup');
+         if (visiblePopups.length > 0) {
+        const features = 	map.queryRenderedFeatures(visiblePopups[0].getBoundingClientRect(), {
+          layers: ['simat_centrus_2024']
+        });
+    
+          if (features.length && (features[0].properties.name === 	'Hipódromo' || features[0].properties.name === 'UNAM' || features[0].properties.name === 'CENTRUS 3'|| features[0].properties.name === 'INSYC-Smability' )) {
+            const sensorData = await 	fetchSensorData(features[0].properties.name);
+            visiblePopups[0]._content.innerHTML = createPopupContent(features[0], sensorData);
+          }
+        }
+      }, 3000);
+
+    //-----
+    function toggleChartPanel(event, location) {
+      event.preventDefault();
+      const panel = document.getElementById('chartPanel');
+      const title = panel.querySelector('.chart-panel-title');
+
+      if (panel.style.display === 'none' || !panel.style.display) {
+        panel.style.display = 'block';
+        title.textContent = `Historical Data for ${location}`;
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    function closeChartPanel() {
+      const panel = document.getElementById('chartPanel');
+      panel.style.display = 'none';
+    }
+    </script>
+    
+     <div id="chartPanel" class="chart-panel" style="display: none;">
+  <div class="chart-panel-header">
+    <button class="chart-panel-close" onclick="closeChartPanel()">×</button>
+    <div class="chart-panel-title"></div>
+    <div class="select-container">
+      <select id="sensorSelect" class="panel-select">
+        <option value="7">Ozone (ppb)</option>
+        <option value="2">Carbon Monoxide (ppb)</option>
+        <option value="9">PM2.5 (μg/m³)</option>
+        <option value="12">Temperature (°C)</option>
+        <option value="3">Relative Humidity (%)</option>
+      </select>
+      <select id="timeframeSelect" class="panel-select">
+        <option value="168">Last 7 days</option>
+        <option value="24">Last 24 hours</option>
+        <option value="12">Last 12 hours</option>
+        <option value="8">Last 8 hours</option>
+        <option value="4">Last 4 hours</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="chart-container">
+    <div id="iasChart"></div>
+  </div>
+  <div class="chart-panel-branding" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 16px 16px;">
+  <small><a href="http://www.smability.io" target="_blank" class="brand-text" style="margin-left: auto;">smability.io</a></small>
+</div>
+</div>
+
+   <script>
+// Define sensor configurations
+const SENSOR_CONFIG = {
+  '12': { name: 'Temperature', units: '°C', color: '#4264fb' },
+  '2': { name: 'Carbon Monoxide', units: 'ppb', color: '#ff7043' },
+  '3': { name: 'Relative Humidity', units: '%', color: '#4caf50' },
+  '7': { name: 'Ozone', units: 'ppb', color: '#9c27b0' },
+  '9': { name: 'PM2.5', units: 'μg/m³', color: '#ff9800' }
+};
+
+function formatDateForAPI(date) {
+  const pad = (num) => String(num).padStart(2, '0');
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+async function fetchSensorDataWithProxy(hours = 24, sensorId = '12') {
+  const endDate = new Date();
+  const startDate = new Date(endDate);
+  startDate.setHours(endDate.getHours() - hours);
+
+  const startDateStr = formatDateForAPI(startDate);
+  const endDateStr = formatDateForAPI(endDate);
+
+  console.log(`Fetching ${SENSOR_CONFIG[sensorId].name} data for last ${hours} hours`);
+  console.log('Start date:', startDateStr);
+  console.log('End date:', endDateStr);
+
+  const baseUrl = 'http://smability.sidtecmx.com/SmabilityAPI/GetData';
+  const params = new URLSearchParams({
+    token: '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
+    idSensor: sensorId,
+    dtStart: startDateStr,
+    dtEnd: endDateStr
+  });
+
+  const apiUrl = `${baseUrl}?${params.toString()}`;
+  let currentRetryCount = 0;
+
+  while (currentRetryCount < MAX_RETRIES) {
+    try {
+      const proxy = CORS_PROXIES[currentProxyIndex];
+      const proxyUrl = `${proxy.url}${encodeURIComponent(apiUrl)}`;
+      
+      const response = await fetch(proxyUrl, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (!Array.isArray(data)) {
+        throw new Error('API response is not an array');
+      }
+
+      return data.map(item => ({
+        timestamp: new Date(item.TimeStamp),
+        value: parseFloat(item.Data)
+      })).filter(item => !isNaN(item.value));
+
+    } catch (error) {
+      console.error(`Attempt ${currentRetryCount + 1} failed:`, error);
+      currentRetryCount++;
+      
+      if (currentRetryCount === MAX_RETRIES) {
+        currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+        currentRetryCount = 0;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
+  return null;
+}
+
+//------
+function updateChart(formattedData, hours, sensorId) {
+  const sensorConfig = SENSOR_CONFIG[sensorId];
+
+  if (!formattedData || formattedData.length === 0) {
+    Plotly.newPlot('iasChart', [{
+      type: 'scatter',
+      y: [0],
+      name: 'No data available'
+    }], {
+      title: `No ${sensorConfig.name} data available`
+    });
+    return;
+  }
+
+  formattedData.sort((a, b) => a.timestamp - b.timestamp);
+
+  const trace = {
+    x: formattedData.map(item => item.timestamp),
+    y: formattedData.map(item => item.value),
+    type: 'scatter',
+    mode: 'lines+markers',
+    line: {
+      color: sensorConfig.color,
+      width: 2,
+      shape: 'linear'
+    },
+    marker: {
+      color: sensorConfig.color,
+      size: 1,
+      line: {
+        color: 'white',
+        width: 0
+      }
+    },
+    hovertemplate: `<b>Time</b>: %{x|%H:%M}<br>` +
+                   `<b>${sensorConfig.name}</b>: %{y:.1f} ${sensorConfig.units}<br>` +
+                   '<extra></extra>'
+  };
+
+//---
+const layout = {
+    margin: {
+      t: 50,
+      r: 20,
+      l: 50,
+      b: 60
+    },
+    yaxis: {
+      title: {
+        text: sensorConfig.units,
+        standoff: 3,
+        font: { size: 10 }
+      },
+      zeroline: false,
+      showgrid: true,
+      gridcolor: '#E4E4E4',
+      gridwidth: 1,
+      tickfont: { size: 8 }
+    },
+    xaxis: {
+      type: 'date',
+      tickformat: '%H:%M\n%b %d',
+      tickangle: -90,
+      showgrid: true,
+      gridcolor: '#E4E4E4',
+      dtick: hours >= 168 ? 86400000 : // 1 day intervals for 7-day view
+             window.innerWidth < 768 ? 7200000 : 3600000, // Adjust for other timeframes
+      tickfont: { size: 8 }
+    },
+    plot_bgcolor: '#FFFFFF',
+    paper_bgcolor: '#FFFFFF',
+    title: {
+      text: `${sensorConfig.name} Last ${hours >= 24 ? Math.floor(hours/24) + ' Days' : hours + ' Hours'}`,
+      font: {
+        size: window.innerWidth < 768 ? 10 : 12
+      },
+      y: 0.95,
+      xref: 'paper',
+      x: 0
+    },
+    modebar: {
+      orientation: window.innerWidth < 768 ? 'v' : 'h'
+    }
+};
+//----
+  const config = {
+    responsive: true,
+    displayModeBar: true,
+    modeBarButtonsToAdd: ['autoScale2d'],
+    modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
+    displaylogo: false,
+    toImageButtonOptions: {
+      format: 'png',
+      filename: `${sensorConfig.name.toLowerCase()}_chart`,
+      height: 800,
+      width: 1200,
+      scale: 2
+    }
+  };
+
+  Plotly.newPlot('iasChart', [trace], layout, config);
+}
+
+//----
+
+let currentLocation = null;
+let timeframeListener = null;
+let sensorListener = null;
+
+function toggleChartPanel(event, location) {
+  event.preventDefault();
+
+  const locationTokens = {
+    'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
+    'UNAM': '349b1230277f1c67577e4f5bee6ba486',
+    'CENTRUS 3': '3843693a0dc1e3aca614cf3e71976527',
+    'INSYC-Smability': '3d820ec8b5149f835f6c5cc338d247e2'
+  };
+
+  if (!locationTokens[location]) {
+    console.log('Sensor data not available for this station');
+    return;
+  }
+
+  const panel = document.getElementById('chartPanel');
+  const title = panel.querySelector('.chart-panel-title');
+  const timeframeSelect = document.getElementById('timeframeSelect');
+  const sensorSelect = document.getElementById('sensorSelect');
+
+  // Remove existing event listeners if they exist
+  if (timeframeListener) {
+    timeframeSelect.removeEventListener('change', timeframeListener);
+  }
+  if (sensorListener) {
+    sensorSelect.removeEventListener('change', sensorListener);
+  }
+
+  if (panel.style.display === 'none' || !panel.style.display) {
+    panel.style.display = 'flex';
+    title.textContent = `SMAA ${location}`;
+    currentLocation = location; // Store current location
+
+    // Show loading state
+    Plotly.newPlot('iasChart', [{
+    type: 'scatter',
+    y: [0],
+    name: 'Loading...',
+    font: {
+        family: 'Arial, sans-serif'
+    }
+	}], {
+    title: {
+        text: 'Loading sensor data...',
+        font: {
+            family: 'Arial, sans-serif',
+            size: 12
+        }
+    }
+	});
+
+    async function fetchSensorDataWithProxy(hours = 24, sensorId = '12') {
+      const endDate = new Date();
+      const startDate = new Date(endDate);
+      startDate.setHours(endDate.getHours() - hours);
+
+      const startDateStr = formatDateForAPI(startDate);
+      const endDateStr = formatDateForAPI(endDate);
+
+      console.log(`Fetching ${SENSOR_CONFIG[sensorId].name} data for ${currentLocation} - last ${hours} hours`);
+      console.log('Start date:', startDateStr);
+      console.log('End date:', endDateStr);
+
+      const baseUrl = 'http://smability.sidtecmx.com/SmabilityAPI/GetData';
+      const params = new URLSearchParams({
+        token: locationTokens[currentLocation], // Use current location's token
+        idSensor: sensorId,
+        dtStart: startDateStr,
+        dtEnd: endDateStr
+      });
+
+      const apiUrl = `${baseUrl}?${params.toString()}`;
+      let currentRetryCount = 0;
+
+      while (currentRetryCount < MAX_RETRIES) {
+        try {
+          const proxy = CORS_PROXIES[currentProxyIndex];
+          const proxyUrl = `${proxy.url}${encodeURIComponent(apiUrl)}`;
+          
+          const response = await fetch(proxyUrl, {
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          
+          if (!Array.isArray(data)) {
+            throw new Error('API response is not an array');
+          }
+
+          return data.map(item => ({
+            timestamp: new Date(item.TimeStamp),
+            value: parseFloat(item.Data)
+          })).filter(item => !isNaN(item.value));
+
+        } catch (error) {
+          console.error(`Attempt ${currentRetryCount + 1} failed:`, error);
+          currentRetryCount++;
+          
+          if (currentRetryCount === MAX_RETRIES) {
+            currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+            currentRetryCount = 0;
+          }
+          
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+      return null;
+    }
+
+    // Function to update data based on current selections
+    const updateData = () => {
+      // Only proceed if we're still looking at the same location
+      if (location !== currentLocation) {
+        return;
+      }
+
+      const hours = parseInt(timeframeSelect.value);
+      const sensorId = sensorSelect.value;
+
+      Plotly.newPlot('iasChart', [{
+      type: 'scatter',
+      y: [0],
+      name: 'Loading...',
+      font: {
+          family: 'Arial, sans-serif'
+      }
+  }], {
+      title: {
+          text: `Loading ${SENSOR_CONFIG[sensorId].name} data for ${currentLocation}...`,
+          font: {
+              family: 'Arial, sans-serif',
+              size: 12
+          }
+      }
+  });
+
+      fetchSensorDataWithProxy(hours, sensorId)
+        .then(data => {
+          // Check again if location hasn't changed before updating
+          if (location === currentLocation) {
+            updateChart(data, hours, sensorId);
+          }
+        })
+        .catch(error => {
+          if (location === currentLocation) {
+            console.error('Error loading data:', error);
+            Plotly.newPlot('iasChart', [{
+              type: 'scatter',
+              y: [0],
+              name: 'Error',
+              font: {
+        		family: 'Arial, sans-serif'
+    		}
+            }], {
+              title: 'Error loading sensor data: ' + error.message,
+              font: {
+            family: 'Arial, sans-serif',
+            size: 12
+        	}
+            });
+          }
+        });
+    };
+
+    // Create new event listeners
+    timeframeListener = () => updateData();
+    sensorListener = () => updateData();
+
+    // Add new event listeners
+    timeframeSelect.addEventListener('change', timeframeListener);
+    sensorSelect.addEventListener('change', sensorListener);
+
+    // Reset select elements to default values when switching locations
+    timeframeSelect.value = '24';
+    sensorSelect.value = '12';
+
+    // Initial data load
+    updateData();
+  } else {
+    if (location === currentLocation) {
+      closeChartPanel();
+    } else {
+      // If switching to a different location while panel is open,
+      // update the title and load new data
+      title.textContent = `SMAA ${location}`;
+      currentLocation = location;
+      
+      // Reset select elements
+      timeframeSelect.value = '24';
+      sensorSelect.value = '12';
+      
+      // Load new data
+      timeframeListener();
+    }
+  }
+}
+
+// Update close chart panel function
+function closeChartPanel() {
+  const panel = document.getElementById('chartPanel');
+  panel.style.display = 'none';
+  currentLocation = null;
+
+  // Remove event listeners
+  const timeframeSelect = document.getElementById('timeframeSelect');
+  const sensorSelect = document.getElementById('sensorSelect');
+  
+  if (timeframeListener) {
+    timeframeSelect.removeEventListener('change', timeframeListener);
+    timeframeListener = null;
+  }
+  if (sensorListener) {
+    sensorSelect.removeEventListener('change', sensorListener);
+    sensorListener = null;
+  }
+}
+
+// Handle window resize
+window.addEventListener('resize', () => {
+  if (document.getElementById('chartPanel').style.display !== 'none') {
+    const hours = parseInt(document.getElementById('timeframeSelect').value);
+    const sensorId = document.getElementById('sensorSelect').value;
+    Plotly.Plots.resize('iasChart');
+    updateChart(currentData, hours, sensorId); // You'll need to store currentData globally
+  }
+});
+	</script>    
+  <a href="https://smability.netlify.app/" target="_blank" class="ai-float-button">
+  <span>AIre</span>
+</a>
+  </body>
+</html>
