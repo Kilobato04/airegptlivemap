@@ -77,7 +77,7 @@ setTimeout(() => {
         legendContainer.className = 'legend';
         legendContainer.innerHTML = createLegendHTML();
         document.getElementById('map').appendChild(legendContainer);
-
+    
         // Legend toggle functionality
         const legendToggle = legendContainer.querySelector('.legend-toggle');
         if (legendToggle) {
@@ -86,7 +86,7 @@ setTimeout(() => {
                 legendToggle.textContent = legendContainer.classList.contains('collapsed') ? '+' : '−';
             });
         }
-
+    
         // SIMAT Network toggle functionality
         const toggleButton = document.getElementById('toggleOffMarkers');
         if (toggleButton) {
@@ -108,6 +108,48 @@ setTimeout(() => {
                     toggleButton.style.backgroundColor = '#e2e2e2';
                     toggleButton.style.color = '#333';
                     toggleButton.style.borderColor = '#ccc';
+                }
+            });
+        }
+    
+        // Smability Network toggle functionality (NUEVO)
+        const smabilityToggleButton = document.getElementById('toggleSmabilityMarkers');
+        if (smabilityToggleButton) {
+            let smabilityVisible = true;
+            
+            smabilityToggleButton.addEventListener('click', () => {
+                smabilityVisible = !smabilityVisible;
+                
+                // Toggle visibility of active stations (Smability Network)
+                if (smabilityVisible) {
+                    // Show Smability stations - restore normal filter behavior
+                    map.setFilter('smaa_network', offMarkersVisible ? null : ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]);
+                    // Show IAS labels and station labels
+                    map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
+                    map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
+                } else {
+                    // Hide Smability stations (active ones) but keep SIMAT visible if toggled on
+                    const currentFilter = offMarkersVisible ? 
+                        ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]] : 
+                        ['all', 
+                            ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
+                            ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]
+                        ];
+                    map.setFilter('smaa_network', currentFilter);
+                    // Hide IAS labels and station labels
+                    map.setLayoutProperty('smaa_network_ias', 'visibility', 'none');
+                    map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
+                }
+                
+                // Update button style
+                if (smabilityVisible) {
+                    smabilityToggleButton.style.backgroundColor = '#4264fb';
+                    smabilityToggleButton.style.color = '#ffffff';
+                    smabilityToggleButton.style.borderColor = '#4264fb';
+                } else {
+                    smabilityToggleButton.style.backgroundColor = '#e2e2e2';
+                    smabilityToggleButton.style.color = '#333';
+                    smabilityToggleButton.style.borderColor = '#ccc';
                 }
             });
         }
