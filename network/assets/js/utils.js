@@ -4,7 +4,7 @@ function getIndicatorColor(value) {
     if (value <= 150) return { color: '#ff8000', status: 'Bad', risk: 'High' };
     if (value <= 200) return { color: '#ff0000', status: 'Very Bad', risk: 'Very High' };
     return { color: '#800080', status: 'Extremely Bad', risk: 'Extremely High' };
-}
+} 
 
 function getIASEmoji(value) {
     if (value <= 50) return '😊';
