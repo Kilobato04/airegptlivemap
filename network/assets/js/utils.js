@@ -143,7 +143,7 @@ function createPopupContent(feature, sensorData) {
 
             // Historical Data Link
             html += '<div class="reading" style="margin-top: 4px; width: 100%;">';
-            html += '<a href="#" class="chart-link" onclick="alert(\'Historical data feature coming soon\')">';
+            html += '<a href="#" class="chart-link" onclick="toggleChartPanel(event, \'' + feature.properties.name + '\')">';
             html += '📊 View Historical Data';
             html += '</a>';
             html += '</div>';
@@ -211,6 +211,25 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * Toggle chart panel
+ */
+function toggleChartPanel(event, location) {
+    event.preventDefault();
+    
+    if (!API_CONFIG.tokens[location]) {
+        alert('Historical data not available for this station');
+        return;
+    }
+    
+    alert('Historical data for ' + location + ' - Feature coming soon!');
+    // TODO: Implement full chart functionality
+}
+
+// Make function available globally
+window.toggleChartPanel = toggleChartPanel;
+
+
 // Make functions globally available
 window.getIndicatorColor = getIndicatorColor;
 window.getIASEmoji = getIASEmoji;
@@ -222,3 +241,4 @@ window.createLegendHTML = createLegendHTML;
 window.sleep = sleep;
 
 console.log('Utils loaded successfully');
+
