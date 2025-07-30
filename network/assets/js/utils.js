@@ -80,70 +80,79 @@ function createPopupContent(feature, sensorData) {
             html += '<p class="status-text">Risk: ' + result.risk + '</p>';
             html += '</div>';
 
-            // Dominant Pollutant
-            if (sensorData.sensorIAS && sensorData.sensorIAS !== 'N/A') {
+            // Dominant Pollutant - Enhanced with new API data
+            const dominantPollutant = sensorData.SensorIAS || sensorData.sensorIAS;
+            if (dominantPollutant && dominantPollutant !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.9em;">';
                 html += '<span class="reading-label">Dominant Pollutant:</span>';
-                html += '<span class="reading-value">' + sensorData.sensorIAS + '</span>';
+                html += '<span class="reading-value">' + dominantPollutant + '</span>';
                 html += '</div>';
             }
 
-            // Pollutant Concentrations
-            if (sensorData.concentracionIASCO && sensorData.concentracionIASCO !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">CO <small>8hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASCO + ' ppb</span>';
-                html += '</div>';
-            }
+            // Pollutant Concentrations - Enhanced with new API data
+            const co8hr = sensorData.ConcentrationIASCO_8hr || sensorData.CO_1hr || sensorData.concentracionIASCO || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">CO 8hr:</span>';
+            html += '<span class="reading-value">' + co8hr + (co8hr !== 'N/A' && !co8hr.includes('ppb') ? ' ppb' : '') + '</span>';
+            html += '</div>';
 
-            if (sensorData.concentracionIASO3 && sensorData.concentracionIASO3 !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">O3 <small>1hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASO3 + ' ppb</span>';
-                html += '</div>';
-            }
+            const o31hr = sensorData.ConcentrationIASO3_1hr || sensorData.O3_1hr || sensorData.concentracionIASO3 || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">O3 1hr:</span>';
+            html += '<span class="reading-value">' + o31hr + (o31hr !== 'N/A' && !o31hr.includes('ppb') ? ' ppb' : '') + '</span>';
+            html += '</div>';
 
-            if (sensorData.concentracionIASPM10 && sensorData.concentracionIASPM10 !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">PM10 <small>12hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASPM10 + ' μg/m³</span>';
-                html += '</div>';
-            }
+            const pm10 = sensorData.ConcentrationIASPM10_12hr || sensorData.PM10_1hr || sensorData.concentracionIASPM10 || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">PM10 12hr:</span>';
+            html += '<span class="reading-value">' + pm10 + (pm10 !== 'N/A' && !pm10.includes('μg/m³') && !pm10.includes('ug/m3') ? ' μg/m³' : '') + '</span>';
+            html += '</div>';
 
-            if (sensorData.concentracionIASPM2_5 && sensorData.concentracionIASPM2_5 !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">PM2.5 <small>12hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASPM2_5 + ' μg/m³</span>';
-                html += '</div>';
-            }
+            const pm25 = sensorData.ConcentrationIASPM2_5_12hr || sensorData.PM2_5_1hr || sensorData.concentracionIASPM2_5 || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">PM2.5 12hr:</span>';
+            html += '<span class="reading-value">' + pm25 + (pm25 !== 'N/A' && !pm25.includes('μg/m³') && !pm25.includes('ug/m3') ? ' μg/m³' : '') + '</span>';
+            html += '</div>';
 
-            // Environmental Conditions
-            if (sensorData.temperature && sensorData.temperature !== 'N/A') {
+            // Environmental Conditions - Enhanced with new API data
+            const temperature = sensorData.Temp_1hr || sensorData.temperature;
+            if (temperature && temperature !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Temperature:</span>';
-                html += '<span class="reading-value">' + sensorData.temperature + ' ℃</span>';
+                html += '<span class="reading-value">' + temperature + (temperature.includes('°') ? '' : ' ℃') + '</span>';
                 html += '</div>';
             }
 
-            if (sensorData.humidity && sensorData.humidity !== 'N/A') {
+            const humidity = sensorData.HR_1hr || sensorData.humidity;
+            if (humidity && humidity !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Relative Humidity:</span>';
-                html += '<span class="reading-value">' + sensorData.humidity + ' %</span>';
+                html += '<span class="reading-value">' + humidity + (humidity.includes('%') ? '' : ' %') + '</span>';
                 html += '</div>';
             }
 
-            // Device Information
-            if (sensorData.modesensor && sensorData.modesensor !== 'N/A') {
+            // Device Information - Enhanced with new API data
+            const deviceMode = sensorData.ModeSensor || sensorData.modesensor;
+            if (deviceMode && deviceMode !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Device Mode:</span>';
-                html += '<span class="reading-value">' + translateMode(sensorData.modesensor) + '</span>';
+                html += '<span class="reading-value">' + translateMode(deviceMode) + '</span>';
                 html += '</div>';
             }
 
-            if (sensorData.locationsensor && sensorData.locationsensor !== 'N/A') {
+            const deviceLocation = sensorData.LocationSensor || sensorData.locationsensor;
+            if (deviceLocation && deviceLocation !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Device Location:</span>';
-                html += '<span class="reading-value">' + translateLocation(sensorData.locationsensor) + '</span>';
+                html += '<span class="reading-value">' + translateLocation(deviceLocation) + '</span>';
+                html += '</div>';
+            }
+
+            // Battery Status - NEW from API
+            if (sensorData.Battery_Now) {
+                html += '<div class="reading" style="font-size: 0.85em;">';
+                html += '<span class="reading-label">Battery:</span>';
+                html += '<span class="reading-value">' + sensorData.Battery_Now + '</span>';
                 html += '</div>';
             }
 
