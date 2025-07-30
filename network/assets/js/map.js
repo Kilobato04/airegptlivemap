@@ -65,7 +65,7 @@ setTimeout(() => {
         
         // Set up data refresh
         setupDataRefresh();
-            // ===== AGREGAR ESTA SECCIÓN =====
+        
         // Force immediate marker initialization
         setTimeout(() => {
             console.log('Force initializing markers...');
@@ -103,15 +103,12 @@ setTimeout(() => {
                 console.error('Error initializing markers:', error);
             }
         }, 1500);
-        // ===== FIN DE SECCIÓN AGREGADA =====
         
-        // ======= AGREGAR ESTAS LÍNEAS =======
         // Initialize IAS values after map loads
         setTimeout(() => {
             console.log('Initializing IAS values...');
             updateAllMarkerIAS();
         }, 2000);
-        // ======= FIN DE LÍNEAS AGREGADAS =======
 
         console.log('Map setup complete');
     });
@@ -159,7 +156,7 @@ setTimeout(() => {
             });
         }
     
-        // Smability Network toggle functionality (NUEVO)
+        // Smability Network toggle functionality
         const smabilityToggleButton = document.getElementById('toggleSmabilityMarkers');
         if (smabilityToggleButton) {
             let smabilityVisible = true;
@@ -408,19 +405,7 @@ setTimeout(() => {
             }
         }
     }
-    
-    /**
-     * Update all marker data
-     */
-    async function updateMarkerData() {
-        for (const location of APP_SETTINGS.activeStations) {
-            if (markers.has(location)) {
-                await updateMarkerColor(location);
-            }
-        }
-    }
 
-    // ======= AGREGAR ESTAS NUEVAS FUNCIONES AQUÍ =======
     /**
      * Update IAS values in markers
      * @param {string} location - Location name
@@ -463,117 +448,115 @@ setTimeout(() => {
             }
         }
     }
-    // ======= FIN DE NUEVAS FUNCIONES =======
 
-// Función actualizada para setupDataRefresh en map.js
-function setupDataRefresh() {
-    console.log('Setting up data refresh schedule...');
-    
     /**
-     * Calculate milliseconds until next target minute (5 or 20)
+     * Setup data refresh with proper timing (5 and 20 minutes after each hour)
      */
-    function getTimeUntilNextRefresh() {
-        const now = new Date();
-        const currentMinute = now.getMinutes();
+    function setupDataRefresh() {
+        console.log('Setting up data refresh schedule...');
         
-        let nextMinute;
-        if (currentMinute < 5) {
-            nextMinute = 5;
-        } else if (currentMinute < 20) {
-            nextMinute = 20;
-        } else {
-            // Next refresh is at 5 minutes of next hour
-            nextMinute = 65; // 60 + 5
-        }
-        
-        const targetTime = new Date(now);
-        if (nextMinute >= 60) {
-            targetTime.setHours(targetTime.getHours() + 1);
-            targetTime.setMinutes(nextMinute - 60);
-        } else {
-            targetTime.setMinutes(nextMinute);
-        }
-        targetTime.setSeconds(0);
-        targetTime.setMilliseconds(0);
-        
-        return targetTime.getTime() - now.getTime();
-    }
-    
-    /**
-     * Perform data refresh
-     */
-    async function performRefresh() {
-        console.log('Performing scheduled data refresh at:', new Date().toLocaleTimeString());
-        
-        // Update marker colors and IAS values for active stations
-        if (typeof updateMarkerData === 'function') {
-            await updateMarkerData();
-        }
-        
-        // Force update of all markers
-        for (const location of APP_SETTINGS.activeStations) {
-            if (markers.has(location)) {
-                await updateMarkerColor(location);
+        /**
+         * Calculate milliseconds until next target minute (5 or 20)
+         */
+        function getTimeUntilNextRefresh() {
+            const now = new Date();
+            const currentMinute = now.getMinutes();
+            
+            let nextMinute;
+            if (currentMinute < 5) {
+                nextMinute = 5;
+            } else if (currentMinute < 20) {
+                nextMinute = 20;
+            } else {
+                // Next refresh is at 5 minutes of next hour
+                nextMinute = 65; // 60 + 5
             }
+            
+            const targetTime = new Date(now);
+            if (nextMinute >= 60) {
+                targetTime.setHours(targetTime.getHours() + 1);
+                targetTime.setMinutes(nextMinute - 60);
+            } else {
+                targetTime.setMinutes(nextMinute);
+            }
+            targetTime.setSeconds(0);
+            targetTime.setMilliseconds(0);
+            
+            return targetTime.getTime() - now.getTime();
         }
         
-        // Update any visible popups
-        const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
-        if (visiblePopups.length > 0) {
-            try {
-                const features = map.queryRenderedFeatures({
-                    layers: ['smaa_network']
-                });
-                
-                for (const feature of features) {
-                    if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-                        const sensorData = await fetchSensorData(feature.properties.name);
-                        // Update popup content if it exists
-                        const popupContent = visiblePopups[0].querySelector('.mapboxgl-popup-content');
-                        if (popupContent) {
-                            popupContent.innerHTML = createPopupContent(feature, sensorData);
+        /**
+         * Perform data refresh
+         */
+        async function performRefresh() {
+            console.log('Performing scheduled data refresh at:', new Date().toLocaleTimeString());
+            
+            // Update marker colors and IAS values for active stations
+            if (typeof updateMarkerData === 'function') {
+                await updateMarkerData();
+            }
+            
+            // Force update of all markers
+            for (const location of APP_SETTINGS.activeStations) {
+                if (markers.has(location)) {
+                    await updateMarkerColor(location);
+                }
+            }
+            
+            // Update any visible popups
+            const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
+            if (visiblePopups.length > 0) {
+                try {
+                    const features = map.queryRenderedFeatures({
+                        layers: ['smaa_network']
+                    });
+                    
+                    for (const feature of features) {
+                        if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
+                            const sensorData = await fetchSensorData(feature.properties.name);
+                            // Update popup content if it exists
+                            const popupContent = visiblePopups[0].querySelector('.mapboxgl-popup-content');
+                            if (popupContent) {
+                                popupContent.innerHTML = createPopupContent(feature, sensorData);
+                            }
                         }
                     }
+                } catch (error) {
+                    console.error('Error updating popup during refresh:', error);
                 }
-            } catch (error) {
-                console.error('Error updating popup during refresh:', error);
             }
+            
+            console.log('Scheduled refresh complete');
         }
         
-        console.log('Scheduled refresh complete');
-    }
-    
-    /**
-     * Schedule next refresh
-     */
-    function scheduleNextRefresh() {
-        const timeUntilNext = getTimeUntilNextRefresh();
-        const nextRefreshTime = new Date(Date.now() + timeUntilNext);
+        /**
+         * Schedule next refresh
+         */
+        function scheduleNextRefresh() {
+            const timeUntilNext = getTimeUntilNextRefresh();
+            const nextRefreshTime = new Date(Date.now() + timeUntilNext);
+            
+            console.log(`Next refresh scheduled for: ${nextRefreshTime.toLocaleTimeString()} (in ${Math.round(timeUntilNext/1000)} seconds)`);
+            
+            setTimeout(async () => {
+                await performRefresh();
+                
+                // Set up recurring 15-minute interval (between 5 and 20, then 20 and next 5)
+                setInterval(async () => {
+                    await performRefresh();
+                }, 15 * 60 * 1000); // 15 minutes = 900,000 ms
+                
+            }, timeUntilNext);
+        }
         
-        console.log(`Next refresh scheduled for: ${nextRefreshTime.toLocaleTimeString()} (in ${Math.round(timeUntilNext/1000)} seconds)`);
-        
+        // Initial refresh immediately
         setTimeout(async () => {
             await performRefresh();
-            
-            // Set up recurring 15-minute interval (between 5 and 20, then 20 and next 5)
-            setInterval(async () => {
-                await performRefresh();
-            }, 15 * 60 * 1000); // 15 minutes = 900,000 ms
-            
-        }, timeUntilNext);
+            scheduleNextRefresh();
+        }, 2000); // Wait 2 seconds for map to be fully loaded
     }
-    
-    // Initial refresh immediately
-    setTimeout(async () => {
-        await performRefresh();
-        scheduleNextRefresh();
-    }, 2000); // Wait 2 seconds for map to be fully loaded
-}
 
-    /**
-     * Initialize markers for map features (if needed)
-     */
-
+    // Initialize markers when source data loads
     map.on('sourcedata', e => {
         if (e.sourceId === MAP_LAYERS.source && e.isSourceLoaded) {
             const features = map.querySourceFeatures(MAP_LAYERS.source, {
