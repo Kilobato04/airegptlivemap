@@ -12,11 +12,12 @@
 <body>
     <div id="map"></div>
     
-    <!-- Chart Panel - CORREGIDO -->
+    <!-- Chart Panel - ESTRUCTURA MEJORADA -->
     <div id="chartPanel" class="chart-panel" style="display: none;">
         <div class="chart-panel-header">
             <button class="chart-panel-close" onclick="closeChartPanel()">×</button>
             <div class="chart-panel-title"></div>
+            <!-- Comparison dropdown se insertará aquí dinámicamente -->
             <div class="select-container">
                 <select id="sensorSelect" class="panel-select">
                     <option value="7">Ozone (ppb)</option>
@@ -37,7 +38,7 @@
         <div class="chart-container">
             <div id="iasChart"></div>
         </div>
-        <!-- AGREGADO: Branding del panel -->
+        <!-- Branding del panel -->
         <div class="chart-panel-branding">
             <small><a href="http://www.smability.io" target="_blank" class="brand-text">smability.io</a></small>
         </div>
