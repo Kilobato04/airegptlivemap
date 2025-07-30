@@ -52,16 +52,17 @@ function createPopupContent(feature, sensorData) {
         }
 
         if (sensorData && sensorData.dataIAS !== 'N/A') {
-            // Use new API structure for color and status
-            const iasColor = sensorData.ColorIAS || getIndicatorColor(sensorData.dataIAS).color;
-            const iasStatus = sensorData.IndiceIAS || getIndicatorColor(sensorData.dataIAS).status;
-            const riskLevel = sensorData.RisklevelIAS || getIndicatorColor(sensorData.dataIAS).risk;
-            const emoji = getIASEmoji(sensorData.dataIAS);
+            // Use new API structure for color and status, with fallback to legacy
+            const iasValue = sensorData.DataIAS || sensorData.dataIAS;
+            const iasColor = sensorData.ColorIAS || getIndicatorColor(iasValue).color;
+            const iasStatus = sensorData.IndiceIAS || getIndicatorColor(iasValue).status;
+            const riskLevel = sensorData.RisklevelIAS || getIndicatorColor(iasValue).risk;
+            const emoji = getIASEmoji(iasValue);
             
-            // CAMBIO: Aplicar fondo y borde a TODO el contenido del popup
+            // Apply background and border with IAS color
             html = '<div style="background-color: ' + iasColor + '33; padding: 15px; border-radius: 10px; border: 3px solid ' + iasColor + ';">';
             
-            // Información básica con fondo del color IAS
+            // Basic information with IAS color background
             html += '<h3 style="margin: 0 0 10px 0; color: #000;">Name: ' + name + '</h3>';
             html += '<p style="margin: 0 0 5px 0; color: #000;">Key: ' + key + ' - Entity: ' + entity + '</p>';
             html += '<p style="margin: 0 0 15px 0; color: #000;">Parameter: ' + parameter + '</p>';
@@ -73,7 +74,7 @@ function createPopupContent(feature, sensorData) {
             html += '<span class="reading-value" style="display: flex; align-items: center; gap: 2px;">';
             html += '<span style="font-size: 22px; line-height: 1;">' + emoji + '</span>';
             html += '<span class="indicator" style="background-color: ' + iasColor + '"></span>';
-            html += sensorData.dataIAS;
+            html += iasValue;
             html += '</span>';
             html += '</div>';
             
@@ -201,7 +202,7 @@ function createLegendHTML() {
     html += '</div>';
     html += '<div class="legend-content">';
     
-    // AQI Colors (igual que antes)
+    // AQI Colors
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #00ff00"></div><span>Good (0-50)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ffff00"></div><span>Acceptable (51-100)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff8000"></div><span>Bad (101-150)</span></div>';
@@ -215,7 +216,7 @@ function createLegendHTML() {
     // SIMAT Network toggle
     html += '<div style="margin: 8px 0;"><button id="toggleOffMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">SIMAT Network</button></div>';
     
-    // Smability Network toggle
+    // Smability Network toggle (with device count)
     html += '<div style="margin: 8px 0;"><button id="toggleSmabilityMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">Smability Network (' + APP_SETTINGS.activeStations.length + ')</button></div>';
     
     html += '</div>';
