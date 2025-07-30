@@ -262,7 +262,14 @@ function toggleChartPanel(event, location) {
 
         // Create new event listeners and store them GLOBALLY
         window.timeframeListener = () => updateData();
-        window.sensorListener = () => updateData();
+        window.sensorListener = () => {
+            updateData();
+            // NUEVO: Actualizar título del sensor cuando cambie
+            const sensorSelect = document.getElementById('sensorSelect');
+            if (sensorSelect) {
+                updateCurrentSensorTitle(sensorSelect.value);
+            }
+        };
 
         // Add new event listeners
         if (timeframeSelect) {
@@ -274,6 +281,8 @@ function toggleChartPanel(event, location) {
             sensorSelect.addEventListener('change', window.sensorListener);
             // CAMBIADO: Ozono como default en lugar de temperatura
             sensorSelect.value = '7';
+            // NUEVO: Actualizar título inicial
+            updateCurrentSensorTitle('7');
         }
 
         // Initial data load
@@ -307,46 +316,74 @@ function toggleChartPanel(event, location) {
 }
 
 /**
- * NUEVO: Crear dropdown de comparación
+ * NUEVO: Crear dropdown de comparación en posición superior izquierda
  */
 function createComparisonDropdown() {
-    const title = document.querySelector('.chart-panel-title');
-    if (!title) return;
+    const chartContainer = document.querySelector('.chart-container');
+    if (!chartContainer) return;
     
     // Verificar si ya existe el dropdown
     if (document.getElementById('comparisonSelect')) return;
     
-    // Crear container para el dropdown
+    // Crear container para información del sensor y comparación
+    const infoContainer = document.createElement('div');
+    infoContainer.id = 'sensorInfoContainer';
+    infoContainer.style.cssText = `
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 8px 12px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        font-size: 12px;
+        min-width: 200px;
+    `;
+    
+    // Título del sensor actual
+    const sensorTitle = document.createElement('div');
+    sensorTitle.id = 'currentSensorTitle';
+    sensorTitle.style.cssText = `
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 6px;
+        font-size: 13px;
+    `;
+    sensorTitle.textContent = 'Ozone (ppb)'; // Default
+    
+    // Container para el dropdown de comparación
     const dropdownContainer = document.createElement('div');
     dropdownContainer.style.cssText = `
-        margin-top: 8px;
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 12px;
+        gap: 6px;
     `;
     
     // Label
     const label = document.createElement('span');
     label.textContent = 'Compare with:';
-    label.style.color = '#666';
+    label.style.cssText = `
+        color: #666;
+        font-size: 11px;
+        white-space: nowrap;
+    `;
     
     // Dropdown
     const select = document.createElement('select');
     select.id = 'comparisonSelect';
-    select.className = 'panel-select';
     select.style.cssText = `
-        flex: 1;
-        font-size: 11px;
-        padding: 4px;
+        font-size: 10px;
+        padding: 2px 4px;
         border: 1px solid #ccc;
-        border-radius: 4px;
+        border-radius: 3px;
         background: white;
+        min-width: 120px;
     `;
     
     // Opciones del dropdown
     const options = [
-        { value: '', text: 'None (single station)' },
+        { value: '', text: 'None' },
         { value: 'Hipódromo', text: 'Hipódromo' },
         { value: 'UNAM', text: 'UNAM' },
         { value: 'CENTRUS 3', text: 'CENTRUS 3' },
@@ -368,11 +405,26 @@ function createComparisonDropdown() {
         }
     });
     
+    // Ensamblar elementos
     dropdownContainer.appendChild(label);
     dropdownContainer.appendChild(select);
+    infoContainer.appendChild(sensorTitle);
+    infoContainer.appendChild(dropdownContainer);
     
-    // Insertar después del título
-    title.parentNode.insertBefore(dropdownContainer, title.nextSibling);
+    // Insertar en el chart container
+    chartContainer.style.position = 'relative';
+    chartContainer.appendChild(infoContainer);
+}
+
+/**
+ * NUEVO: Actualizar título del sensor actual
+ * @param {string} sensorId - ID del sensor
+ */
+function updateCurrentSensorTitle(sensorId) {
+    const titleElement = document.getElementById('currentSensorTitle');
+    if (titleElement && SENSOR_CONFIG[sensorId]) {
+        titleElement.textContent = `${SENSOR_CONFIG[sensorId].name} (${SENSOR_CONFIG[sensorId].units})`;
+    }
 }
 
 /**
