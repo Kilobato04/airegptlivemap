@@ -156,6 +156,9 @@ function toggleChartPanel(event, location) {
         }
         window.currentLocation = location; // Store current location GLOBALLY
 
+        // NUEVO: Actualizar borde del panel con color IAS
+        updatePanelBorderWithIAS(location);
+
         // Show loading state
         Plotly.newPlot('iasChart', [{
             type: 'scatter',
@@ -285,6 +288,9 @@ function toggleChartPanel(event, location) {
             }
             window.currentLocation = location;
             
+            // NUEVO: Actualizar borde del panel con nuevo color IAS
+            updatePanelBorderWithIAS(location);
+            
             // Reset select elements
             if (timeframeSelect) timeframeSelect.value = '24';
             if (sensorSelect) sensorSelect.value = '12';
@@ -293,6 +299,31 @@ function toggleChartPanel(event, location) {
             if (window.timeframeListener) {
                 window.timeframeListener();
             }
+        }
+    }
+}
+
+/**
+ * NUEVO: Actualizar borde del panel con color IAS
+ * @param {string} location - Nombre de la ubicación
+ */
+async function updatePanelBorderWithIAS(location) {
+    try {
+        const sensorData = await fetchSensorData(location);
+        if (sensorData && sensorData.dataIAS !== 'N/A') {
+            const { color } = getIndicatorColor(sensorData.dataIAS);
+            const panel = document.getElementById('chartPanel');
+            if (panel) {
+                panel.style.borderColor = color;
+                console.log(`Updated panel border color to: ${color} for IAS: ${sensorData.dataIAS}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error updating panel border color:', error);
+        // Fallback to default blue if error
+        const panel = document.getElementById('chartPanel');
+        if (panel) {
+            panel.style.borderColor = '#4264fb';
         }
     }
 }
