@@ -151,13 +151,14 @@ function toggleChartPanel(event, location) {
     if (panel.style.display === 'none' || !panel.style.display) {
         console.log('Opening chart panel...');
         panel.style.display = 'flex';
-        if (title) {
-            title.textContent = `SMAA ${location}`;
-        }
+        // QUITAMOS el título del header principal ya que ahora está en la caja
         window.currentLocation = location; // Store current location GLOBALLY
 
         // NUEVO: Crear dropdown de comparación si no existe
         createComparisonDropdown();
+        
+        // NUEVO: Actualizar título del dispositivo en la nueva caja
+        updateCurrentDeviceTitle(location);
 
         // NUEVO: Actualizar borde del panel con color IAS
         updatePanelBorderWithIAS(location);
@@ -295,10 +296,10 @@ function toggleChartPanel(event, location) {
             // If switching to a different location while panel is open,
             // update the title and load new data
             console.log('Switching to different location while panel open');
-            if (title) {
-                title.textContent = `SMAA ${location}`;
-            }
             window.currentLocation = location;
+            
+            // NUEVO: Actualizar título del dispositivo en la nueva caja
+            updateCurrentDeviceTitle(location);
             
             // NUEVO: Actualizar borde del panel con nuevo color IAS
             updatePanelBorderWithIAS(location);
@@ -316,7 +317,7 @@ function toggleChartPanel(event, location) {
 }
 
 /**
- * NUEVO: Crear dropdown de comparación en posición superior izquierda
+ * NUEVO: Crear dropdown de comparación con nombre del dispositivo
  */
 function createComparisonDropdown() {
     const chartContainer = document.querySelector('.chart-container');
@@ -325,12 +326,12 @@ function createComparisonDropdown() {
     // Verificar si ya existe el dropdown
     if (document.getElementById('comparisonSelect')) return;
     
-    // Crear container para información del sensor y comparación
+    // Crear container para información del dispositivo y comparación
     const infoContainer = document.createElement('div');
-    infoContainer.id = 'sensorInfoContainer';
+    infoContainer.id = 'deviceInfoContainer';
     infoContainer.style.cssText = `
         position: absolute;
-        top: 10px;
+        top: -45px;
         left: 10px;
         z-index: 10;
         background: rgba(255, 255, 255, 0.95);
@@ -338,17 +339,27 @@ function createComparisonDropdown() {
         border-radius: 6px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         font-size: 12px;
-        min-width: 200px;
+        min-width: 220px;
     `;
+    
+    // Título del dispositivo actual
+    const deviceTitle = document.createElement('div');
+    deviceTitle.id = 'currentDeviceTitle';
+    deviceTitle.style.cssText = `
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 6px;
+        font-size: 14px;
+    `;
+    deviceTitle.textContent = 'SMAA Device'; // Default, se actualizará
     
     // Título del sensor actual
     const sensorTitle = document.createElement('div');
     sensorTitle.id = 'currentSensorTitle';
     sensorTitle.style.cssText = `
-        font-weight: bold;
-        color: #333;
+        color: #666;
         margin-bottom: 6px;
-        font-size: 13px;
+        font-size: 12px;
     `;
     sensorTitle.textContent = 'Ozone (ppb)'; // Default
     
@@ -378,7 +389,7 @@ function createComparisonDropdown() {
         border: 1px solid #ccc;
         border-radius: 3px;
         background: white;
-        min-width: 120px;
+        min-width: 100px;
     `;
     
     // Opciones del dropdown
@@ -408,12 +419,24 @@ function createComparisonDropdown() {
     // Ensamblar elementos
     dropdownContainer.appendChild(label);
     dropdownContainer.appendChild(select);
+    infoContainer.appendChild(deviceTitle);
     infoContainer.appendChild(sensorTitle);
     infoContainer.appendChild(dropdownContainer);
     
     // Insertar en el chart container
     chartContainer.style.position = 'relative';
     chartContainer.appendChild(infoContainer);
+}
+
+/**
+ * NUEVO: Actualizar título del dispositivo actual
+ * @param {string} deviceName - Nombre del dispositivo
+ */
+function updateCurrentDeviceTitle(deviceName) {
+    const titleElement = document.getElementById('currentDeviceTitle');
+    if (titleElement) {
+        titleElement.textContent = `SMAA ${deviceName}`;
+    }
 }
 
 /**
