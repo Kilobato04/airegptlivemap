@@ -43,17 +43,55 @@ async function fetchSensorData(location) {
 
         retryCount = 0;
         
+        // FIXED: Return ALL data from API, not just selected fields
         return {
+            // Legacy fields for compatibility
             dataIAS: parseFloat(data.DataIAS || data.dataIAS || data.data_ias) || 'N/A',
             temperature: parseFloat(data.Temperature || data.temperature || data.temp) || 'N/A',
             humidity: parseFloat(data.Humidity || data.humidity) || 'N/A',
-            sensorIAS: data.SensorIAS || 'N/A',
+            sensorIAS: data.SensorIAS || data.sensorIAS || 'N/A',
             concentracionIASCO: parseFloat(data.ConcentracionIASCO) || 'N/A',
             concentracionIASO3: parseFloat(data.ConcentracionIASO3) || 'N/A',
             concentracionIASPM10: parseFloat(data.ConcentracionIASPM10) || 'N/A',
             concentracionIASPM2_5: parseFloat(data.ConcentracionIASPM2_5) || 'N/A',
-            modesensor: data.ModeSensor || 'N/A',
-            locationsensor: data.LocationSensor || 'N/A'
+            modesensor: data.ModeSensor || data.ModeSensor || 'N/A',
+            locationsensor: data.LocationSensor || data.LocationSensor || 'N/A',
+            
+            // NEW: Pass through ALL new API fields
+            DataIAS: data.DataIAS,
+            Temperature: data.Temperature,
+            Humidity: data.Humidity,
+            SensorIAS: data.SensorIAS,
+            ModeSensor: data.ModeSensor,
+            LocationSensor: data.LocationSensor,
+            Battery_Now: data.Battery_Now,
+            ConcentrationIASCO_8hr: data.ConcentrationIASCO_8hr,
+            ConcentrationIASO3_1hr: data.ConcentrationIASO3_1hr,
+            ConcentrationIASPM10_12hr: data.ConcentrationIASPM10_12hr,
+            ConcentrationIASPM2_5_12hr: data.ConcentrationIASPM2_5_12hr,
+            CO_1hr: data.CO_1hr,
+            O3_1hr: data.O3_1hr,
+            PM10_1hr: data.PM10_1hr,
+            PM2_5_1hr: data.PM2_5_1hr,
+            Temp_1hr: data.Temp_1hr,
+            HR_1hr: data.HR_1hr,
+            ColorIAS: data.ColorIAS,
+            IndiceIAS: data.IndiceIAS,
+            RisklevelIAS: data.RisklevelIAS,
+            DateTime: data.DateTime,
+            DataAQI: data.DataAQI,
+            IndiceAQI: data.IndiceAQI,
+            SensorAQI: data.SensorAQI,
+            ColorAQI: data.ColorAQI,
+            CO_Max_in_24hr: data.CO_Max_in_24hr,
+            O3_Max_in_24hr: data.O3_Max_in_24hr,
+            PM2_5_24hr: data.PM2_5_24hr,
+            PM10_24hr: data.PM10_24hr,
+            Lat_Long: data.Lat_Long,
+            NameSensor: data.NameSensor,
+            RecomendationsIAS_poblacion_general: data.RecomendationsIAS_poblacion_general,
+            RecomendationsIAS_poblacion_mayor_60: data.RecomendationsIAS_poblacion_mayor_60,
+            RecomendationsIAS_poblacion_menor_12: data.RecomendationsIAS_poblacion_menor_12
         };
 
     } catch (error) {
