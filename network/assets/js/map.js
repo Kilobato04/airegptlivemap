@@ -156,7 +156,7 @@ setTimeout(() => {
             });
         }
     
-        // Smability Network toggle functionality
+    // Smability Network toggle functionality (CORREGIDO)
         const smabilityToggleButton = document.getElementById('toggleSmabilityMarkers');
         if (smabilityToggleButton) {
             let smabilityVisible = true;
@@ -171,18 +171,33 @@ setTimeout(() => {
                     // Show IAS labels and station labels
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
+                    
+                    // Show Mapbox markers for active stations
+                    APP_SETTINGS.activeStations.forEach(location => {
+                        if (markers.has(location)) {
+                            markers.get(location).getElement().style.display = 'flex';
+                        }
+                    });
                 } else {
-                    // Hide Smability stations (active ones) but keep SIMAT visible if toggled on
-                    const currentFilter = offMarkersVisible ? 
-                        ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]] : 
-                        ['all', 
-                            ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-                            ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]
-                        ];
-                    map.setFilter('smaa_network', currentFilter);
+                    // Hide Smability stations (active ones) - CORREGIDO
+                    if (offMarkersVisible) {
+                        // If SIMAT is visible, show only non-active stations
+                        map.setFilter('smaa_network', ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]);
+                    } else {
+                        // If SIMAT is hidden, hide everything
+                        map.setFilter('smaa_network', ['==', ['get', 'name'], '___NONE___']); // Hide all
+                    }
+                    
                     // Hide IAS labels and station labels
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
+                    
+                    // Hide Mapbox markers for active stations
+                    APP_SETTINGS.activeStations.forEach(location => {
+                        if (markers.has(location)) {
+                            markers.get(location).getElement().style.display = 'none';
+                        }
+                    });
                 }
                 
                 // Update button style
