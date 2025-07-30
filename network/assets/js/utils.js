@@ -52,6 +52,9 @@ function createPopupContent(feature, sensorData) {
         }
 
         if (sensorData && sensorData.dataIAS !== 'N/A') {
+            // Debug log to see what data we're receiving
+            console.log('Popup sensor data received:', sensorData);
+            
             const result = getIndicatorColor(sensorData.dataIAS);
             const emoji = getIASEmoji(sensorData.dataIAS);
             
@@ -80,8 +83,9 @@ function createPopupContent(feature, sensorData) {
             html += '<p class="status-text">Risk: ' + result.risk + '</p>';
             html += '</div>';
 
-            // Dominant Pollutant - From new API
+            // Dominant Pollutant - Check multiple possible fields
             const dominantPollutant = sensorData.SensorIAS || sensorData.sensorIAS;
+            console.log('Dominant pollutant found:', dominantPollutant);
             if (dominantPollutant && dominantPollutant !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.9em;">';
                 html += '<span class="reading-label">Dominant Pollutant:</span>';
@@ -89,26 +93,32 @@ function createPopupContent(feature, sensorData) {
                 html += '</div>';
             }
 
-            // Pollutant Concentrations - From new API structure
-            const co8hr = sensorData.ConcentrationIASCO_8hr || 'N/A';
+            // Pollutant Concentrations - Check what's actually available
+            console.log('Checking CO field:', sensorData.ConcentrationIASCO_8hr);
+            console.log('Checking O3 field:', sensorData.ConcentrationIASO3_1hr);
+            console.log('Checking PM10 field:', sensorData.PM10_1hr);
+            console.log('Checking PM2.5 field:', sensorData.PM2_5_1hr);
+            console.log('Checking Battery field:', sensorData.Battery_Now);
+
+            const co8hr = sensorData.ConcentrationIASCO_8hr || sensorData.CO_1hr || sensorData.concentracionIASCO || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">CO 8hr:</span>';
             html += '<span class="reading-value">' + (co8hr !== 'N/A' ? co8hr : 'N/A ppb') + '</span>';
             html += '</div>';
 
-            const o31hr = sensorData.ConcentrationIASO3_1hr || 'N/A';
+            const o31hr = sensorData.ConcentrationIASO3_1hr || sensorData.O3_1hr || sensorData.concentracionIASO3 || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">O3 1hr:</span>';
             html += '<span class="reading-value">' + (o31hr !== 'N/A' ? o31hr : 'N/A ppb') + '</span>';
             html += '</div>';
 
-            const pm10_1hr = sensorData.PM10_1hr || 'N/A';
+            const pm10_1hr = sensorData.PM10_1hr || sensorData.concentracionIASPM10 || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">PM10 1hr:</span>';
             html += '<span class="reading-value">' + (pm10_1hr !== 'N/A' ? pm10_1hr : 'N/A μg/m³') + '</span>';
             html += '</div>';
 
-            const pm25_1hr = sensorData.PM2_5_1hr || 'N/A';
+            const pm25_1hr = sensorData.PM2_5_1hr || sensorData.concentracionIASPM2_5 || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">PM2.5 1hr:</span>';
             html += '<span class="reading-value">' + (pm25_1hr !== 'N/A' ? pm25_1hr : 'N/A μg/m³') + '</span>';
