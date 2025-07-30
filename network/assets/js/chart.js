@@ -1,14 +1,199 @@
 // Chart management functions using Plotly.js
 
 /**
- * Update chart with new data
+ * Update chart with comparison data
+ * @param {Array} primaryData - Primary station data
+ * @param {Array} comparisonData - Comparison station data  
+ * @param {number} hours - Number of hours for the timeframe
+ * @param {string} sensorId - Sensor ID
+ * @param {string} primaryStation - Primary station name
+ * @param {string} comparisonStation - Comparison station name
+ */
+function updateChartWithComparison(primaryData, comparisonData, hours, sensorId, primaryStation, comparisonStation) {
+    const sensorConfig = SENSOR_CONFIG[sensorId];
+    const traces = [];
+
+    // Primary station trace
+    if (primaryData && primaryData.length > 0) {
+        primaryData.sort((a, b) => a.timestamp - b.timestamp);
+        
+        traces.push({
+            x: primaryData.map(item => item.timestamp),
+            y: primaryData.map(item => item.value),
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: primaryStation,
+            line: {
+                color: sensorConfig.color,
+                width: 2,
+                shape: 'linear'
+            },
+            marker: {
+                color: sensorConfig.color,
+                size: 3,
+                line: {
+                    color: 'white',
+                    width: 1
+                }
+            },
+            hovertemplate: `<b>${primaryStation}</b><br>` +
+                           `<b>Time</b>: %{x|%H:%M}<br>` +
+                           `<b>${sensorConfig.name}</b>: %{y:.1f} ${sensorConfig.units}<br>` +
+                           '<extra></extra>'
+        });
+    }
+
+    // Comparison station trace
+    if (comparisonData && comparisonData.length > 0) {
+        comparisonData.sort((a, b) => a.timestamp - b.timestamp);
+        
+        // Generate a complementary color for comparison
+        const comparisonColor = getComparisonColor(sensorConfig.color);
+        
+        traces.push({
+            x: comparisonData.map(item => item.timestamp),
+            y: comparisonData.map(item => item.value),
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: comparisonStation,
+            line: {
+                color: comparisonColor,
+                width: 2,
+                shape: 'linear',
+                dash: 'dot' // Different line style for comparison
+            },
+            marker: {
+                color: comparisonColor,
+                size: 3,
+                line: {
+                    color: 'white',
+                    width: 1
+                }
+            },
+            hovertemplate: `<b>${comparisonStation}</b><br>` +
+                           `<b>Time</b>: %{x|%H:%M}<br>` +
+                           `<b>${sensorConfig.name}</b>: %{y:.1f} ${sensorConfig.units}<br>` +
+                           '<extra></extra>'
+        });
+    }
+
+    // Handle case where no data is available
+    if (traces.length === 0) {
+        traces.push({
+            type: 'scatter',
+            y: [0],
+            name: 'No data available',
+            line: { color: '#cccccc' }
+        });
+    }
+
+    const layout = {
+        margin: {
+            t: 60,
+            r: 20,
+            l: 50,
+            b: 80
+        },
+        yaxis: {
+            title: {
+                text: sensorConfig.units,
+                standoff: 3,
+                font: { size: 10 }
+            },
+            zeroline: false,
+            showgrid: true,
+            gridcolor: '#E4E4E4',
+            gridwidth: 1,
+            tickfont: { size: 8 }
+        },
+        xaxis: {
+            type: 'date',
+            tickformat: '%H:%M\n%b %d',
+            tickangle: -90,
+            showgrid: true,
+            gridcolor: '#E4E4E4',
+            dtick: hours >= 168 ? 86400000 : // 1 day intervals for 7-day view
+                   window.innerWidth < 768 ? 7200000 : 3600000,
+            tickfont: { size: 8 }
+        },
+        plot_bgcolor: '#FFFFFF',
+        paper_bgcolor: '#FFFFFF',
+        title: {
+            text: `${sensorConfig.name} Comparison - Last ${hours >= 24 ? Math.floor(hours/24) + ' Days' : hours + ' Hours'}`,
+            font: {
+                size: window.innerWidth < 768 ? 10 : 12,
+                family: 'DIN Pro, Arial, sans-serif'
+            },
+            y: 0.95,
+            xref: 'paper',
+            x: 0
+        },
+        legend: {
+            x: 0,
+            y: 1.1,
+            orientation: 'h',
+            font: {
+                size: 9,
+                family: 'DIN Pro, Arial, sans-serif'
+            }
+        },
+        modebar: {
+            orientation: window.innerWidth < 768 ? 'v' : 'h'
+        }
+    };
+
+    const config = {
+        responsive: true,
+        displayModeBar: true,
+        modeBarButtonsToAdd: ['autoScale2d'],
+        modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
+        displaylogo: false,
+        toImageButtonOptions: {
+            format: 'png',
+            filename: `${sensorConfig.name.toLowerCase()}_comparison`,
+            height: 800,
+            width: 1200,
+            scale: 2
+        }
+    };
+
+    Plotly.newPlot('iasChart', traces, layout, config);
+}
+
+/**
+ * Generate complementary color for comparison
+ * @param {string} primaryColor - Primary color hex
+ * @returns {string} - Complementary color hex
+ */
+function getComparisonColor(primaryColor) {
+    const colorMap = {
+        '#4264fb': '#fb4264', // Blue -> Red
+        '#ff7043': '#43ff70', // Orange -> Green
+        '#4caf50': '#af504c', // Green -> Brown
+        '#9c27b0': '#27b09c', // Purple -> Teal
+        '#ff9800': '#0098ff'  // Orange -> Blue
+    };
+    return colorMap[primaryColor] || '#666666';
+}
+
+/**
+ * Update chart with new data (enhanced for comparison)
  * @param {Array} formattedData - Array of data points
  * @param {number} hours - Number of hours for the timeframe
  * @param {string} sensorId - Sensor ID
+ * @param {Array} comparisonData - Optional comparison data
+ * @param {string} comparisonStation - Optional comparison station name
  */
-function updateChart(formattedData, hours, sensorId) {
+function updateChart(formattedData, hours, sensorId, comparisonData = null, comparisonStation = null) {
     const sensorConfig = SENSOR_CONFIG[sensorId];
 
+    // If comparison data is provided, use comparison function
+    if (comparisonData && comparisonStation && window.currentLocation) {
+        updateChartWithComparison(formattedData, comparisonData, hours, sensorId, window.currentLocation, comparisonStation);
+        return;
+    }
+
+    // Original single-station chart logic
     if (!formattedData || formattedData.length === 0) {
         Plotly.newPlot('iasChart', [{
             type: 'scatter',
@@ -197,6 +382,7 @@ function toggleChartPanel(event, location) {
             // Get values from the NEW dynamic selects first, fallback to legacy
             const newTimeframeSelect = document.querySelector('#deviceInfoContainer #timeframeSelect');
             const newSensorSelect = document.querySelector('#deviceInfoContainer #sensorSelect');
+            const newComparisonSelect = document.querySelector('#deviceInfoContainer #comparisonSelect');
             
             const hours = parseInt(
                 (newTimeframeSelect && newTimeframeSelect.value) || 
@@ -207,9 +393,24 @@ function toggleChartPanel(event, location) {
                 (newSensorSelect && newSensorSelect.value) || 
                 (sensorSelect && sensorSelect.value) || 
                 '7';
+            const comparisonStation = 
+                (newComparisonSelect && newComparisonSelect.value) || 
+                (comparisonSelect && comparisonSelect.value) || 
+                '';
             const token = API_CONFIG.tokens[window.currentLocation];
 
-            console.log('Fetching data for:', { hours, sensorId, token, location: window.currentLocation });
+            console.log('Fetching data for:', { 
+                hours, 
+                sensorId, 
+                token, 
+                location: window.currentLocation,
+                comparison: comparisonStation 
+            });
+
+            // Show loading state
+            const loadingTitle = comparisonStation ? 
+                `Loading ${SENSOR_CONFIG[sensorId].name} comparison: ${window.currentLocation} vs ${comparisonStation}...` :
+                `Loading ${SENSOR_CONFIG[sensorId].name} data for ${window.currentLocation}...`;
 
             Plotly.newPlot('iasChart', [{
                 type: 'scatter',
@@ -220,7 +421,7 @@ function toggleChartPanel(event, location) {
                 }
             }], {
                 title: {
-                    text: `Loading ${SENSOR_CONFIG[sensorId].name} data for ${window.currentLocation}...`,
+                    text: loadingTitle,
                     font: {
                         family: 'DIN Pro, Arial, sans-serif',
                         size: 12
@@ -229,12 +430,31 @@ function toggleChartPanel(event, location) {
             });
 
             if (typeof fetchSensorDataWithProxy === 'function') {
-                fetchSensorDataWithProxy(hours, sensorId, token)
-                    .then(data => {
-                        console.log('Received historical data:', data);
+                // Fetch primary station data
+                const primaryDataPromise = fetchSensorDataWithProxy(hours, sensorId, token);
+                
+                // Fetch comparison data if selected
+                let comparisonDataPromise = Promise.resolve(null);
+                if (comparisonStation && API_CONFIG.tokens[comparisonStation]) {
+                    const comparisonToken = API_CONFIG.tokens[comparisonStation];
+                    comparisonDataPromise = fetchSensorDataWithProxy(hours, sensorId, comparisonToken);
+                }
+
+                // Wait for both data sets
+                Promise.all([primaryDataPromise, comparisonDataPromise])
+                    .then(([primaryData, comparisonData]) => {
+                        console.log('Received primary data:', primaryData);
+                        console.log('Received comparison data:', comparisonData);
+                        
                         // Check again if location hasn't changed before updating
                         if (location === window.currentLocation) {
-                            updateChart(data, hours, sensorId);
+                            if (comparisonStation && comparisonData) {
+                                // Use comparison chart
+                                updateChart(primaryData, hours, sensorId, comparisonData, comparisonStation);
+                            } else {
+                                // Use single station chart
+                                updateChart(primaryData, hours, sensorId);
+                            }
                         }
                     })
                     .catch(error => {
@@ -603,6 +823,8 @@ window.addEventListener('resize', () => {
 window.toggleChartPanel = toggleChartPanel;
 window.closeChartPanel = closeChartPanel;
 window.updateChart = updateChart;
+window.updateChartWithComparison = updateChartWithComparison;
+window.getComparisonColor = getComparisonColor;
 window.createDeviceInfoContainer = createDeviceInfoContainer;
 window.updateCurrentDeviceTitle = updateCurrentDeviceTitle;
 window.updateCurrentSensorTitle = updateCurrentSensorTitle;
