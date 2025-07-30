@@ -270,7 +270,7 @@ function closeChartPanel() {
 
 // Handle window resize
 window.addEventListener('resize', () => {
-    if (document.getElementById('chartPanel').style.display !== 'none') {
+    if (document.getElementById('chartPanel') && document.getElementById('chartPanel').style.display !== 'none') {
         Plotly.Plots.resize('iasChart');
     }
 });
@@ -278,3 +278,4 @@ window.addEventListener('resize', () => {
 // Make functions globally available
 window.toggleChartPanel = toggleChartPanel;
 window.closeChartPanel = closeChartPanel;
+window.updateChart = updateChart;
