@@ -80,62 +80,79 @@ function createPopupContent(feature, sensorData) {
             html += '<p class="status-text">Risk: ' + result.risk + '</p>';
             html += '</div>';
 
-            // Dominant Pollutant - Simple version
-            if (sensorData.sensorIAS && sensorData.sensorIAS !== 'N/A') {
+            // Dominant Pollutant - From new API
+            const dominantPollutant = sensorData.SensorIAS || sensorData.sensorIAS;
+            if (dominantPollutant && dominantPollutant !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.9em;">';
                 html += '<span class="reading-label">Dominant Pollutant:</span>';
-                html += '<span class="reading-value">' + sensorData.sensorIAS + '</span>';
+                html += '<span class="reading-value">' + dominantPollutant + '</span>';
                 html += '</div>';
             }
 
-            // Pollutant Concentrations - Simple version showing all as N/A for now
+            // Pollutant Concentrations - From new API structure
+            const co8hr = sensorData.ConcentrationIASCO_8hr || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">CO 8hr:</span>';
-            html += '<span class="reading-value">N/A ppb</span>';
+            html += '<span class="reading-value">' + (co8hr !== 'N/A' ? co8hr : 'N/A ppb') + '</span>';
             html += '</div>';
 
+            const o31hr = sensorData.ConcentrationIASO3_1hr || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">O3 1hr:</span>';
-            html += '<span class="reading-value">N/A ppb</span>';
+            html += '<span class="reading-value">' + (o31hr !== 'N/A' ? o31hr : 'N/A ppb') + '</span>';
             html += '</div>';
 
+            const pm10_1hr = sensorData.PM10_1hr || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
-            html += '<span class="reading-label">PM10 12hr:</span>';
-            html += '<span class="reading-value">N/A μg/m³</span>';
+            html += '<span class="reading-label">PM10 1hr:</span>';
+            html += '<span class="reading-value">' + (pm10_1hr !== 'N/A' ? pm10_1hr : 'N/A μg/m³') + '</span>';
             html += '</div>';
 
+            const pm25_1hr = sensorData.PM2_5_1hr || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
-            html += '<span class="reading-label">PM2.5 12hr:</span>';
-            html += '<span class="reading-value">N/A μg/m³</span>';
+            html += '<span class="reading-label">PM2.5 1hr:</span>';
+            html += '<span class="reading-value">' + (pm25_1hr !== 'N/A' ? pm25_1hr : 'N/A μg/m³') + '</span>';
             html += '</div>';
 
-            // Environmental Conditions - Fixed logic
-            if (sensorData.temperature && sensorData.temperature !== 'N/A') {
+            // Environmental Conditions - From new API with fallback
+            const temperature = sensorData.Temp_1hr || sensorData.Temperature || sensorData.temperature;
+            if (temperature && temperature !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Temperature:</span>';
-                html += '<span class="reading-value">' + sensorData.temperature + ' ℃</span>';
+                html += '<span class="reading-value">' + temperature + (String(temperature).includes('°') ? '' : ' ℃') + '</span>';
                 html += '</div>';
             }
 
-            if (sensorData.humidity && sensorData.humidity !== 'N/A') {
+            const humidity = sensorData.HR_1hr || sensorData.Humidity || sensorData.humidity;
+            if (humidity && humidity !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Relative Humidity:</span>';
-                html += '<span class="reading-value">' + sensorData.humidity + ' %</span>';
+                html += '<span class="reading-value">' + humidity + (String(humidity).includes('%') ? '' : ' %') + '</span>';
                 html += '</div>';
             }
 
-            // Device Information - Fixed logic
-            if (sensorData.modesensor && sensorData.modesensor !== 'N/A') {
+            // Device Information - From new API with fallback
+            const deviceMode = sensorData.ModeSensor || sensorData.modesensor;
+            if (deviceMode && deviceMode !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Device Mode:</span>';
-                html += '<span class="reading-value">' + translateMode(sensorData.modesensor) + '</span>';
+                html += '<span class="reading-value">' + translateMode(deviceMode) + '</span>';
                 html += '</div>';
             }
 
-            if (sensorData.locationsensor && sensorData.locationsensor !== 'N/A') {
+            const deviceLocation = sensorData.LocationSensor || sensorData.locationsensor;
+            if (deviceLocation && deviceLocation !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Device Location:</span>';
-                html += '<span class="reading-value">' + translateLocation(sensorData.locationsensor) + '</span>';
+                html += '<span class="reading-value">' + translateLocation(deviceLocation) + '</span>';
+                html += '</div>';
+            }
+
+            // Battery Status - From new API
+            if (sensorData.Battery_Now) {
+                html += '<div class="reading" style="font-size: 0.85em;">';
+                html += '<span class="reading-label">Battery:</span>';
+                html += '<span class="reading-value">' + sensorData.Battery_Now + '</span>';
                 html += '</div>';
             }
 
