@@ -211,39 +211,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Agregar al final de utils.js, después de las otras funciones globales:
-
-/**
- * Toggle chart panel (simplified version)
- * @param {Event} event - Click event
- * @param {string} location - Location name
- */
-function toggleChartPanel(event, location) {
-    event.preventDefault();
-    
-    if (!API_CONFIG.tokens[location]) {
-        alert('Historical data not available for this station');
-        return;
-    }
-    
-    // For now, just show an alert with the location
-    // Later we can implement the full chart panel
-    alert('Historical data for ' + location + ' - Feature coming soon!');
-    
-    // TODO: Implement full chart panel functionality
-    // This would include:
-    // - Creating chart panel HTML
-    // - Fetching historical data
-    // - Displaying Plotly charts
-    // - Adding time range selectors
-}
-
-// Make function available globally
-window.toggleChartPanel = toggleChartPanel;
-
-// Make function available globally
-window.toggleChartPanel = toggleChartPanel;
-
 
 // Make functions globally available
 window.getIndicatorColor = getIndicatorColor;
