@@ -194,8 +194,19 @@ function toggleChartPanel(event, location) {
                 return;
             }
 
-            const hours = parseInt(timeframeSelect ? timeframeSelect.value : '24');
-            const sensorId = sensorSelect ? sensorSelect.value : '7';
+            // Get values from the NEW dynamic selects first, fallback to legacy
+            const newTimeframeSelect = document.querySelector('#deviceInfoContainer #timeframeSelect');
+            const newSensorSelect = document.querySelector('#deviceInfoContainer #sensorSelect');
+            
+            const hours = parseInt(
+                (newTimeframeSelect && newTimeframeSelect.value) || 
+                (timeframeSelect && timeframeSelect.value) || 
+                '12'
+            );
+            const sensorId = 
+                (newSensorSelect && newSensorSelect.value) || 
+                (sensorSelect && sensorSelect.value) || 
+                '7';
             const token = API_CONFIG.tokens[window.currentLocation];
 
             console.log('Fetching data for:', { hours, sensorId, token, location: window.currentLocation });
@@ -268,10 +279,11 @@ function toggleChartPanel(event, location) {
         window.timeframeListener = () => updateData();
         window.sensorListener = () => {
             updateData();
-            // Update sensor title when changed
-            const sensorSelect = document.getElementById('sensorSelect');
-            if (sensorSelect) {
-                updateCurrentSensorTitle(sensorSelect.value);
+            // Update sensor title when changed - check both new and legacy selects
+            const newSensorSelect = document.querySelector('#deviceInfoContainer #sensorSelect');
+            const currentSensorSelect = newSensorSelect || sensorSelect;
+            if (currentSensorSelect) {
+                updateCurrentSensorTitle(currentSensorSelect.value);
             }
         };
         window.comparisonListener = () => {
@@ -279,18 +291,32 @@ function toggleChartPanel(event, location) {
             updateData(); // This could be enhanced for comparison functionality
         };
 
-        // Add new event listeners
-        if (timeframeSelect) {
+        // Add new event listeners - FIXED: Get the NEW dynamically created selects
+        const newTimeframeSelect = document.querySelector('#deviceInfoContainer #timeframeSelect');
+        const newSensorSelect = document.querySelector('#deviceInfoContainer #sensorSelect');
+        const newComparisonSelect = document.querySelector('#deviceInfoContainer #comparisonSelect');
+        
+        if (newTimeframeSelect) {
+            newTimeframeSelect.addEventListener('change', window.timeframeListener);
+            newTimeframeSelect.value = '12'; // Default to 12 hours
+        }
+        if (newSensorSelect) {
+            newSensorSelect.addEventListener('change', window.sensorListener);
+            newSensorSelect.value = '7'; // Default to Ozone
+        }
+        if (newComparisonSelect) {
+            newComparisonSelect.addEventListener('change', window.comparisonListener);
+            newComparisonSelect.value = ''; // Reset comparison
+        }
+        
+        // Also handle legacy selects if they exist
+        if (timeframeSelect && timeframeSelect !== newTimeframeSelect) {
             timeframeSelect.addEventListener('change', window.timeframeListener);
-            timeframeSelect.value = '24'; // Reset to default
+            timeframeSelect.value = '12';
         }
-        if (sensorSelect) {
+        if (sensorSelect && sensorSelect !== newSensorSelect) {
             sensorSelect.addEventListener('change', window.sensorListener);
-            sensorSelect.value = '7'; // Default to Ozone
-        }
-        if (comparisonSelect) {
-            comparisonSelect.addEventListener('change', window.comparisonListener);
-            comparisonSelect.value = ''; // Reset comparison
+            sensorSelect.value = '7';
         }
 
         // Initial data load
@@ -311,12 +337,21 @@ function toggleChartPanel(event, location) {
             // Update panel border with new IAS color
             updatePanelBorderWithIAS(location);
             
-            // Reset select elements
-            if (timeframeSelect) timeframeSelect.value = '24';
-            if (sensorSelect) sensorSelect.value = '7'; // Ozono como default
+            // Reset select elements to defaults
+            const newTimeframeSelect = document.querySelector('#deviceInfoContainer #timeframeSelect');
+            const newSensorSelect = document.querySelector('#deviceInfoContainer #sensorSelect');
+            const newComparisonSelect = document.querySelector('#deviceInfoContainer #comparisonSelect');
+            
+            if (newTimeframeSelect) newTimeframeSelect.value = '12';
+            if (newSensorSelect) newSensorSelect.value = '7';
+            if (newComparisonSelect) newComparisonSelect.value = '';
+            
+            // Also reset legacy selects if they exist
+            if (timeframeSelect) timeframeSelect.value = '12';
+            if (sensorSelect) sensorSelect.value = '7';
             if (comparisonSelect) comparisonSelect.value = '';
             
-            // Update sensor title
+            // Update sensor title to default
             updateCurrentSensorTitle('7');
             
             // Load new data
@@ -349,7 +384,8 @@ function createDeviceInfoContainer() {
     // Sensor title
     const sensorTitle = document.createElement('div');
     sensorTitle.id = 'currentSensorTitle';
-    sensorTitle.textContent = 'Ozone (ppb)';
+    // Default to 12 hours instead of 24
+    sensorTitle.textContent = 'Ozone (ppb) - Last 12 Hours';
     
     // Controls container
     const controlsContainer = document.createElement('div');
@@ -510,21 +546,28 @@ function closeChartPanel() {
     }
     window.currentLocation = null;
 
-    // Remove event listeners
-    const timeframeSelect = document.getElementById('timeframeSelect');
-    const sensorSelect = document.getElementById('sensorSelect');
-    const comparisonSelect = document.getElementById('comparisonSelect');
+    // Remove event listeners - UPDATED to handle both new and legacy selects
+    const newTimeframeSelect = document.querySelector('#deviceInfoContainer #timeframeSelect');
+    const newSensorSelect = document.querySelector('#deviceInfoContainer #sensorSelect');
+    const newComparisonSelect = document.querySelector('#deviceInfoContainer #comparisonSelect');
+    const legacyTimeframeSelect = document.getElementById('timeframeSelect');
+    const legacySensorSelect = document.getElementById('sensorSelect');
+    const legacyComparisonSelect = document.getElementById('comparisonSelect');
     
-    if (window.timeframeListener && timeframeSelect) {
-        timeframeSelect.removeEventListener('change', window.timeframeListener);
+    // Remove listeners from new selects
+    if (window.timeframeListener) {
+        if (newTimeframeSelect) newTimeframeSelect.removeEventListener('change', window.timeframeListener);
+        if (legacyTimeframeSelect) legacyTimeframeSelect.removeEventListener('change', window.timeframeListener);
         window.timeframeListener = null;
     }
-    if (window.sensorListener && sensorSelect) {
-        sensorSelect.removeEventListener('change', window.sensorListener);
+    if (window.sensorListener) {
+        if (newSensorSelect) newSensorSelect.removeEventListener('change', window.sensorListener);
+        if (legacySensorSelect) legacySensorSelect.removeEventListener('change', window.sensorListener);
         window.sensorListener = null;
     }
-    if (window.comparisonListener && comparisonSelect) {
-        comparisonSelect.removeEventListener('change', window.comparisonListener);
+    if (window.comparisonListener) {
+        if (newComparisonSelect) newComparisonSelect.removeEventListener('change', window.comparisonListener);
+        if (legacyComparisonSelect) legacyComparisonSelect.removeEventListener('change', window.comparisonListener);
         window.comparisonListener = null;
     }
     
