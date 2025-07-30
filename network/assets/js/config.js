@@ -32,6 +32,7 @@ window.MAP_LAYERS = {
 
 window.API_CONFIG = {
     baseUrl: 'http://smability.sidtecmx.com/SmabilityAPI/BioBox',
+    dataUrl: 'http://smability.sidtecmx.com/SmabilityAPI/GetData', // AGREGADO
     tokens: {
         'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
         'UNAM': '349b1230277f1c67577e4f5bee6ba486',
@@ -40,13 +41,42 @@ window.API_CONFIG = {
     }
 };
 
+// AGREGADO: Configuración de sensores para charts
+window.SENSOR_CONFIG = {
+    '12': { name: 'Temperature', units: '°C', color: '#4264fb' },
+    '2': { name: 'Carbon Monoxide', units: 'ppb', color: '#ff7043' },
+    '3': { name: 'Relative Humidity', units: '%', color: '#4caf50' },
+    '7': { name: 'Ozone', units: 'ppb', color: '#9c27b0' },
+    '9': { name: 'PM2.5', units: 'μg/m³', color: '#ff9800' }
+};
+
 window.CORS_PROXIES = [
     { name: 'allOrigins', url: 'https://api.allorigins.win/raw?url=' },
-    { name: 'corsproxy.io', url: 'https://corsproxy.io/?' }
+    { name: 'corsproxy.io', url: 'https://corsproxy.io/?' },
+    { name: 'cors.sh', url: 'https://cors.sh/' },
+    { name: 'thingproxy', url: 'https://thingproxy.freeboard.io/fetch/' },
+    { name: 'proxy.cors.sh', url: 'https://proxy.cors.sh/' }
 ];
 
 window.currentProxyIndex = 0;
 window.retryCount = 0;
 window.markers = new Map();
+
+// AGREGADO: Variables globales para charts
+window.currentLocation = null;
+window.timeframeListener = null;
+window.sensorListener = null;
+
+// AGREGADO: Función para formatear fechas para API
+window.formatDateForAPI = function(date) {
+    const pad = (num) => String(num).padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
 console.log('Config loaded successfully');
