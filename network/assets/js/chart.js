@@ -50,7 +50,7 @@ function updateChart(formattedData, hours, sensorId) {
             t: 50,
             r: 20,
             l: 50,
-            b: 60
+            b: 80 // More bottom margin for Plotly controls
         },
         yaxis: {
             title: {
@@ -131,14 +131,14 @@ function toggleChartPanel(event, location) {
         return;
     }
 
-    const title = panel.querySelector('.chart-panel-title');
     const timeframeSelect = document.getElementById('timeframeSelect');
     const sensorSelect = document.getElementById('sensorSelect');
+    const comparisonSelect = document.getElementById('comparisonSelect');
 
     console.log('Panel found:', panel);
-    console.log('Title element:', title);
     console.log('Timeframe select:', timeframeSelect);
     console.log('Sensor select:', sensorSelect);
+    console.log('Comparison select:', comparisonSelect);
 
     // Remove existing event listeners if they exist
     if (window.timeframeListener && timeframeSelect) {
@@ -147,20 +147,23 @@ function toggleChartPanel(event, location) {
     if (window.sensorListener && sensorSelect) {
         sensorSelect.removeEventListener('change', window.sensorListener);
     }
+    if (window.comparisonListener && comparisonSelect) {
+        comparisonSelect.removeEventListener('change', window.comparisonListener);
+    }
 
     if (panel.style.display === 'none' || !panel.style.display) {
         console.log('Opening chart panel...');
         panel.style.display = 'flex';
-        // QUITAMOS el título del header principal ya que ahora está en la caja
         window.currentLocation = location; // Store current location GLOBALLY
 
-        // NUEVO: Crear dropdown de comparación si no existe
-        createComparisonDropdown();
+        // Create device info container if it doesn't exist
+        createDeviceInfoContainer();
         
-        // NUEVO: Actualizar título del dispositivo en la nueva caja
+        // Update títulos del dispositivo y sensor
         updateCurrentDeviceTitle(location);
+        updateCurrentSensorTitle('7'); // Default to Ozone
 
-        // NUEVO: Actualizar borde del panel con color IAS
+        // Update panel border with IAS color
         updatePanelBorderWithIAS(location);
 
         // Show loading state
@@ -169,13 +172,13 @@ function toggleChartPanel(event, location) {
             y: [0],
             name: 'Loading...',
             font: {
-                family: 'Arial, sans-serif'
+                family: 'DIN Pro, Arial, sans-serif'
             }
         }], {
             title: {
                 text: 'Loading sensor data...',
                 font: {
-                    family: 'Arial, sans-serif',
+                    family: 'DIN Pro, Arial, sans-serif',
                     size: 12
                 }
             }
@@ -192,7 +195,7 @@ function toggleChartPanel(event, location) {
             }
 
             const hours = parseInt(timeframeSelect ? timeframeSelect.value : '24');
-            const sensorId = sensorSelect ? sensorSelect.value : '12';
+            const sensorId = sensorSelect ? sensorSelect.value : '7';
             const token = API_CONFIG.tokens[window.currentLocation];
 
             console.log('Fetching data for:', { hours, sensorId, token, location: window.currentLocation });
@@ -202,13 +205,13 @@ function toggleChartPanel(event, location) {
                 y: [0],
                 name: 'Loading...',
                 font: {
-                    family: 'Arial, sans-serif'
+                    family: 'DIN Pro, Arial, sans-serif'
                 }
             }], {
                 title: {
                     text: `Loading ${SENSOR_CONFIG[sensorId].name} data for ${window.currentLocation}...`,
                     font: {
-                        family: 'Arial, sans-serif',
+                        family: 'DIN Pro, Arial, sans-serif',
                         size: 12
                     }
                 }
@@ -231,12 +234,12 @@ function toggleChartPanel(event, location) {
                                 y: [0],
                                 name: 'Error',
                                 font: {
-                                    family: 'Arial, sans-serif'
+                                    family: 'DIN Pro, Arial, sans-serif'
                                 }
                             }], {
                                 title: 'Error loading sensor data: ' + error.message,
                                 font: {
-                                    family: 'Arial, sans-serif',
+                                    family: 'DIN Pro, Arial, sans-serif',
                                     size: 12
                                 }
                             });
@@ -249,12 +252,12 @@ function toggleChartPanel(event, location) {
                     y: [0],
                     name: 'Error',
                     font: {
-                        family: 'Arial, sans-serif'
+                        family: 'DIN Pro, Arial, sans-serif'
                     }
                 }], {
                     title: 'fetchSensorDataWithProxy function not available',
                     font: {
-                        family: 'Arial, sans-serif',
+                        family: 'DIN Pro, Arial, sans-serif',
                         size: 12
                     }
                 });
@@ -265,25 +268,29 @@ function toggleChartPanel(event, location) {
         window.timeframeListener = () => updateData();
         window.sensorListener = () => {
             updateData();
-            // NUEVO: Actualizar título del sensor cuando cambie
+            // Update sensor title when changed
             const sensorSelect = document.getElementById('sensorSelect');
             if (sensorSelect) {
                 updateCurrentSensorTitle(sensorSelect.value);
             }
         };
+        window.comparisonListener = () => {
+            console.log('Comparison station changed');
+            updateData(); // This could be enhanced for comparison functionality
+        };
 
         // Add new event listeners
         if (timeframeSelect) {
             timeframeSelect.addEventListener('change', window.timeframeListener);
-            // Reset to default values when switching locations
-            timeframeSelect.value = '24';
+            timeframeSelect.value = '24'; // Reset to default
         }
         if (sensorSelect) {
             sensorSelect.addEventListener('change', window.sensorListener);
-            // CAMBIADO: Ozono como default en lugar de temperatura
-            sensorSelect.value = '7';
-            // NUEVO: Actualizar título inicial
-            updateCurrentSensorTitle('7');
+            sensorSelect.value = '7'; // Default to Ozone
+        }
+        if (comparisonSelect) {
+            comparisonSelect.addEventListener('change', window.comparisonListener);
+            comparisonSelect.value = ''; // Reset comparison
         }
 
         // Initial data load
@@ -298,15 +305,19 @@ function toggleChartPanel(event, location) {
             console.log('Switching to different location while panel open');
             window.currentLocation = location;
             
-            // NUEVO: Actualizar título del dispositivo en la nueva caja
+            // Update device title
             updateCurrentDeviceTitle(location);
             
-            // NUEVO: Actualizar borde del panel con nuevo color IAS
+            // Update panel border with new IAS color
             updatePanelBorderWithIAS(location);
             
             // Reset select elements
             if (timeframeSelect) timeframeSelect.value = '24';
             if (sensorSelect) sensorSelect.value = '7'; // Ozono como default
+            if (comparisonSelect) comparisonSelect.value = '';
+            
+            // Update sensor title
+            updateCurrentSensorTitle('7');
             
             // Load new data
             if (window.timeframeListener) {
@@ -317,83 +328,40 @@ function toggleChartPanel(event, location) {
 }
 
 /**
- * NUEVO: Crear dropdown de comparación con nombre del dispositivo
+ * Create device info container with all controls
  */
-function createComparisonDropdown() {
+function createDeviceInfoContainer() {
     const chartContainer = document.querySelector('.chart-container');
     if (!chartContainer) return;
     
-    // Verificar si ya existe el dropdown
-    if (document.getElementById('comparisonSelect')) return;
+    // Check if device info container already exists
+    if (document.getElementById('deviceInfoContainer')) return;
     
-    // Crear container para información del dispositivo y comparación
+    // Create the device info container
     const infoContainer = document.createElement('div');
     infoContainer.id = 'deviceInfoContainer';
-    infoContainer.style.cssText = `
-        position: absolute;
-        top: -45px;
-        left: 10px;
-        z-index: 10;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 8px 12px;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        font-size: 12px;
-        min-width: 220px;
-    `;
     
-    // Título del dispositivo actual
+    // Device title
     const deviceTitle = document.createElement('div');
     deviceTitle.id = 'currentDeviceTitle';
-    deviceTitle.style.cssText = `
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 6px;
-        font-size: 14px;
-    `;
-    deviceTitle.textContent = 'SMAA Device'; // Default, se actualizará
+    deviceTitle.textContent = 'SMAA Device';
     
-    // Título del sensor actual
+    // Sensor title
     const sensorTitle = document.createElement('div');
     sensorTitle.id = 'currentSensorTitle';
-    sensorTitle.style.cssText = `
-        color: #666;
-        margin-bottom: 6px;
-        font-size: 12px;
-    `;
-    sensorTitle.textContent = 'Ozone (ppb)'; // Default
+    sensorTitle.textContent = 'Ozone (ppb)';
     
-    // Container para el dropdown de comparación
-    const dropdownContainer = document.createElement('div');
-    dropdownContainer.style.cssText = `
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    `;
+    // Controls container
+    const controlsContainer = document.createElement('div');
+    controlsContainer.className = 'controls-container';
     
-    // Label
-    const label = document.createElement('span');
-    label.textContent = 'Compare with:';
-    label.style.cssText = `
-        color: #666;
-        font-size: 11px;
-        white-space: nowrap;
-    `;
+    // Comparison control
+    const comparisonLabel = document.createElement('label');
+    comparisonLabel.textContent = 'Compare with:';
+    const comparisonSelect = document.createElement('select');
+    comparisonSelect.id = 'comparisonSelect';
     
-    // Dropdown
-    const select = document.createElement('select');
-    select.id = 'comparisonSelect';
-    select.style.cssText = `
-        font-size: 10px;
-        padding: 2px 4px;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        background: white;
-        min-width: 100px;
-    `;
-    
-    // Opciones del dropdown
-    const options = [
+    const comparisonOptions = [
         { value: '', text: 'None' },
         { value: 'Hipódromo', text: 'Hipódromo' },
         { value: 'UNAM', text: 'UNAM' },
@@ -401,36 +369,92 @@ function createComparisonDropdown() {
         { value: 'INSYC-Smability', text: 'INSYC-Smability' }
     ];
     
-    options.forEach(option => {
+    comparisonOptions.forEach(option => {
         const optionElement = document.createElement('option');
         optionElement.value = option.value;
         optionElement.textContent = option.text;
-        select.appendChild(optionElement);
+        comparisonSelect.appendChild(optionElement);
     });
     
-    // Event listener para comparación
-    select.addEventListener('change', () => {
-        if (window.timeframeListener) {
-            console.log('Comparison station changed to:', select.value);
-            window.timeframeListener(); // Trigger data reload with comparison
-        }
-    });
+    // Sensor control (move existing select or create new one)
+    const sensorLabel = document.createElement('label');
+    sensorLabel.textContent = 'Sensor:';
+    const existingSensorSelect = document.getElementById('sensorSelect');
+    let sensorSelect;
     
-    // Ensamblar elementos
-    dropdownContainer.appendChild(label);
-    dropdownContainer.appendChild(select);
+    if (existingSensorSelect) {
+        sensorSelect = existingSensorSelect.cloneNode(true);
+        existingSensorSelect.style.display = 'none'; // Hide original
+    } else {
+        sensorSelect = document.createElement('select');
+        sensorSelect.id = 'sensorSelect';
+        const sensorOptions = [
+            { value: '7', text: 'Ozone (ppb)' },
+            { value: '2', text: 'Carbon Monoxide (ppb)' },
+            { value: '9', text: 'PM2.5 (μg/m³)' },
+            { value: '12', text: 'Temperature (°C)' },
+            { value: '3', text: 'Relative Humidity (%)' }
+        ];
+        
+        sensorOptions.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            sensorSelect.appendChild(optionElement);
+        });
+    }
+    
+    // Timeframe control (move existing select or create new one)
+    const timeframeLabel = document.createElement('label');
+    timeframeLabel.textContent = 'Timeframe:';
+    const existingTimeframeSelect = document.getElementById('timeframeSelect');
+    let timeframeSelect;
+    
+    if (existingTimeframeSelect) {
+        timeframeSelect = existingTimeframeSelect.cloneNode(true);
+        existingTimeframeSelect.style.display = 'none'; // Hide original
+    } else {
+        timeframeSelect = document.createElement('select');
+        timeframeSelect.id = 'timeframeSelect';
+        const         timeframeOptions = [
+            { value: '168', text: 'Last 7 days' },
+            { value: '24', text: 'Last 24 hours' },
+            { value: '12', text: 'Last 12 hours' },
+            { value: '8', text: 'Last 8 hours' },
+            { value: '4', text: 'Last 4 hours' }
+        ];
+        
+        timeframeOptions.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            timeframeSelect.appendChild(optionElement);
+        });
+    }
+    
+    // Assemble controls
+    controlsContainer.appendChild(comparisonLabel);
+    controlsContainer.appendChild(comparisonSelect);
+    controlsContainer.appendChild(sensorLabel);
+    controlsContainer.appendChild(sensorSelect);
+    controlsContainer.appendChild(timeframeLabel);
+    controlsContainer.appendChild(timeframeSelect);
+    
+    // Assemble info container
     infoContainer.appendChild(deviceTitle);
     infoContainer.appendChild(sensorTitle);
-    infoContainer.appendChild(dropdownContainer);
+    infoContainer.appendChild(controlsContainer);
     
-    // Insertar en el chart container
-    chartContainer.style.position = 'relative';
-    chartContainer.appendChild(infoContainer);
+    // Insert into chart panel header
+    const chartHeader = document.querySelector('.chart-panel-header');
+    if (chartHeader) {
+        chartHeader.appendChild(infoContainer);
+    }
 }
 
 /**
- * NUEVO: Actualizar título del dispositivo actual
- * @param {string} deviceName - Nombre del dispositivo
+ * Update device title
+ * @param {string} deviceName - Name of the device
  */
 function updateCurrentDeviceTitle(deviceName) {
     const titleElement = document.getElementById('currentDeviceTitle');
@@ -440,8 +464,8 @@ function updateCurrentDeviceTitle(deviceName) {
 }
 
 /**
- * NUEVO: Actualizar título del sensor actual
- * @param {string} sensorId - ID del sensor
+ * Update sensor title
+ * @param {string} sensorId - ID of the sensor
  */
 function updateCurrentSensorTitle(sensorId) {
     const titleElement = document.getElementById('currentSensorTitle');
@@ -451,8 +475,8 @@ function updateCurrentSensorTitle(sensorId) {
 }
 
 /**
- * NUEVO: Actualizar borde del panel con color IAS
- * @param {string} location - Nombre de la ubicación
+ * Update panel border with IAS color
+ * @param {string} location - Location name
  */
 async function updatePanelBorderWithIAS(location) {
     try {
@@ -489,6 +513,7 @@ function closeChartPanel() {
     // Remove event listeners
     const timeframeSelect = document.getElementById('timeframeSelect');
     const sensorSelect = document.getElementById('sensorSelect');
+    const comparisonSelect = document.getElementById('comparisonSelect');
     
     if (window.timeframeListener && timeframeSelect) {
         timeframeSelect.removeEventListener('change', window.timeframeListener);
@@ -498,6 +523,22 @@ function closeChartPanel() {
         sensorSelect.removeEventListener('change', window.sensorListener);
         window.sensorListener = null;
     }
+    if (window.comparisonListener && comparisonSelect) {
+        comparisonSelect.removeEventListener('change', window.comparisonListener);
+        window.comparisonListener = null;
+    }
+    
+    // Clean up device info container
+    const deviceInfoContainer = document.getElementById('deviceInfoContainer');
+    if (deviceInfoContainer) {
+        deviceInfoContainer.remove();
+    }
+    
+    // Show original selects if they were hidden
+    const originalSensorSelect = document.querySelector('.select-container #sensorSelect');
+    const originalTimeframeSelect = document.querySelector('.select-container #timeframeSelect');
+    if (originalSensorSelect) originalSensorSelect.style.display = '';
+    if (originalTimeframeSelect) originalTimeframeSelect.style.display = '';
     
     console.log('Chart panel closed and cleaned up');
 }
@@ -518,5 +559,9 @@ window.addEventListener('resize', () => {
 window.toggleChartPanel = toggleChartPanel;
 window.closeChartPanel = closeChartPanel;
 window.updateChart = updateChart;
+window.createDeviceInfoContainer = createDeviceInfoContainer;
+window.updateCurrentDeviceTitle = updateCurrentDeviceTitle;
+window.updateCurrentSensorTitle = updateCurrentSensorTitle;
+window.updatePanelBorderWithIAS = updatePanelBorderWithIAS;
 
 console.log('Chart.js loaded successfully');
