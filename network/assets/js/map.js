@@ -465,26 +465,110 @@ setTimeout(() => {
     }
     // ======= FIN DE NUEVAS FUNCIONES =======
 
-    function setupDataRefresh() {
-        setInterval(async () => {
-            console.log('Refreshing marker data...');
-            
-            // Update marker colors and IAS values for active stations
-            if (typeof updateMarkerData === 'function') {
-                await updateMarkerData();
-            }
-            
-            // Force update of all markers
-            for (const location of APP_SETTINGS.activeStations) {
-                if (markers.has(location)) {
-                    await updateMarkerColor(location);
-                }
-            }
-            
-            console.log('Marker refresh complete');
-            
-        }, APP_SETTINGS.refreshInterval);
+// Función actualizada para setupDataRefresh en map.js
+function setupDataRefresh() {
+    console.log('Setting up data refresh schedule...');
+    
+    /**
+     * Calculate milliseconds until next target minute (5 or 20)
+     */
+    function getTimeUntilNextRefresh() {
+        const now = new Date();
+        const currentMinute = now.getMinutes();
+        
+        let nextMinute;
+        if (currentMinute < 5) {
+            nextMinute = 5;
+        } else if (currentMinute < 20) {
+            nextMinute = 20;
+        } else {
+            // Next refresh is at 5 minutes of next hour
+            nextMinute = 65; // 60 + 5
+        }
+        
+        const targetTime = new Date(now);
+        if (nextMinute >= 60) {
+            targetTime.setHours(targetTime.getHours() + 1);
+            targetTime.setMinutes(nextMinute - 60);
+        } else {
+            targetTime.setMinutes(nextMinute);
+        }
+        targetTime.setSeconds(0);
+        targetTime.setMilliseconds(0);
+        
+        return targetTime.getTime() - now.getTime();
     }
+    
+    /**
+     * Perform data refresh
+     */
+    async function performRefresh() {
+        console.log('Performing scheduled data refresh at:', new Date().toLocaleTimeString());
+        
+        // Update marker colors and IAS values for active stations
+        if (typeof updateMarkerData === 'function') {
+            await updateMarkerData();
+        }
+        
+        // Force update of all markers
+        for (const location of APP_SETTINGS.activeStations) {
+            if (markers.has(location)) {
+                await updateMarkerColor(location);
+            }
+        }
+        
+        // Update any visible popups
+        const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
+        if (visiblePopups.length > 0) {
+            try {
+                const features = map.queryRenderedFeatures({
+                    layers: ['smaa_network']
+                });
+                
+                for (const feature of features) {
+                    if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
+                        const sensorData = await fetchSensorData(feature.properties.name);
+                        // Update popup content if it exists
+                        const popupContent = visiblePopups[0].querySelector('.mapboxgl-popup-content');
+                        if (popupContent) {
+                            popupContent.innerHTML = createPopupContent(feature, sensorData);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error updating popup during refresh:', error);
+            }
+        }
+        
+        console.log('Scheduled refresh complete');
+    }
+    
+    /**
+     * Schedule next refresh
+     */
+    function scheduleNextRefresh() {
+        const timeUntilNext = getTimeUntilNextRefresh();
+        const nextRefreshTime = new Date(Date.now() + timeUntilNext);
+        
+        console.log(`Next refresh scheduled for: ${nextRefreshTime.toLocaleTimeString()} (in ${Math.round(timeUntilNext/1000)} seconds)`);
+        
+        setTimeout(async () => {
+            await performRefresh();
+            
+            // Set up recurring 15-minute interval (between 5 and 20, then 20 and next 5)
+            setInterval(async () => {
+                await performRefresh();
+            }, 15 * 60 * 1000); // 15 minutes = 900,000 ms
+            
+        }, timeUntilNext);
+    }
+    
+    // Initial refresh immediately
+    setTimeout(async () => {
+        await performRefresh();
+        scheduleNextRefresh();
+    }, 2000); // Wait 2 seconds for map to be fully loaded
+}
 
     /**
      * Initialize markers for map features (if needed)
