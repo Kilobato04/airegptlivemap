@@ -156,6 +156,9 @@ function toggleChartPanel(event, location) {
         }
         window.currentLocation = location; // Store current location GLOBALLY
 
+        // NUEVO: Crear dropdown de comparación si no existe
+        createComparisonDropdown();
+
         // NUEVO: Actualizar borde del panel con color IAS
         updatePanelBorderWithIAS(location);
 
@@ -269,8 +272,8 @@ function toggleChartPanel(event, location) {
         }
         if (sensorSelect) {
             sensorSelect.addEventListener('change', window.sensorListener);
-            // Reset to default values when switching locations
-            sensorSelect.value = '12';
+            // CAMBIADO: Ozono como default en lugar de temperatura
+            sensorSelect.value = '7';
         }
 
         // Initial data load
@@ -293,7 +296,7 @@ function toggleChartPanel(event, location) {
             
             // Reset select elements
             if (timeframeSelect) timeframeSelect.value = '24';
-            if (sensorSelect) sensorSelect.value = '12';
+            if (sensorSelect) sensorSelect.value = '7'; // Ozono como default
             
             // Load new data
             if (window.timeframeListener) {
@@ -301,6 +304,75 @@ function toggleChartPanel(event, location) {
             }
         }
     }
+}
+
+/**
+ * NUEVO: Crear dropdown de comparación
+ */
+function createComparisonDropdown() {
+    const title = document.querySelector('.chart-panel-title');
+    if (!title) return;
+    
+    // Verificar si ya existe el dropdown
+    if (document.getElementById('comparisonSelect')) return;
+    
+    // Crear container para el dropdown
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.style.cssText = `
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+    `;
+    
+    // Label
+    const label = document.createElement('span');
+    label.textContent = 'Compare with:';
+    label.style.color = '#666';
+    
+    // Dropdown
+    const select = document.createElement('select');
+    select.id = 'comparisonSelect';
+    select.className = 'panel-select';
+    select.style.cssText = `
+        flex: 1;
+        font-size: 11px;
+        padding: 4px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: white;
+    `;
+    
+    // Opciones del dropdown
+    const options = [
+        { value: '', text: 'None (single station)' },
+        { value: 'Hipódromo', text: 'Hipódromo' },
+        { value: 'UNAM', text: 'UNAM' },
+        { value: 'CENTRUS 3', text: 'CENTRUS 3' },
+        { value: 'INSYC-Smability', text: 'INSYC-Smability' }
+    ];
+    
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.text;
+        select.appendChild(optionElement);
+    });
+    
+    // Event listener para comparación
+    select.addEventListener('change', () => {
+        if (window.timeframeListener) {
+            console.log('Comparison station changed to:', select.value);
+            window.timeframeListener(); // Trigger data reload with comparison
+        }
+    });
+    
+    dropdownContainer.appendChild(label);
+    dropdownContainer.appendChild(select);
+    
+    // Insertar después del título
+    title.parentNode.insertBefore(dropdownContainer, title.nextSibling);
 }
 
 /**
