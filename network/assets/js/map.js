@@ -288,7 +288,7 @@ setTimeout(() => {
         });
     }
 
-    /**
+/**
      * Set up map click handlers
      */
     function setupMapInteractions() {
@@ -309,6 +309,15 @@ setTimeout(() => {
                 maxWidth: '300px'
             })
             .setLngLat(feature.geometry.coordinates);
+
+            // NUEVO: Event listener para cerrar panel cuando se cierre el popup
+            popup.on('close', () => {
+                console.log('Popup closed, checking if chart panel should close...');
+                if (window.currentLocation === feature.properties.name) {
+                    console.log('Closing chart panel because popup closed for current location');
+                    closeChartPanel();
+                }
+            });
 
             if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
                 // Show loading popup first
@@ -331,6 +340,25 @@ setTimeout(() => {
             } else {
                 // For inactive stations, just show basic info
                 popup.setHTML(createPopupContent(feature)).addTo(map);
+            }
+        });
+
+        // NUEVO: Cerrar panel cuando se hace click fuera de popup/panel
+        map.on('click', (event) => {
+            // Si no se hizo click en una estación y hay un panel abierto, cerrarlo
+            const features = map.queryRenderedFeatures(event.point, {
+                layers: ['smaa_network']
+            });
+            
+            if (features.length === 0 && window.currentLocation) {
+                console.log('Clicked outside station, closing chart panel if open');
+                setTimeout(() => {
+                    // Verificar si no hay popups visibles después de un pequeño delay
+                    const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
+                    if (visiblePopups.length === 0) {
+                        closeChartPanel();
+                    }
+                }, 100);
             }
         });
 
