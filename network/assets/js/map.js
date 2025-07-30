@@ -63,7 +63,7 @@ setTimeout(() => {
         // Set up interactions
         setupMapInteractions();
         
-        // Set up data refresh
+        // Set up data refresh - SOLO UNA VEZ
         setupDataRefresh();
         
         // Force immediate marker initialization
@@ -556,33 +556,10 @@ setTimeout(() => {
         }, 2000); // Wait 2 seconds for map to be fully loaded
     }
 
-    // Initialize markers when source data loads
-    map.on('sourcedata', e => {
-        if (e.sourceId === MAP_LAYERS.source && e.isSourceLoaded) {
-            const features = map.querySourceFeatures(MAP_LAYERS.source, {
-                sourceLayer: MAP_LAYERS.sourceLayer
-            });
-            
-            // Initialize markers for active stations
-            features.forEach(feature => {
-                if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-                    if (!markers.has(feature.properties.name)) {
-                        // Create marker with correct size and placeholder
-                        const el = createMarkerElement('#cccccc', '...');
-                        const marker = new mapboxgl.Marker({ element: el })
-                            .setLngLat(feature.geometry.coordinates)
-                            .addTo(map);
-                        markers.set(feature.properties.name, marker);
-                    }
-                }
-            });
-            
-            // Initial update of marker data after a short delay
-            setTimeout(() => {
-                updateMarkerData();
-            }, 1000);
-        }
-    });
+    // ELIMINAR TODO EL CÓDIGO DUPLICADO DESDE AQUÍ HACIA ABAJO:
+    // ❌ NO INCLUIR map.on('sourcedata') duplicado que cause refresh cada 3s
+    // ❌ NO INCLUIR ningún setInterval adicional
+    // ❌ NO INCLUIR funciones duplicadas
 
     // Error handling for map load
     map.on('error', (e) => {
