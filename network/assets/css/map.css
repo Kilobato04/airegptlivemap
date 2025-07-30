@@ -201,7 +201,7 @@ body {
 }
 
 .brand-text {
-    font-family: Arial, sans-serif;
+    font-family: 'DIN Pro', Arial, sans-serif;
     font-weight: '';
     color: #888888;
     font-size: 11px;
@@ -213,7 +213,7 @@ body {
     font-size: 11px;
 }
 
-/* Chart Panel Styles - CORREGIDO Y CONSOLIDADO */
+/* Chart Panel Styles - UPDATED AND IMPROVED */
 .chart-panel {
     position: fixed;
     background-color: rgba(255, 255, 255, 0.98);
@@ -226,43 +226,101 @@ body {
     border: 2px solid #4264fb; /* Borde azul dinámico (se actualiza con JS) */
 }
 
-/* Chart Panel Header - SIN LÍNEA DIVISORIA */
+/* Chart Panel Header - NO BORDER */
 .chart-panel-header {
     display: flex;
-    align-items: center;
-    /* ELIMINADO: border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
+    flex-direction: column;
     position: relative;
-    padding-bottom: 0; /* Sin padding inferior */
+    padding-bottom: 0;
+    margin-bottom: 16px;
 }
 
-/* Título principal OCULTO (ahora está en la caja de dispositivo) */
-.chart-panel-title {
-    display: none;
+/* Device Info Container - EXTENDED TO FULL WIDTH */
+#deviceInfoContainer {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 12px;
+    position: relative;
 }
 
-/* Botón X en ESQUINA INFERIOR IZQUIERDA */
+/* Close Button - TOP RIGHT CORNER */
 .chart-panel-close {
     position: absolute;
-    bottom: 6px; /* ESQUINA INFERIOR */
-    left: 6px; /* ESQUINA IZQUIERDA */
-    width: 18px; /* Tamaño pequeño */
-    height: 18px; /* Tamaño pequeño */
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.1);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px; /* Texto pequeño */
+    font-size: 16px;
     color: #666;
     transition: all 0.2s ease;
     z-index: 2;
 }
 
 .chart-panel-close:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.2);
     transform: scale(1.1);
+}
+
+/* Device and Sensor Titles */
+#currentDeviceTitle {
+    font-family: 'DIN Pro', Arial, sans-serif;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+    font-size: 16px;
+    padding-right: 35px; /* Space for close button */
+}
+
+#currentSensorTitle {
+    font-family: 'DIN Pro', Arial, sans-serif;
+    color: #666;
+    margin-bottom: 12px;
+    font-size: 13px;
+    padding-right: 35px; /* Space for close button */
+}
+
+/* Controls Container - ALL DROPDOWNS IN ONE ROW */
+.controls-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.controls-container label {
+    font-family: 'DIN Pro', Arial, sans-serif;
+    color: #666;
+    font-size: 11px;
+    white-space: nowrap;
+    margin-right: 4px;
+}
+
+.controls-container select {
+    font-family: 'DIN Pro', Arial, sans-serif;
+    font-size: 11px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    min-width: 100px;
+    flex: 1;
+}
+
+/* Título principal OCULTO (ahora está en la caja de dispositivo) */
+.chart-panel-title {
+    display: none;
 }
 
 /* Desktop styles */
@@ -276,19 +334,25 @@ body {
     }
     
     .chart-panel-header {
-        flex-direction: row;
-        height: 40px;
+        flex-direction: column;
+        height: auto;
     }
     
     .select-container {
-        position: absolute;
-        right: 16px;
-        top: 12px;
+        display: none; /* Hide old select container */
+    }
+    
+    .controls-container {
+        flex-wrap: nowrap;
+    }
+    
+    .controls-container select {
+        min-width: 120px;
     }
 }
 
 /* Mobile styles */
-@media (max-width: 765px) {
+@media (max-width: 767px) {
     .chart-panel {
         bottom: 0;
         left: 0;
@@ -301,18 +365,29 @@ body {
     .chart-panel-header {
         flex-direction: column;
         height: auto;
-        gap: 12px;
-        padding-bottom: 12px;
+        gap: 0;
+        padding-bottom: 0;
     }
     
     .select-container {
-        position: relative;
-        display: flex;
-        gap: 8px;
-        padding-left: 48px;
-        padding-right: 16px;
-        width: 100%;
-        box-sizing: border-box;
+        display: none; /* Hide old select container */
+    }
+    
+    .controls-container {
+        flex-wrap: wrap;
+    }
+    
+    .controls-container select {
+        min-width: 80px;
+        font-size: 10px;
+    }
+    
+    #currentDeviceTitle {
+        font-size: 14px;
+    }
+    
+    #currentSensorTitle {
+        font-size: 12px;
     }
     
     .panel-select {
@@ -320,12 +395,6 @@ body {
         min-width: 0;
         font-size: 12px;
     }
-}
-
-.select-container {
-    display: flex;
-    gap: 8px;
-    align-items: center;
 }
 
 .chart-container {
@@ -338,6 +407,14 @@ body {
 #iasChart {
     width: 100%;
     height: 100%;
+}
+
+/* Plotly Controls - MOVED TO BOTTOM */
+.chart-container .js-plotly-plot .plotly .modebar {
+    position: absolute !important;
+    bottom: 10px !important;
+    right: 10px !important;
+    top: auto !important;
 }
 
 .chart-link {
@@ -371,7 +448,8 @@ body {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding: 0 16px 16px;
+    padding: 8px 16px 0;
+    margin-top: 8px;
 }
 
 /* WhatsApp Float Button */
