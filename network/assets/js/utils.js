@@ -52,11 +52,14 @@ function createPopupContent(feature, sensorData) {
         }
 
         if (sensorData && sensorData.dataIAS !== 'N/A') {
-            const result = getIndicatorColor(sensorData.dataIAS);
+            // Use new API structure for color and status
+            const iasColor = sensorData.ColorIAS || getIndicatorColor(sensorData.dataIAS).color;
+            const iasStatus = sensorData.IndiceIAS || getIndicatorColor(sensorData.dataIAS).status;
+            const riskLevel = sensorData.RisklevelIAS || getIndicatorColor(sensorData.dataIAS).risk;
             const emoji = getIASEmoji(sensorData.dataIAS);
             
             // CAMBIO: Aplicar fondo y borde a TODO el contenido del popup
-            html = '<div style="background-color: ' + result.color + '33; padding: 15px; border-radius: 10px; border: 3px solid ' + result.color + ';">';
+            html = '<div style="background-color: ' + iasColor + '33; padding: 15px; border-radius: 10px; border: 3px solid ' + iasColor + ';">';
             
             // Información básica con fondo del color IAS
             html += '<h3 style="margin: 0 0 10px 0; color: #000;">Name: ' + name + '</h3>';
@@ -69,86 +72,95 @@ function createPopupContent(feature, sensorData) {
             html += '<span class="reading-label ias-label">IAS:</span>';
             html += '<span class="reading-value" style="display: flex; align-items: center; gap: 2px;">';
             html += '<span style="font-size: 22px; line-height: 1;">' + emoji + '</span>';
-            html += '<span class="indicator" style="background-color: ' + result.color + '"></span>';
+            html += '<span class="indicator" style="background-color: ' + iasColor + '"></span>';
             html += sensorData.dataIAS;
             html += '</span>';
             html += '</div>';
             
             // Status Information
             html += '<div class="status-container">';
-            html += '<p class="status-text">Status: ' + result.status + '</p>';
-            html += '<p class="status-text">Risk: ' + result.risk + '</p>';
+            html += '<p class="status-text">Status: ' + iasStatus + '</p>';
+            html += '<p class="status-text">Risk: ' + riskLevel + '</p>';
             html += '</div>';
 
             // Dominant Pollutant
-            if (sensorData.sensorIAS && sensorData.sensorIAS !== 'N/A') {
+            const dominantPollutant = sensorData.SensorIAS || sensorData.sensorIAS;
+            if (dominantPollutant && dominantPollutant !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.9em;">';
                 html += '<span class="reading-label">Dominant Pollutant:</span>';
-                html += '<span class="reading-value">' + sensorData.sensorIAS + '</span>';
+                html += '<span class="reading-value">' + dominantPollutant + '</span>';
                 html += '</div>';
             }
 
-            // Pollutant Concentrations
-            if (sensorData.concentracionIASCO && sensorData.concentracionIASCO !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">CO <small>8hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASCO + ' ppb</span>';
-                html += '</div>';
-            }
+            // Essential Pollutant Concentrations ONLY
+            const co8hr = sensorData.ConcentrationIASCO_8hr || sensorData.CO_1hr || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">CO 8hr:</span>';
+            html += '<span class="reading-value">' + co8hr + '</span>';
+            html += '</div>';
 
-            if (sensorData.concentracionIASO3 && sensorData.concentracionIASO3 !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">O3 <small>1hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASO3 + ' ppb</span>';
-                html += '</div>';
-            }
+            const o31hr = sensorData.ConcentrationIASO3_1hr || sensorData.O3_1hr || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">O3 1hr:</span>';
+            html += '<span class="reading-value">' + o31hr + '</span>';
+            html += '</div>';
 
-            if (sensorData.concentracionIASPM10 && sensorData.concentracionIASPM10 !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">PM10 <small>12hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASPM10 + ' μg/m³</span>';
-                html += '</div>';
-            }
+            const pm10 = sensorData.ConcentrationIASPM10_12hr || sensorData.PM10_1hr || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">PM10 12hr:</span>';
+            html += '<span class="reading-value">' + pm10 + '</span>';
+            html += '</div>';
 
-            if (sensorData.concentracionIASPM2_5 && sensorData.concentracionIASPM2_5 !== 'N/A') {
-                html += '<div class="reading" style="font-size: 0.85em;">';
-                html += '<span class="reading-label">PM2.5 <small>12hr:</small></span>';
-                html += '<span class="reading-value">' + sensorData.concentracionIASPM2_5 + ' μg/m³</span>';
-                html += '</div>';
-            }
+            const pm25 = sensorData.ConcentrationIASPM2_5_12hr || sensorData.PM2_5_1hr || 'N/A';
+            html += '<div class="reading" style="font-size: 0.85em;">';
+            html += '<span class="reading-label">PM2.5 12hr:</span>';
+            html += '<span class="reading-value">' + pm25 + '</span>';
+            html += '</div>';
 
             // Environmental Conditions
-            if (sensorData.temperature && sensorData.temperature !== 'N/A') {
+            const temperature = sensorData.Temp_1hr || sensorData.temperature;
+            if (temperature && temperature !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Temperature:</span>';
-                html += '<span class="reading-value">' + sensorData.temperature + ' ℃</span>';
+                html += '<span class="reading-value">' + temperature + (temperature.includes('°') ? '' : ' ℃') + '</span>';
                 html += '</div>';
             }
 
-            if (sensorData.humidity && sensorData.humidity !== 'N/A') {
+            const humidity = sensorData.HR_1hr || sensorData.humidity;
+            if (humidity && humidity !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Relative Humidity:</span>';
-                html += '<span class="reading-value">' + sensorData.humidity + ' %</span>';
+                html += '<span class="reading-value">' + humidity + (humidity.includes('%') ? '' : ' %') + '</span>';
                 html += '</div>';
             }
 
             // Device Information
-            if (sensorData.modesensor && sensorData.modesensor !== 'N/A') {
+            const deviceMode = sensorData.ModeSensor || sensorData.modesensor;
+            if (deviceMode && deviceMode !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Device Mode:</span>';
-                html += '<span class="reading-value">' + translateMode(sensorData.modesensor) + '</span>';
+                html += '<span class="reading-value">' + translateMode(deviceMode) + '</span>';
                 html += '</div>';
             }
 
-            if (sensorData.locationsensor && sensorData.locationsensor !== 'N/A') {
+            const deviceLocation = sensorData.LocationSensor || sensorData.locationsensor;
+            if (deviceLocation && deviceLocation !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
                 html += '<span class="reading-label">Device Location:</span>';
-                html += '<span class="reading-value">' + translateLocation(sensorData.locationsensor) + '</span>';
+                html += '<span class="reading-value">' + translateLocation(deviceLocation) + '</span>';
                 html += '</div>';
             }
 
-            // Historical Data Link - BORDE MÁS SUAVE
-            html += '<div class="reading" style="margin-top: 4px; width: 100%;">';
+            // Battery Status
+            if (sensorData.Battery_Now) {
+                html += '<div class="reading" style="font-size: 0.85em;">';
+                html += '<span class="reading-label">Battery:</span>';
+                html += '<span class="reading-value">' + sensorData.Battery_Now + '</span>';
+                html += '</div>';
+            }
+
+            // Historical Data Link
+            html += '<div class="reading" style="margin-top: 8px; width: 100%;">';
             html += '<a href="#" class="chart-link" onclick="toggleChartPanel(event, \'' + feature.properties.name + '\')" style="background-color: transparent; color: #000; border: 1px solid #000; font-size: 14px; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor=\'rgba(0,0,0,0.1)\'" onmouseout="this.style.backgroundColor=\'transparent\'">';
             html += '📊 View Historical Data';
             html += '</a>';
@@ -156,7 +168,7 @@ function createPopupContent(feature, sensorData) {
 
             html += '</div>'; // End monitor-readings
 
-            // Contact Links - BORDE MÁS SUAVE
+            // Contact Links
             html += '<div class="contact-links" style="flex-direction: column; align-items: flex-start;">';
             html += '<a href="https://wa.me/' + APP_SETTINGS.whatsappNumber + '" target="_blank" style="text-decoration: none; width: 100%;">';
             html += '<div style="margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #25D366; padding: 8px; border-radius: 8px; background-color: transparent; cursor: pointer; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor=\'rgba(37,211,102,0.2)\'" onmouseout="this.style.backgroundColor=\'transparent\'">';
@@ -165,14 +177,14 @@ function createPopupContent(feature, sensorData) {
             html += '</div>';
             html += '</a>';
             
-            // Footer info - GRIS SUAVE, SIN NEGRITAS
+            // Footer info
             html += '<div style="margin-top: 8px; background-color: transparent; padding: 5px;">';
             html += '<small style="color: #888; font-size: 11px; font-weight: normal;">Last updated: ' + new Date().toLocaleTimeString() + '</small><br>';
             html += '<small><a href="' + APP_SETTINGS.brandUrl + '" target="_blank" class="brand-text" style="color: #888; font-size: 11px; text-decoration: none; font-weight: normal;">smability.io</a></small>';
             html += '</div>';
             html += '</div>'; // End contact-links
 
-            html += '</div>'; // End colored background div - CERRAR el div principal
+            html += '</div>'; // End colored background div
             
         } else {
             html += '<p>No sensor data available</p>';
@@ -203,8 +215,8 @@ function createLegendHTML() {
     // SIMAT Network toggle
     html += '<div style="margin: 8px 0;"><button id="toggleOffMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">SIMAT Network</button></div>';
     
-    // Smability Network toggle (NUEVO)
-    html += '<div style="margin: 8px 0;"><button id="toggleSmabilityMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">Smability Network</button></div>';
+    // Smability Network toggle
+    html += '<div style="margin: 8px 0;"><button id="toggleSmabilityMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">Smability Network (' + APP_SETTINGS.activeStations.length + ')</button></div>';
     
     html += '</div>';
 
@@ -218,7 +230,6 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
 // Make functions globally available
 window.getIndicatorColor = getIndicatorColor;
 window.getIASEmoji = getIASEmoji;
@@ -230,4 +241,3 @@ window.createLegendHTML = createLegendHTML;
 window.sleep = sleep;
 
 console.log('Utils loaded successfully');
-
