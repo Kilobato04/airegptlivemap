@@ -21,20 +21,12 @@ function updateChartWithComparison(primaryData, comparisonData, hours, sensorId,
             x: primaryData.map(item => item.timestamp),
             y: primaryData.map(item => item.value),
             type: 'scatter',
-            mode: 'lines+markers',
+            mode: 'lines', // Changed from 'lines+markers' to 'lines' only
             name: primaryStation,
             line: {
                 color: sensorConfig.color,
                 width: 2,
                 shape: 'linear'
-            },
-            marker: {
-                color: sensorConfig.color,
-                size: 3,
-                line: {
-                    color: 'white',
-                    width: 1
-                }
             },
             hovertemplate: `<b>${primaryStation}</b><br>` +
                            `<b>Time</b>: %{x|%H:%M}<br>` +
@@ -54,21 +46,13 @@ function updateChartWithComparison(primaryData, comparisonData, hours, sensorId,
             x: comparisonData.map(item => item.timestamp),
             y: comparisonData.map(item => item.value),
             type: 'scatter',
-            mode: 'lines+markers',
+            mode: 'lines', // Changed from 'lines+markers' to 'lines' only
             name: comparisonStation,
             line: {
                 color: comparisonColor,
                 width: 2,
-                shape: 'linear',
-                dash: 'dot' // Different line style for comparison
-            },
-            marker: {
-                color: comparisonColor,
-                size: 3,
-                line: {
-                    color: 'white',
-                    width: 1
-                }
+                shape: 'linear'
+                // Removed dash: 'dot' - now solid line
             },
             hovertemplate: `<b>${comparisonStation}</b><br>` +
                            `<b>Time</b>: %{x|%H:%M}<br>` +
@@ -211,19 +195,11 @@ function updateChart(formattedData, hours, sensorId, comparisonData = null, comp
         x: formattedData.map(item => item.timestamp),
         y: formattedData.map(item => item.value),
         type: 'scatter',
-        mode: 'lines+markers',
+        mode: 'lines', // Changed from 'lines+markers' to 'lines' only
         line: {
             color: sensorConfig.color,
             width: 2,
             shape: 'linear'
-        },
-        marker: {
-            color: sensorConfig.color,
-            size: 1,
-            line: {
-                color: 'white',
-                width: 0
-            }
         },
         hovertemplate: `<b>Time</b>: %{x|%H:%M}<br>` +
                        `<b>${sensorConfig.name}</b>: %{y:.1f} ${sensorConfig.units}<br>` +
