@@ -402,7 +402,8 @@ function createDeviceInfoContainer() {
         { value: 'Hipódromo', text: 'Hipódromo' },
         { value: 'UNAM', text: 'UNAM' },
         { value: 'CENTRUS 3', text: 'CENTRUS 3' },
-        { value: 'INSYC-Smability', text: 'INSYC-Smability' }
+        { value: 'INSYC-Smability', text: 'INSYC-Smability' },
+        { value: 'CENTRUS 5', text: 'CENTRUS 5' } // ADDED CENTRUS 5
     ];
     
     comparisonOptions.forEach(option => {
