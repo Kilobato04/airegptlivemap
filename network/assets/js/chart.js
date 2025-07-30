@@ -1,10 +1,5 @@
 // Chart management functions using Plotly.js
 
-// Initialize global variables for chart management
-let currentLocation = null;
-let timeframeListener = null;
-let sensorListener = null;
-
 /**
  * Update chart with new data
  * @param {Array} formattedData - Array of data points
@@ -146,11 +141,11 @@ function toggleChartPanel(event, location) {
     console.log('Sensor select:', sensorSelect);
 
     // Remove existing event listeners if they exist
-    if (timeframeListener && timeframeSelect) {
-        timeframeSelect.removeEventListener('change', timeframeListener);
+    if (window.timeframeListener && timeframeSelect) {
+        timeframeSelect.removeEventListener('change', window.timeframeListener);
     }
-    if (sensorListener && sensorSelect) {
-        sensorSelect.removeEventListener('change', sensorListener);
+    if (window.sensorListener && sensorSelect) {
+        sensorSelect.removeEventListener('change', window.sensorListener);
     }
 
     if (panel.style.display === 'none' || !panel.style.display) {
@@ -159,7 +154,7 @@ function toggleChartPanel(event, location) {
         if (title) {
             title.textContent = `SMAA ${location}`;
         }
-        currentLocation = location; // Store current location
+        window.currentLocation = location; // Store current location GLOBALLY
 
         // Show loading state
         Plotly.newPlot('iasChart', [{
@@ -181,19 +176,19 @@ function toggleChartPanel(event, location) {
 
         // Function to update data based on current selections
         const updateData = () => {
-            console.log('updateData called for location:', currentLocation);
+            console.log('updateData called for location:', window.currentLocation);
             
             // Only proceed if we're still looking at the same location
-            if (location !== currentLocation) {
+            if (location !== window.currentLocation) {
                 console.log('Location mismatch, aborting update');
                 return;
             }
 
             const hours = parseInt(timeframeSelect ? timeframeSelect.value : '24');
             const sensorId = sensorSelect ? sensorSelect.value : '12';
-            const token = API_CONFIG.tokens[currentLocation];
+            const token = API_CONFIG.tokens[window.currentLocation];
 
-            console.log('Fetching data for:', { hours, sensorId, token, location: currentLocation });
+            console.log('Fetching data for:', { hours, sensorId, token, location: window.currentLocation });
 
             Plotly.newPlot('iasChart', [{
                 type: 'scatter',
@@ -204,7 +199,7 @@ function toggleChartPanel(event, location) {
                 }
             }], {
                 title: {
-                    text: `Loading ${SENSOR_CONFIG[sensorId].name} data for ${currentLocation}...`,
+                    text: `Loading ${SENSOR_CONFIG[sensorId].name} data for ${window.currentLocation}...`,
                     font: {
                         family: 'Arial, sans-serif',
                         size: 12
@@ -217,12 +212,12 @@ function toggleChartPanel(event, location) {
                     .then(data => {
                         console.log('Received historical data:', data);
                         // Check again if location hasn't changed before updating
-                        if (location === currentLocation) {
+                        if (location === window.currentLocation) {
                             updateChart(data, hours, sensorId);
                         }
                     })
                     .catch(error => {
-                        if (location === currentLocation) {
+                        if (location === window.currentLocation) {
                             console.error('Error loading data:', error);
                             Plotly.newPlot('iasChart', [{
                                 type: 'scatter',
@@ -259,18 +254,18 @@ function toggleChartPanel(event, location) {
             }
         };
 
-        // Create new event listeners
-        timeframeListener = () => updateData();
-        sensorListener = () => updateData();
+        // Create new event listeners and store them GLOBALLY
+        window.timeframeListener = () => updateData();
+        window.sensorListener = () => updateData();
 
         // Add new event listeners
         if (timeframeSelect) {
-            timeframeSelect.addEventListener('change', timeframeListener);
+            timeframeSelect.addEventListener('change', window.timeframeListener);
             // Reset to default values when switching locations
             timeframeSelect.value = '24';
         }
         if (sensorSelect) {
-            sensorSelect.addEventListener('change', sensorListener);
+            sensorSelect.addEventListener('change', window.sensorListener);
             // Reset to default values when switching locations
             sensorSelect.value = '12';
         }
@@ -279,7 +274,7 @@ function toggleChartPanel(event, location) {
         console.log('Starting initial data load...');
         updateData();
     } else {
-        if (location === currentLocation) {
+        if (location === window.currentLocation) {
             closeChartPanel();
         } else {
             // If switching to a different location while panel is open,
@@ -288,15 +283,15 @@ function toggleChartPanel(event, location) {
             if (title) {
                 title.textContent = `SMAA ${location}`;
             }
-            currentLocation = location;
+            window.currentLocation = location;
             
             // Reset select elements
             if (timeframeSelect) timeframeSelect.value = '24';
             if (sensorSelect) sensorSelect.value = '12';
             
             // Load new data
-            if (timeframeListener) {
-                timeframeListener();
+            if (window.timeframeListener) {
+                window.timeframeListener();
             }
         }
     }
@@ -311,19 +306,19 @@ function closeChartPanel() {
     if (panel) {
         panel.style.display = 'none';
     }
-    currentLocation = null;
+    window.currentLocation = null;
 
     // Remove event listeners
     const timeframeSelect = document.getElementById('timeframeSelect');
     const sensorSelect = document.getElementById('sensorSelect');
     
-    if (timeframeListener && timeframeSelect) {
-        timeframeSelect.removeEventListener('change', timeframeListener);
-        timeframeListener = null;
+    if (window.timeframeListener && timeframeSelect) {
+        timeframeSelect.removeEventListener('change', window.timeframeListener);
+        window.timeframeListener = null;
     }
-    if (sensorListener && sensorSelect) {
-        sensorSelect.removeEventListener('change', sensorListener);
-        sensorListener = null;
+    if (window.sensorListener && sensorSelect) {
+        sensorSelect.removeEventListener('change', window.sensorListener);
+        window.sensorListener = null;
     }
     
     console.log('Chart panel closed and cleaned up');
@@ -345,10 +340,5 @@ window.addEventListener('resize', () => {
 window.toggleChartPanel = toggleChartPanel;
 window.closeChartPanel = closeChartPanel;
 window.updateChart = updateChart;
-
-// Also set the global variables for compatibility
-window.currentLocation = currentLocation;
-window.timeframeListener = timeframeListener;
-window.sensorListener = sensorListener;
 
 console.log('Chart.js loaded successfully');
