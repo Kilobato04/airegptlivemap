@@ -104,13 +104,31 @@ function createPopupContent(feature, sensorData) {
             console.log('Checking PM2.5 field:', sensorData.PM2_5_1hr);
             console.log('Checking Battery field:', sensorData.Battery_Now);
 
-            // Pollutant Concentrations - Use legacy fields that are available
-            const co8hr = sensorData.concentracionIASCO || 'N/A';
+            // DEBUG: Focus only on CO 8hr field
+            console.log('=== CO 8HR DEBUG ===');
+            console.log('sensorData.ConcentrationIASCO_8hr:', sensorData.ConcentrationIASCO_8hr);
+            console.log('Type:', typeof sensorData.ConcentrationIASCO_8hr);
+            console.log('Value length:', sensorData.ConcentrationIASCO_8hr ? sensorData.ConcentrationIASCO_8hr.length : 'undefined');
+            console.log('Raw value:', JSON.stringify(sensorData.ConcentrationIASCO_8hr));
+            
+            // Test the exact field
+            const co8hr = sensorData.ConcentrationIASCO_8hr;
+            console.log('CO 8hr extracted value:', co8hr);
+            console.log('CO 8hr is truthy?', !!co8hr);
+            console.log('CO 8hr !== "N/A"?', co8hr !== 'N/A');
+            console.log('=== END CO DEBUG ===');
+
+            // Pollutant Concentrations - Focus only on CO for debugging
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">CO 8hr:</span>';
-            html += '<span class="reading-value">' + (co8hr !== 'N/A' ? co8hr + ' ppb' : 'N/A ppb') + '</span>';
+            if (co8hr && co8hr !== 'N/A') {
+                html += '<span class="reading-value">FOUND: ' + co8hr + '</span>';
+            } else {
+                html += '<span class="reading-value">NOT FOUND - showing N/A</span>';
+            }
             html += '</div>';
 
+            // Keep the others as simple fallback for now
             const o31hr = sensorData.concentracionIASO3 || 'N/A';
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">O3 1hr:</span>';
