@@ -104,50 +104,32 @@ function createPopupContent(feature, sensorData) {
             console.log('Checking PM2.5 field:', sensorData.PM2_5_1hr);
             console.log('Checking Battery field:', sensorData.Battery_Now);
 
-            // DEBUG: Focus only on CO 8hr field
-            console.log('=== CO 8HR DEBUG ===');
-            console.log('sensorData.ConcentrationIASCO_8hr:', sensorData.ConcentrationIASCO_8hr);
-            console.log('Type:', typeof sensorData.ConcentrationIASCO_8hr);
-            console.log('Value length:', sensorData.ConcentrationIASCO_8hr ? sensorData.ConcentrationIASCO_8hr.length : 'undefined');
-            console.log('Raw value:', JSON.stringify(sensorData.ConcentrationIASCO_8hr));
-            
-            // Test the exact field
+            // Pollutant Concentrations - Using correct API field names
             const co8hr = sensorData.ConcentrationIASCO_8hr;
-            console.log('CO 8hr extracted value:', co8hr);
-            console.log('CO 8hr is truthy?', !!co8hr);
-            console.log('CO 8hr !== "N/A"?', co8hr !== 'N/A');
-            console.log('=== END CO DEBUG ===');
-
-            // Pollutant Concentrations - Focus only on CO for debugging
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">CO 8hr:</span>';
-            if (co8hr && co8hr !== 'N/A') {
-                html += '<span class="reading-value">FOUND: ' + co8hr + '</span>';
-            } else {
-                html += '<span class="reading-value">NOT FOUND - showing N/A</span>';
-            }
+            html += '<span class="reading-value">' + (co8hr ? co8hr : 'N/A ppb') + '</span>';
             html += '</div>';
 
-            // Keep the others as simple fallback for now
-            const o31hr = sensorData.concentracionIASO3 || 'N/A';
+            const o31hr = sensorData.ConcentrationIASO3_1hr;
             html += '<div class="reading" style="font-size: 0.85em;">';
             html += '<span class="reading-label">O3 1hr:</span>';
-            html += '<span class="reading-value">' + (o31hr !== 'N/A' ? o31hr + ' ppb' : 'N/A ppb') + '</span>';
+            html += '<span class="reading-value">' + (o31hr ? o31hr : 'N/A ppb') + '</span>';
             html += '</div>';
 
-            const pm10 = sensorData.concentracionIASPM10 || 'N/A';
+            const pm10_12hr = sensorData.ConcentrationIASPM10_12hr;
             html += '<div class="reading" style="font-size: 0.85em;">';
-            html += '<span class="reading-label">PM10 1hr:</span>';
-            html += '<span class="reading-value">' + (pm10 !== 'N/A' ? pm10 + ' μg/m³' : 'N/A μg/m³') + '</span>';
+            html += '<span class="reading-label">PM10 12hr:</span>';
+            html += '<span class="reading-value">' + (pm10_12hr ? pm10_12hr : 'N/A μg/m³') + '</span>';
             html += '</div>';
 
-            const pm25 = sensorData.concentracionIASPM2_5 || 'N/A';
+            const pm25_12hr = sensorData.ConcentrationIASPM2_5_12hr;
             html += '<div class="reading" style="font-size: 0.85em;">';
-            html += '<span class="reading-label">PM2.5 1hr:</span>';
-            html += '<span class="reading-value">' + (pm25 !== 'N/A' ? pm25 + ' μg/m³' : 'N/A μg/m³') + '</span>';
+            html += '<span class="reading-label">PM2.5 12hr:</span>';
+            html += '<span class="reading-value">' + (pm25_12hr ? pm25_12hr : 'N/A μg/m³') + '</span>';
             html += '</div>';
 
-            // Environmental Conditions - From new API with fallback
+            // Environmental Conditions - Using correct API field names with fallback
             const temperature = sensorData.Temp_1hr || sensorData.Temperature || sensorData.temperature;
             if (temperature && temperature !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
@@ -164,7 +146,7 @@ function createPopupContent(feature, sensorData) {
                 html += '</div>';
             }
 
-            // Device Information - From new API with fallback
+            // Device Information - Using correct API field names with fallback
             const deviceMode = sensorData.ModeSensor || sensorData.modesensor;
             if (deviceMode && deviceMode !== 'N/A') {
                 html += '<div class="reading" style="font-size: 0.85em;">';
