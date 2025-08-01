@@ -777,14 +777,6 @@ function addSmabilityToggleToLegend() {
             toggleButton.style.backgroundColor = visible ? '#4264fb' : '#e2e2e2';
             toggleButton.style.color = visible ? '#ffffff' : '#333';
             
-        let visible = true;
-        toggleButton.addEventListener('click', () => {
-            visible = !visible;
-            window.SmabilityPanels.toggleMarkersVisibility(visible);
-            
-            toggleButton.style.backgroundColor = visible ? '#4264fb' : '#e2e2e2';
-            toggleButton.style.color = visible ? '#ffffff' : '#333';
-            
             console.log(`SmabilityPanels: Toggled visibility to: ${visible}`);
         });
         
