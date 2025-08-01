@@ -161,10 +161,10 @@
 }
 
 .smability-status-label {
-    font-size: 10px;
-    color: #666;
+    font-size: 12px;     /* ← Aumentado de 10px a 12px */
+    color: #000;         /* ← Cambiado de #666 a #000 */
     font-family: 'DIN Pro', Arial, sans-serif;
-    font-weight: normal;
+    font-weight: bold;   /* ← Cambiado de normal a bold */
 }
 
 .smability-status-value {
