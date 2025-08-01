@@ -1,5 +1,5 @@
 /* ==============================================
-   ARCHIVO: smability-panels.css - UI ACTUALIZADO
+   ARCHIVO: smability-panels.css - VERSIÓN COMPLETA
    DESCRIPCIÓN: Panel único expandible con gráfico inline
    ============================================== */
 
@@ -33,7 +33,7 @@
     font-family: 'DIN Pro', Arial, sans-serif;
 }
 
-/* === HEADER DEL PANEL - SIN SUBTÍTULO === */
+/* === HEADER DEL PANEL - CON AIR QUALITY === */
 .smability-panel-header {
     background: rgba(255, 255, 0, 0.1);
     padding: 16px;
@@ -101,7 +101,7 @@
     font-size: 18px;
     font-weight: bold;
     color: #000;
-    margin: 0 0 4px 0; /* AJUSTADO: Margen menor para Air Quality */
+    margin: 0 0 4px 0; /* Margen menor para Air Quality */
     font-family: 'DIN Pro', Arial, sans-serif;
 }
 
@@ -207,7 +207,7 @@
     display: flex;
     justify-content: center;
     margin-top: 16px;
-    margin-bottom: 16px; /* AJUSTADO: Espacio para gráfico inline */
+    margin-bottom: 16px; /* Espacio para gráfico inline */
 }
 
 .smability-btn {
@@ -240,8 +240,6 @@
 .smability-inline-chart-header {
     margin-bottom: 12px;
 }
-
-/* ELIMINADO: Título del gráfico inline */
 
 .smability-inline-chart-controls {
     display: flex;
@@ -277,11 +275,12 @@
     background: white;
     border-radius: 6px;
     padding: 12px;
-    min-height: 250px; /* AJUSTADO: Altura mínima para gráfico */
+    min-height: 250px;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid rgba(0,0,0,0.1);
+    position: relative;
 }
 
 .smability-chart-placeholder {
@@ -300,6 +299,11 @@
 
 /* NUEVO: Contenedor para gráfico real de Plotly */
 #smabilityInlineChart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: none; /* Inicialmente oculto */
 }
 
@@ -341,7 +345,7 @@
         left: auto;
         width: calc(100vw - 40px);
         max-width: 450px;
-        max-height: 70vh; /* AJUSTADO: Más altura en móvil para gráfico */
+        max-height: 70vh; /* Más altura en móvil para gráfico */
     }
     
     .smability-data-grid {
@@ -364,11 +368,11 @@
     }
 
     .smability-inline-chart-area {
-        min-height: 200px; /* AJUSTADO: Menos altura en móvil */
+        min-height: 200px; /* Menos altura en móvil */
     }
 
     .smability-chart-placeholder {
-        height: 150px; /* AJUSTADO: Gráfico más pequeño en móvil */
+        height: 150px; /* Gráfico más pequeño en móvil */
     }
 }
 
@@ -397,7 +401,7 @@
 }
 
 /* === AJUSTES PARA PLOTLY EN GRÁFICO INLINE === */
-.smability-inline-chart-area #iasChart,
+.smability-inline-chart-area #smabilityInlineChart,
 .smability-inline-chart-area .js-plotly-plot {
     width: 100% !important;
     max-width: 100% !important;
@@ -419,14 +423,86 @@
     font-family: 'DIN Pro', Arial, sans-serif !important;
 }
 
-/* === ELIMINADOS: Estilos del panel separado === */
-/* Ya no se necesitan:
-   - .smability-chart-panel
-   - .smability-panels-stacked
-   - .smability-chart-header
-   - .smability-chart-close
-   - .smability-chart-title
-   - .smability-chart-controls (reemplazado por inline)
-   - .smability-chart-area (reemplazado por inline)
-   - .smability-chart-footer
-*/
+/* === ESTADOS ESPECIALES === */
+
+/* Cuando el panel está expandido con gráfico */
+.smability-main-panel.expanded {
+    max-height: 80vh;
+    height: auto;
+}
+
+/* Ocultar scrollbar en webkit browsers pero mantener funcionalidad */
+.smability-main-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.smability-main-panel::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
+
+.smability-main-panel::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.3);
+    border-radius: 3px;
+}
+
+.smability-main-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.5);
+}
+
+/* === ANIMACIONES === */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.smability-inline-chart-container {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* === FIXES PARA COMPATIBILIDAD === */
+
+/* Asegurar que los elementos no interfieren con la app principal */
+.smability-main-panel,
+.smability-main-panel * {
+    box-sizing: border-box;
+}
+
+/* Evitar conflictos con estilos globales */
+.smability-main-panel button {
+    font-family: 'DIN Pro', Arial, sans-serif;
+    border: none;
+    outline: none;
+}
+
+.smability-main-panel select {
+    font-family: 'DIN Pro', Arial, sans-serif;
+    outline: none;
+}
+
+/* Asegurar que los z-index no conflictúen */
+.smability-main-panel {
+    z-index: 2001;
+}
+
+#smabilityPanelContainer {
+    z-index: 2000;
+}
+
+/* === AJUSTES FINALES === */
+
+/* Mejorar la legibilidad en pantallas de alta densidad */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .smability-panel-title,
+    .smability-ias-value,
+    .smability-data-value {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Asegurar que las transiciones sean suaves */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
