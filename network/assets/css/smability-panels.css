@@ -1,6 +1,6 @@
 /* ==============================================
-   ARCHIVO: smability-panels.css - VERSIÓN FINAL
-   DESCRIPCIÓN: Estilos ajustados según especificaciones
+   ARCHIVO: smability-panels.css - UI ACTUALIZADO
+   DESCRIPCIÓN: Panel único expandible con gráfico inline
    ============================================== */
 
 /* === CONTENEDOR PRINCIPAL === */
@@ -14,26 +14,26 @@
     z-index: 2000;
 }
 
-/* === PANEL PRINCIPAL SMABILITY - AJUSTADO === */
+/* === PANEL PRINCIPAL SMABILITY - EXPANDIBLE === */
 .smability-main-panel {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 650px; /* AJUSTADO: Más ancho para evitar desbordamiento */
+    width: 650px;
     background: rgba(255, 255, 255, 0.98);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     border: 3px solid var(--smability-ias-color, #ffff00);
     backdrop-filter: blur(10px);
     z-index: 2001;
-    max-height: 55vh; /* AJUSTADO: Menos alto (era 68vh) */
+    max-height: 55vh; /* Altura inicial */
     overflow-y: auto;
     transition: all 0.3s ease;
     pointer-events: all;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO: Tipografía homologada */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
-/* === HEADER DEL PANEL === */
+/* === HEADER DEL PANEL - SIN SUBTÍTULO === */
 .smability-panel-header {
     background: rgba(255, 255, 0, 0.1);
     padding: 16px;
@@ -68,7 +68,7 @@
     color: white;
     text-decoration: none;
     font-weight: bold;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-whatsapp-popup:hover {
@@ -94,23 +94,18 @@
     justify-content: center;
     font-size: 16px;
     color: #666;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-panel-title {
     font-size: 18px;
     font-weight: bold;
     color: #000;
-    margin: 0 0 8px 0;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    margin: 0; /* AJUSTADO: Sin margen inferior para subtítulo */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
-.smability-panel-subtitle {
-    font-size: 12px;
-    color: #666;
-    margin: 0;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
+/* ELIMINADO: .smability-panel-subtitle ya no se usa */
 
 /* === CONTENIDO DEL PANEL === */
 .smability-panel-content {
@@ -142,7 +137,7 @@
     font-size: 24px;
     font-weight: bold;
     color: #000;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-ias-status {
@@ -155,7 +150,7 @@
     font-weight: bold;
     color: #000;
     margin: 2px 0;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 /* === GRID DE DATOS === */
@@ -177,13 +172,13 @@
     color: #666;
     font-size: 10px;
     margin-bottom: 2px;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-data-value {
     font-weight: bold;
     color: #000;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 /* === BOTONES === */
@@ -191,6 +186,7 @@
     display: flex;
     justify-content: center;
     margin-top: 16px;
+    margin-bottom: 16px; /* AJUSTADO: Espacio para gráfico inline */
 }
 
 .smability-btn {
@@ -205,12 +201,80 @@
     text-decoration: none;
     color: #4264fb;
     font-weight: bold;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-btn:hover {
     background: #4264fb;
     color: white;
+}
+
+/* === NUEVO: GRÁFICO INLINE === */
+.smability-inline-chart-container {
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-top: 16px;
+    margin-top: 16px;
+}
+
+.smability-inline-chart-header {
+    margin-bottom: 12px;
+}
+
+/* ELIMINADO: Título del gráfico inline */
+
+.smability-inline-chart-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding: 8px;
+    background: rgba(66, 100, 251, 0.05);
+    border-radius: 6px;
+}
+
+.smability-inline-chart-controls label {
+    font-size: 11px;
+    color: #666;
+    font-weight: bold;
+    white-space: nowrap;
+    font-family: 'DIN Pro', Arial, sans-serif;
+}
+
+.smability-inline-chart-controls select {
+    font-size: 10px;
+    padding: 3px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    min-width: 80px;
+    max-width: 120px;
+    font-family: 'DIN Pro', Arial, sans-serif;
+}
+
+.smability-inline-chart-area {
+    background: white;
+    border-radius: 6px;
+    padding: 12px;
+    min-height: 250px; /* AJUSTADO: Altura mínima para gráfico */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.smability-chart-placeholder {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-family: 'DIN Pro', Arial, sans-serif;
+    color: #666;
 }
 
 /* === FOOTER DEL PANEL === */
@@ -224,7 +288,7 @@
     align-items: center;
     font-size: 11px;
     color: #666;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-last-update {
@@ -236,181 +300,45 @@
     font-weight: bold;
 }
 
-/* === PANEL DE GRÁFICO - AJUSTADO === */
-.smability-chart-panel {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 650px; /* AJUSTADO: Mismo ancho que el panel principal */
-    background: rgba(255, 255, 255, 0.98);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    border: 3px solid var(--smability-ias-color, #ffff00);
-    backdrop-filter: blur(10px);
-    z-index: 2000;
-    height: 370px;
-    display: none;
-    margin-bottom: 0;
-    pointer-events: all;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
-
-/* Cuando ambos paneles están visibles */
-.smability-panels-stacked .smability-main-panel {
-    bottom: 410px; /* AJUSTADO: Para el nuevo panel menos alto */
-}
-
-.smability-panels-stacked .smability-chart-panel {
-    bottom: 20px;
-    display: block;
-}
-
-/* === HEADER DEL GRÁFICO - AJUSTADO === */
-.smability-chart-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    background: rgba(66, 100, 251, 0.05);
-    border-radius: 12px 12px 0 0;
-    position: relative;
-}
-
-.smability-chart-close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(0,0,0,0.1);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: #666;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
-
-.smability-chart-title {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin: 0 0 12px 0;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
-
-/* AJUSTADO: Controles más compactos para evitar desbordamiento */
-.smability-chart-controls {
-    display: flex;
-    gap: 8px; /* AJUSTADO: Gap menor */
-    align-items: center;
-    flex-wrap: nowrap; /* AJUSTADO: No permitir salto de línea */
-    justify-content: flex-start;
-}
-
-.smability-chart-controls label {
-    font-size: 11px; /* AJUSTADO: Texto más pequeño */
-    color: #666;
-    font-weight: bold;
-    white-space: nowrap;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
-
-.smability-chart-controls select {
-    font-size: 10px; /* AJUSTADO: Texto más pequeño */
-    padding: 3px 6px; /* AJUSTADO: Padding menor */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background: white;
-    min-width: 80px; /* AJUSTADO: Ancho mínimo menor */
-    max-width: 120px; /* AJUSTADO: Ancho máximo controlado */
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
-
-/* === ÁREA DEL GRÁFICO - AJUSTADO === */
-.smability-chart-area {
-    padding: 15px; /* AJUSTADO: Padding menor */
-    height: calc(100% - 140px); /* AJUSTADO: Más espacio para el gráfico */
-    background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 16px;
-    position: relative;
-    overflow: hidden; /* AJUSTADO: Evitar desbordamiento */
-}
-
-.smability-chart-placeholder {
-    width: calc(100% - 20px); /* AJUSTADO: Evitar desbordamiento horizontal */
-    height: 180px; /* AJUSTADO: Altura controlada */
-    background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    margin-top: 10px;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-    box-sizing: border-box; /* AJUSTADO: Para incluir padding en el ancho */
-}
-
-/* === FOOTER DEL GRÁFICO === */
-.smability-chart-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 8px 16px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    background: rgba(0,0,0,0.02);
-    border-radius: 0 0 12px 12px;
-    text-align: right;
-    font-size: 11px;
-    color: #4264fb;
-    font-weight: bold;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
-}
-
-/* === RESPONSIVE - AJUSTADO === */
+/* === RESPONSIVE === */
 @media (max-width: 768px) {
-    .smability-main-panel, 
-    .smability-chart-panel {
+    .smability-main-panel {
         right: 10px;
         left: auto;
         width: calc(100vw - 40px);
-        max-width: 450px; /* AJUSTADO: Ancho máximo en móvil */
-    }
-    
-    .smability-panels-stacked .smability-main-panel {
-        bottom: 390px;
+        max-width: 450px;
+        max-height: 70vh; /* AJUSTADO: Más altura en móvil para gráfico */
     }
     
     .smability-data-grid {
         grid-template-columns: 1fr;
     }
 
-    /* AJUSTADO: Controles más compactos en móvil */
-    .smability-chart-controls {
+    .smability-inline-chart-controls {
         gap: 4px;
-        flex-wrap: wrap; /* Permitir wrap en móvil */
+        flex-wrap: wrap;
     }
     
-    .smability-chart-controls label {
+    .smability-inline-chart-controls label {
         font-size: 9px;
     }
     
-    .smability-chart-controls select {
+    .smability-inline-chart-controls select {
         font-size: 9px;
         min-width: 60px;
         max-width: 90px;
     }
+
+    .smability-inline-chart-area {
+        min-height: 200px; /* AJUSTADO: Menos altura en móvil */
+    }
+
+    .smability-chart-placeholder {
+        height: 150px; /* AJUSTADO: Gráfico más pequeño en móvil */
+    }
 }
 
-/* === MARKERS SMABILITY - AJUSTADO === */
+/* === MARKERS SMABILITY === */
 .smability-marker {
     cursor: pointer;
     width: 35px;
@@ -426,7 +354,7 @@
     color: #000;
     transition: transform 0.2s ease;
     background-color: #ffff00;
-    font-family: 'DIN Pro', Arial, sans-serif; /* AJUSTADO */
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .smability-marker:hover {
@@ -434,29 +362,37 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
-/* === AJUSTES ADICIONALES PARA PLOTLY === */
-
-/* Contenedor del gráfico Plotly - evitar desbordamiento */
-.smability-chart-area #iasChart,
-.smability-chart-area .js-plotly-plot {
+/* === AJUSTES PARA PLOTLY EN GRÁFICO INLINE === */
+.smability-inline-chart-area #iasChart,
+.smability-inline-chart-area .js-plotly-plot {
     width: 100% !important;
     max-width: 100% !important;
-    height: 100% !important;
-    max-height: 200px !important; /* AJUSTADO: Altura máxima controlada */
+    height: 200px !important;
     overflow: hidden !important;
 }
 
-/* Controles de Plotly - posicionarlos correctamente */
-.smability-chart-area .plotly .modebar {
+.smability-inline-chart-area .plotly .modebar {
     position: absolute !important;
-    bottom: 35px !important; /* AJUSTADO: Espacio para footer */
+    bottom: 10px !important;
     right: 10px !important;
     top: auto !important;
     z-index: 10 !important;
 }
 
-/* Asegurar que todo el texto use DIN Pro */
+/* === TIPOGRAFÍA GLOBAL === */
 .smability-main-panel *,
-.smability-chart-panel * {
+.smability-inline-chart-container * {
     font-family: 'DIN Pro', Arial, sans-serif !important;
 }
+
+/* === ELIMINADOS: Estilos del panel separado === */
+/* Ya no se necesitan:
+   - .smability-chart-panel
+   - .smability-panels-stacked
+   - .smability-chart-header
+   - .smability-chart-close
+   - .smability-chart-title
+   - .smability-chart-controls (reemplazado por inline)
+   - .smability-chart-area (reemplazado por inline)
+   - .smability-chart-footer
+*/
