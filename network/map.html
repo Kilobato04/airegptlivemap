@@ -65,20 +65,19 @@
     <script src="assets/js/sensors.js"></script>
     <script src="assets/js/chart.js"></script>
     <script src="assets/js/map.js"></script>
-    <!-- ==============================================
-     ARCHIVO: smability-panels.html
-     DESCRIPCIÓN: HTML adicional para los nuevos paneles
-     INTEGRACIÓN: Agregar al final del <body> de map.html
+<!-- ==============================================
+     ARCHIVO: smability-panels.html - VERSIÓN ACTUALIZADA
+     DESCRIPCIÓN: Panel único expandible con gráfico inline
      ============================================== -->
 
-<!-- Nuevos Paneles Smability - NO interfieren con funcionalidad existente -->
+<!-- Nuevos Paneles Smability - Panel único expandible -->
 <div id="smabilityPanelContainer" style="display: none;">
-    <!-- Panel Principal Smability -->
+    <!-- Panel Principal Smability - Expandible -->
     <div class="smability-main-panel" id="smabilityMainPanel" style="display: none;">
         <div class="smability-panel-header">
             <div class="smability-header-left">
                 <h3 class="smability-panel-title" id="smabilityPanelTitle">CENTRUS 5</h3>
-                <p class="smability-panel-subtitle" id="smabilityPanelSubtitle">CN5 - Smability - Air Quality</p>
+                <!-- ELIMINADO: Subtítulo ya no se usa -->
             </div>
             <div class="smability-header-right">
                 <!-- WhatsApp en el header del panel -->
@@ -152,6 +151,41 @@
             <div class="smability-action-buttons">
                 <button class="smability-btn" onclick="SmabilityPanels.toggleChart()">📊 View Historical Data</button>
             </div>
+
+            <!-- NUEVO: Contenedor de gráfico inline -->
+            <div class="smability-inline-chart-container" id="smabilityInlineChartContainer" style="display: none;">
+                <div class="smability-inline-chart-header">
+                    <!-- ELIMINADO: Título del gráfico ya no se muestra -->
+                    <div class="smability-inline-chart-controls">
+                        <label>Compare:</label>
+                        <select id="smabilityComparisonSelect">
+                            <option value="">None</option>
+                            <option value="Hipódromo">Hipódromo</option>
+                            <option value="UNAM">UNAM</option>
+                        </select>
+                        <label>Sensor:</label>
+                        <select id="smabilitySensorSelect">
+                            <option value="7">Ozone (ppb)</option>
+                            <option value="2">Carbon Monoxide (ppb)</option>
+                            <option value="9">PM2.5 (μg/m³)</option>
+                            <option value="12">Temperature (°C)</option>
+                            <option value="3">Relative Humidity (%)</option>
+                        </select>
+                        <label>Period:</label>
+                        <select id="smabilityTimeframeSelect">
+                            <option value="12">Last 12 hours</option>
+                            <option value="24">Last 24 hours</option>
+                            <option value="168">Last 7 days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="smability-inline-chart-area">
+                    <div class="smability-chart-placeholder">
+                        📊 Plotly.js Chart with Real-time Data<br>
+                        <small style="margin-top: 8px; display: block;">Optimized for air quality visualization</small>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Footer del panel principal -->
@@ -161,46 +195,7 @@
         </div>
     </div>
 
-    <!-- Panel de Gráfico Smability -->
-    <div class="smability-chart-panel" id="smabilityChartPanel">
-        <div class="smability-chart-header">
-            <button class="smability-chart-close" onclick="SmabilityPanels.closeBothPanels()">×</button>
-            <div class="smability-chart-title" id="smabilityChartTitle">📈 SMAA CENTRUS 5</div>
-            <div class="smability-chart-controls">
-                <label>Compare:</label>
-                <select id="smabilityComparisonSelect">
-                    <option value="">None</option>
-                    <option value="Hipódromo">Hipódromo</option>
-                    <option value="UNAM">UNAM</option>
-                </select>
-                <label>Sensor:</label>
-                <select id="smabilitySensorSelect">
-                    <option value="7">Ozone (ppb)</option>
-                    <option value="2">Carbon Monoxide (ppb)</option>
-                    <option value="9">PM2.5 (μg/m³)</option>
-                    <option value="12">Temperature (°C)</option>
-                    <option value="3">Relative Humidity (%)</option>
-                </select>
-                <label>Period:</label>
-                <select id="smabilityTimeframeSelect">
-                    <option value="12">Last 12 hours</option>
-                    <option value="24">Last 24 hours</option>
-                    <option value="168">Last 7 days</option>
-                </select>
-            </div>
-        </div>
-        <div class="smability-chart-area">
-            <div>Interactive Chart Area</div>
-            <div class="smability-chart-placeholder">
-                📊 Plotly.js Chart with Real-time Data<br>
-                <small style="margin-top: 8px; display: block;">Optimized for air quality visualization</small>
-            </div>
-        </div>
-        <!-- Footer del panel de gráfico -->
-        <div class="smability-chart-footer">
-            smability.io
-        </div>
-    </div>
+    <!-- ELIMINADO: Panel de gráfico separado ya no se usa -->
 </div>
 <script src="assets/js/smability-panels.js"></script>
 </body>
