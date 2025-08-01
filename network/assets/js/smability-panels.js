@@ -1,7 +1,7 @@
 /**
  * ==============================================
- * ARCHIVO: smability-panels.js - VERSIÓN FINAL
- * DESCRIPCIÓN: Solo CENTRUS 5 con ajustes finales
+ * ARCHIVO: smability-panels.js - VERSIÓN COMPLETA
+ * DESCRIPCIÓN: Solo CENTRUS 5 con todas las funcionalidades
  * ==============================================
  */
 
@@ -16,7 +16,7 @@ window.SmabilityPanels = (function() {
     let initializationAttempts = 0;
     let maxInitAttempts = 10;
 
-    // AJUSTADO: Solo CENTRUS 5 para pruebas
+    // Solo CENTRUS 5 para pruebas
     const stationData = {
         'CENTRUS 5': {
             ias: 87,
@@ -74,7 +74,7 @@ window.SmabilityPanels = (function() {
             
             console.log(`SmabilityPanels: Creating marker for ${stationName} at`, station.coordinates);
             
-            // AJUSTADO: Crear elemento del marker con tipografía DIN Pro
+            // Crear elemento del marker con tipografía DIN Pro
             const markerElement = document.createElement('div');
             markerElement.className = 'smability-marker';
             markerElement.style.cssText = `
@@ -192,16 +192,10 @@ window.SmabilityPanels = (function() {
      */
     function updatePanelColors(color) {
         const mainPanel = document.getElementById('smabilityMainPanel');
-        const chartPanel = document.getElementById('smabilityChartPanel');
         
         if (mainPanel) {
             mainPanel.style.setProperty('border-color', color);
             mainPanel.style.setProperty('--smability-ias-color', color);
-        }
-        
-        if (chartPanel) {
-            chartPanel.style.setProperty('border-color', color);
-            chartPanel.style.setProperty('--smability-ias-color', color);
         }
         
         const indicator = document.getElementById('smabilityIasIndicator');
@@ -211,7 +205,7 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * Mostrar panel con datos de la estación
+     * Mostrar panel con datos de la estación - ACTUALIZADO
      */
     function showPanel(deviceName) {
         console.log(`SmabilityPanels: Showing panel for ${deviceName}`);
@@ -231,6 +225,10 @@ window.SmabilityPanels = (function() {
 
         updatePanelContent(deviceName, data);
         updatePanelColors(data.color);
+        
+        // Setup chart controls cuando se muestra el panel
+        setupChartControls();
+        
         setState(2);
         updateWithRealData(deviceName);
     }
@@ -240,7 +238,7 @@ window.SmabilityPanels = (function() {
      */
     function updatePanelContent(deviceName, data) {
         const title = document.getElementById('smabilityPanelTitle');
-        // AJUSTADO: Solo el nombre del dispositivo, sin subtítulo
+        // Solo el nombre del dispositivo, sin subtítulo
         if (title) title.textContent = deviceName;
 
         const emoji = document.getElementById('smabilityIasEmoji');
@@ -251,14 +249,14 @@ window.SmabilityPanels = (function() {
         if (emoji) emoji.textContent = data.emoji;
         if (value) value.textContent = data.ias;
         if (status1) status1.textContent = data.status1;
-        if (status2) status2.textContent = data.status2;
+        if (status2) status2.textContent = data.status2.replace(' Risk', ''); // Quitar "Risk" duplicado
 
         const pollutant = document.getElementById('smabilityDominantPollutant');
         if (pollutant) pollutant.textContent = data.pollutant;
     }
 
     /**
-     * Actualizar panel con datos reales de la API
+     * Actualizar panel con datos reales de la API - CORREGIDO: Sin unidades duplicadas
      */
     function updatePanelWithAPIData(sensorData) {
         // IAS real
@@ -272,10 +270,11 @@ window.SmabilityPanels = (function() {
             
             updatePanelColors(color);
             
+            // Status y Risk por separado
             const status1 = document.getElementById('smabilityStatusText1');
             const status2 = document.getElementById('smabilityStatusText2');
             if (status1) status1.textContent = status;
-            if (status2) status2.textContent = risk;
+            if (status2) status2.textContent = risk.replace(' Risk', ''); // Quitar "Risk" duplicado
             
             const emoji = document.getElementById('smabilityIasEmoji');
             if (emoji && window.getIASEmoji) {
@@ -289,47 +288,51 @@ window.SmabilityPanels = (function() {
             if (pollutant) pollutant.textContent = sensorData.SensorIAS;
         }
 
+        // Función para evitar unidades duplicadas
+        function formatWithSingleUnit(value, unit) {
+            const valueStr = String(value);
+            // Si ya tiene la unidad, no la agregues
+            if (valueStr.includes(unit)) {
+                return valueStr;
+            }
+            return `${value} ${unit}`;
+        }
+
         if (sensorData.ConcentrationIASO3_1hr) {
             const o3 = document.getElementById('smabilityO3');
-            // AJUSTADO: Evitar unidades duplicadas
-            if (o3) o3.textContent = `${sensorData.ConcentrationIASO3_1hr} ppb`;
+            if (o3) o3.textContent = formatWithSingleUnit(sensorData.ConcentrationIASO3_1hr, 'ppb');
         }
 
         if (sensorData.ConcentrationIASCO_8hr) {
             const co = document.getElementById('smabilityCO');
-            // AJUSTADO: Evitar unidades duplicadas
-            if (co) co.textContent = `${sensorData.ConcentrationIASCO_8hr} ppb`;
+            if (co) co.textContent = formatWithSingleUnit(sensorData.ConcentrationIASCO_8hr, 'ppb');
         }
 
         if (sensorData.ConcentrationIASPM2_5_12hr) {
             const pm25 = document.getElementById('smabilityPM25');
-            // AJUSTADO: Evitar unidades duplicadas
-            if (pm25) pm25.textContent = `${sensorData.ConcentrationIASPM2_5_12hr} μg/m³`;
+            if (pm25) pm25.textContent = formatWithSingleUnit(sensorData.ConcentrationIASPM2_5_12hr, 'μg/m³');
         }
 
         if (sensorData.ConcentrationIASPM10_12hr) {
             const pm10 = document.getElementById('smabilityPM10');
-            // AJUSTADO: Evitar unidades duplicadas
-            if (pm10) pm10.textContent = `${sensorData.ConcentrationIASPM10_12hr} μg/m³`;
+            if (pm10) pm10.textContent = formatWithSingleUnit(sensorData.ConcentrationIASPM10_12hr, 'μg/m³');
         }
 
         if (sensorData.Temperature || sensorData.Temp_1hr) {
             const temp = document.getElementById('smabilityTemperature');
             const tempValue = sensorData.Temp_1hr || sensorData.Temperature;
-            // AJUSTADO: Evitar unidades duplicadas
-            if (temp) temp.textContent = `${tempValue} °C`;
+            if (temp) temp.textContent = formatWithSingleUnit(tempValue, '°C');
         }
 
         if (sensorData.Humidity || sensorData.HR_1hr) {
             const humidity = document.getElementById('smabilityHumidity');
             const humidityValue = sensorData.HR_1hr || sensorData.Humidity;
-            // AJUSTADO: Evitar unidades duplicadas
-            if (humidity) humidity.textContent = `${humidityValue} %`;
+            if (humidity) humidity.textContent = formatWithSingleUnit(humidityValue, '%');
         }
 
         if (sensorData.Battery_Now) {
             const battery = document.getElementById('smabilityBattery');
-            if (battery) battery.textContent = sensorData.Battery_Now;
+            if (battery) battery.textContent = formatWithSingleUnit(sensorData.Battery_Now, '%');
         }
 
         if (sensorData.LocationSensor) {
@@ -355,7 +358,6 @@ window.SmabilityPanels = (function() {
         
         const container = document.getElementById('smabilityPanelContainer');
         const mainPanel = document.getElementById('smabilityMainPanel');
-        const chartPanel = document.getElementById('smabilityChartPanel'); // Ya no se usa
         
         if (!container || !mainPanel) return;
         
@@ -384,9 +386,6 @@ window.SmabilityPanels = (function() {
             const chartContainer = document.getElementById('smabilityInlineChartContainer');
             if (chartContainer) chartContainer.style.display = 'block';
         }
-        
-        // El panel separado ya no se usa
-        if (chartPanel) chartPanel.style.display = 'none';
     }
 
     /**
@@ -399,7 +398,7 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * Cerrar ambos paneles
+     * Cerrar ambos paneles (compatibilidad)
      */
     function closeBothPanels() {
         console.log('SmabilityPanels: Closing both panels');
@@ -408,7 +407,7 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * NUEVO: Toggle del gráfico - Panel único expandible
+     * NUEVO: Toggle del gráfico - Panel único expandible con funcionalidad real
      */
     function toggleChart() {
         if (currentState === 2) {
@@ -423,6 +422,9 @@ window.SmabilityPanels = (function() {
                 // Ajustar altura del panel principal para incluir el gráfico
                 mainPanel.style.maxHeight = '80vh';
                 mainPanel.style.height = 'auto';
+                
+                // Cargar datos del gráfico
+                loadChartData();
                 
                 setState(3); // Cambiar estado pero sin panel separado
             }
@@ -440,6 +442,204 @@ window.SmabilityPanels = (function() {
                 
                 setState(2);
             }
+        }
+    }
+
+    /**
+     * NUEVO: Cargar datos reales en el gráfico
+     */
+    async function loadChartData() {
+        const chartDiv = document.getElementById('smabilityInlineChart');
+        const placeholder = document.getElementById('smabilityChartPlaceholder');
+        
+        if (!chartDiv || !currentDevice) return;
+        
+        // Obtener valores de los controles
+        const sensorSelect = document.getElementById('smabilitySensorSelect');
+        const timeframeSelect = document.getElementById('smabilityTimeframeSelect');
+        const comparisonSelect = document.getElementById('smabilityComparisonSelect');
+        
+        const sensorId = sensorSelect ? sensorSelect.value : '7';
+        const hours = timeframeSelect ? parseInt(timeframeSelect.value) : 12;
+        const comparisonStation = comparisonSelect ? comparisonSelect.value : '';
+        
+        // Mostrar loading
+        placeholder.style.display = 'flex';
+        placeholder.innerHTML = 'Loading chart data...';
+        chartDiv.style.display = 'none';
+        
+        try {
+            // Usar las funciones existentes para obtener datos
+            if (window.fetchSensorDataWithProxy && window.API_CONFIG && window.API_CONFIG.tokens[currentDevice]) {
+                const token = window.API_CONFIG.tokens[currentDevice];
+                const primaryData = await window.fetchSensorDataWithProxy(hours, sensorId, token);
+                
+                let comparisonData = null;
+                if (comparisonStation && window.API_CONFIG.tokens[comparisonStation]) {
+                    const comparisonToken = window.API_CONFIG.tokens[comparisonStation];
+                    comparisonData = await window.fetchSensorDataWithProxy(hours, sensorId, comparisonToken);
+                }
+                
+                // Crear gráfico con Plotly
+                if (primaryData && primaryData.length > 0) {
+                    createPlotlyChart(chartDiv, primaryData, comparisonData, hours, sensorId, currentDevice, comparisonStation);
+                    
+                    // Ocultar placeholder y mostrar gráfico
+                    placeholder.style.display = 'none';
+                    chartDiv.style.display = 'block';
+                    chartDiv.classList.add('active');
+                } else {
+                    throw new Error('No data available');
+                }
+            } else {
+                throw new Error('API functions not available');
+            }
+        } catch (error) {
+            console.error('SmabilityPanels: Error loading chart data:', error);
+            placeholder.innerHTML = `
+                Error loading chart data<br>
+                <small style="margin-top: 8px; display: block;">Please try again later</small>
+            `;
+        }
+    }
+
+    /**
+     * NUEVO: Crear gráfico con Plotly.js
+     */
+    function createPlotlyChart(container, primaryData, comparisonData, hours, sensorId, primaryStation, comparisonStation) {
+        if (!window.SENSOR_CONFIG || !window.SENSOR_CONFIG[sensorId]) {
+            console.error('SmabilityPanels: Sensor config not available');
+            return;
+        }
+        
+        const sensorConfig = window.SENSOR_CONFIG[sensorId];
+        const traces = [];
+        
+        // Datos de la estación principal
+        primaryData.sort((a, b) => a.timestamp - b.timestamp);
+        traces.push({
+            x: primaryData.map(item => item.timestamp),
+            y: primaryData.map(item => item.value),
+            type: 'scatter',
+            mode: 'lines',
+            name: primaryStation,
+            line: {
+                color: sensorConfig.color,
+                width: 2
+            },
+            hovertemplate: `<b>${primaryStation}</b><br>` +
+                           `<b>Time</b>: %{x|%H:%M}<br>` +
+                           `<b>${sensorConfig.name}</b>: %{y:.1f} ${sensorConfig.units}<br>` +
+                           '<extra></extra>'
+        });
+        
+        // Datos de comparación si están disponibles
+        if (comparisonData && comparisonData.length > 0 && comparisonStation) {
+            comparisonData.sort((a, b) => a.timestamp - b.timestamp);
+            traces.push({
+                x: comparisonData.map(item => item.timestamp),
+                y: comparisonData.map(item => item.value),
+                type: 'scatter',
+                mode: 'lines',
+                name: comparisonStation,
+                line: {
+                    color: getComparisonColor(sensorConfig.color),
+                    width: 2
+                },
+                hovertemplate: `<b>${comparisonStation}</b><br>` +
+                               `<b>Time</b>: %{x|%H:%M}<br>` +
+                               `<b>${sensorConfig.name}</b>: %{y:.1f} ${sensorConfig.units}<br>` +
+                               '<extra></extra>'
+            });
+        }
+        
+        const layout = {
+            margin: { t: 20, r: 20, l: 50, b: 60 },
+            yaxis: {
+                title: { text: sensorConfig.units, font: { size: 10 } },
+                zeroline: false,
+                showgrid: true,
+                gridcolor: '#E4E4E4',
+                tickfont: { size: 8 }
+            },
+            xaxis: {
+                type: 'date',
+                tickformat: '%H:%M\n%b %d',
+                tickangle: -45,
+                showgrid: true,
+                gridcolor: '#E4E4E4',
+                tickfont: { size: 8 }
+            },
+            plot_bgcolor: '#FFFFFF',
+            paper_bgcolor: '#FFFFFF',
+            font: { family: 'DIN Pro, Arial, sans-serif' },
+            legend: {
+                x: 0,
+                y: 1.1,
+                orientation: 'h',
+                font: { size: 9 }
+            }
+        };
+        
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
+            displaylogo: false
+        };
+        
+        // Crear el gráfico
+        if (window.Plotly) {
+            window.Plotly.newPlot(container, traces, layout, config);
+        } else {
+            console.error('SmabilityPanels: Plotly.js not available');
+        }
+    }
+
+    /**
+     * NUEVO: Obtener color de comparación
+     */
+    function getComparisonColor(primaryColor) {
+        const colorMap = {
+            '#4264fb': '#fb4264',
+            '#ff7043': '#43ff70',
+            '#4caf50': '#af504c',
+            '#9c27b0': '#27b09c',
+            '#ff9800': '#0098ff'
+        };
+        return colorMap[primaryColor] || '#666666';
+    }
+
+    /**
+     * NUEVO: Setup de event listeners para controles del gráfico
+     */
+    function setupChartControls() {
+        const sensorSelect = document.getElementById('smabilitySensorSelect');
+        const timeframeSelect = document.getElementById('smabilityTimeframeSelect');
+        const comparisonSelect = document.getElementById('smabilityComparisonSelect');
+        
+        if (sensorSelect) {
+            sensorSelect.addEventListener('change', () => {
+                if (currentState === 3) {
+                    loadChartData();
+                }
+            });
+        }
+        
+        if (timeframeSelect) {
+            timeframeSelect.addEventListener('change', () => {
+                if (currentState === 3) {
+                    loadChartData();
+                }
+            });
+        }
+        
+        if (comparisonSelect) {
+            comparisonSelect.addEventListener('change', () => {
+                if (currentState === 3) {
+                    loadChartData();
+                }
+            });
         }
     }
 
@@ -496,15 +696,29 @@ window.SmabilityPanels = (function() {
 
     // API pública del módulo
     return {
+        // Métodos de inicialización
         init: init,
+        
+        // Métodos de control de paneles
         showPanel: showPanel,
         closeMainPanel: closeMainPanel,
         closeBothPanels: closeBothPanels,
         toggleChart: toggleChart,
+        
+        // Métodos de datos
         updateAllMarkersData: updateAllMarkersData,
         updateWithRealData: updateWithRealData,
+        
+        // Métodos de funcionalidad de gráfico
+        loadChartData: loadChartData,
+        createPlotlyChart: createPlotlyChart,
+        setupChartControls: setupChartControls,
+        
+        // Métodos de configuración
         toggleMarkersVisibility: toggleMarkersVisibility,
         setupAutoRefresh: setupAutoRefresh,
+        
+        // Getters para debugging
         getCurrentDevice: () => currentDevice,
         getCurrentState: () => currentState,
         getStationData: () => stationData,
@@ -563,6 +777,14 @@ function addSmabilityToggleToLegend() {
             toggleButton.style.backgroundColor = visible ? '#4264fb' : '#e2e2e2';
             toggleButton.style.color = visible ? '#ffffff' : '#333';
             
+        let visible = true;
+        toggleButton.addEventListener('click', () => {
+            visible = !visible;
+            window.SmabilityPanels.toggleMarkersVisibility(visible);
+            
+            toggleButton.style.backgroundColor = visible ? '#4264fb' : '#e2e2e2';
+            toggleButton.style.color = visible ? '#ffffff' : '#333';
+            
             console.log(`SmabilityPanels: Toggled visibility to: ${visible}`);
         });
         
@@ -574,13 +796,15 @@ function addSmabilityToggleToLegend() {
     }
 }
 
-// Inicialización
+// Inicialización con diferentes métodos para asegurar que funcione
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeSmabilityPanels);
 } else {
+    // DOM ya está listo
     setTimeout(initializeSmabilityPanels, 1000);
 }
 
+// También intentar cuando la ventana esté completamente cargada
 window.addEventListener('load', () => {
     setTimeout(() => {
         if (window.SmabilityPanels && window.SmabilityPanels.getMarkers().size === 0) {
@@ -590,4 +814,4 @@ window.addEventListener('load', () => {
     }, 2000);
 });
 
-console.log('SmabilityPanels module loaded successfully - FINAL VERSION');
+console.log('SmabilityPanels module loaded successfully - COMPLETE VERSION');
