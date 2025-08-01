@@ -69,12 +69,34 @@ window.SmabilityPanels = (function() {
         smabilityMarkers.forEach(marker => marker.remove());
         smabilityMarkers.clear();
         
+        // Buscar instancia del mapa de forma más robusta
+        let mapInstance = window.map || window.mapboxMap || window.myMap;
+        
+        // Si no encontramos el mapa por variable, buscarlo en el DOM
+        if (!mapInstance) {
+            const mapContainer = document.getElementById('map');
+            if (mapContainer && mapContainer._map) {
+                mapInstance = mapContainer._map;
+            }
+        }
+        
+        if (!mapInstance) {
+            console.log('SmabilityPanels: ❌ Map instance not found, retrying...');
+            setTimeout(setupSmabilityMarkers, 2000);
+            return;
+        }
+        
+        if (typeof mapboxgl === 'undefined') {
+            console.log('SmabilityPanels: ❌ mapboxgl not available');
+            return;
+        }
+        
+        console.log('SmabilityPanels: ✅ Map instance found:', mapInstance);
+        
         Object.keys(stationData).forEach(stationName => {
             const station = stationData[stationName];
             
-            console.log(`SmabilityPanels: Creating marker for ${stationName} at`, station.coordinates);
-            
-            // Crear elemento del marker con tipografía DIN Pro
+            // Crear elemento del marker
             const markerElement = document.createElement('div');
             markerElement.className = 'smability-marker';
             markerElement.style.cssText = `
@@ -96,6 +118,7 @@ window.SmabilityPanels = (function() {
                 z-index: 1000;
             `;
             markerElement.textContent = station.ias;
+            markerElement.title = stationName;
             
             // Hover effect
             markerElement.addEventListener('mouseenter', () => {
@@ -115,24 +138,27 @@ window.SmabilityPanels = (function() {
                 showPanel(stationName);
             });
             
-            // Crear marker de Mapbox con offset
-            const marker = new mapboxgl.Marker({ 
-                element: markerElement,
-                offset: [20, -20]
-            })
-            .setLngLat(station.coordinates)
-            .addTo(window.map);
-            
-            smabilityMarkers.set(stationName, marker);
-            
-            console.log(`SmabilityPanels: ✅ Created marker for ${stationName}`);
+            // Crear marker de Mapbox
+            try {
+                const marker = new mapboxgl.Marker({ 
+                    element: markerElement,
+                    offset: [0, -17]
+                })
+                .setLngLat(station.coordinates)
+                .addTo(mapInstance);
+                
+                smabilityMarkers.set(stationName, marker);
+                console.log(`SmabilityPanels: ✅ Created marker for ${stationName}`);
+                
+            } catch (error) {
+                console.error(`SmabilityPanels: ❌ Error creating marker for ${stationName}:`, error);
+            }
         });
         
         console.log(`SmabilityPanels: Total markers created: ${smabilityMarkers.size}`);
         
         // Actualizar con datos reales
         setTimeout(() => {
-            console.log('SmabilityPanels: Starting real data update...');
             updateAllMarkersData();
         }, 2000);
     }
