@@ -101,11 +101,18 @@
     font-size: 18px;
     font-weight: bold;
     color: #000;
-    margin: 0; /* AJUSTADO: Sin margen inferior para subtítulo */
+    margin: 0 0 4px 0; /* AJUSTADO: Margen menor para Air Quality */
     font-family: 'DIN Pro', Arial, sans-serif;
 }
 
-/* ELIMINADO: .smability-panel-subtitle ya no se usa */
+/* NUEVO: Etiqueta Air Quality */
+.smability-air-quality-label {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    font-family: 'DIN Pro', Arial, sans-serif;
+    font-weight: normal;
+}
 
 /* === CONTENIDO DEL PANEL === */
 .smability-panel-content {
@@ -145,11 +152,25 @@
     text-align: right;
 }
 
-.smability-status-text {
+/* NUEVO: Estructura de etiquetas Status/Risk */
+.smability-status-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0;
+}
+
+.smability-status-label {
+    font-size: 10px;
+    color: #666;
+    font-family: 'DIN Pro', Arial, sans-serif;
+    font-weight: normal;
+}
+
+.smability-status-value {
     font-size: 12px;
     font-weight: bold;
     color: #000;
-    margin: 2px 0;
     font-family: 'DIN Pro', Arial, sans-serif;
 }
 
@@ -275,6 +296,19 @@
     font-size: 16px;
     font-family: 'DIN Pro', Arial, sans-serif;
     color: #666;
+}
+
+/* NUEVO: Contenedor para gráfico real de Plotly */
+#smabilityInlineChart {
+    display: none; /* Inicialmente oculto */
+}
+
+#smabilityInlineChart.active {
+    display: block;
+}
+
+#smabilityChartPlaceholder.hidden {
+    display: none;
 }
 
 /* === FOOTER DEL PANEL === */
