@@ -240,12 +240,8 @@ window.SmabilityPanels = (function() {
      */
     function updatePanelContent(deviceName, data) {
         const title = document.getElementById('smabilityPanelTitle');
-        const subtitle = document.getElementById('smabilityPanelSubtitle');
-        const chartTitle = document.getElementById('smabilityChartTitle');
-        
+        // AJUSTADO: Solo el nombre del dispositivo, sin subtítulo
         if (title) title.textContent = deviceName;
-        if (subtitle) subtitle.textContent = `${deviceName} - Smability - Air Quality`;
-        if (chartTitle) chartTitle.textContent = `📈 SMAA ${deviceName}`;
 
         const emoji = document.getElementById('smabilityIasEmoji');
         const value = document.getElementById('smabilityIasValue');
@@ -295,33 +291,39 @@ window.SmabilityPanels = (function() {
 
         if (sensorData.ConcentrationIASO3_1hr) {
             const o3 = document.getElementById('smabilityO3');
+            // AJUSTADO: Evitar unidades duplicadas
             if (o3) o3.textContent = `${sensorData.ConcentrationIASO3_1hr} ppb`;
         }
 
         if (sensorData.ConcentrationIASCO_8hr) {
             const co = document.getElementById('smabilityCO');
+            // AJUSTADO: Evitar unidades duplicadas
             if (co) co.textContent = `${sensorData.ConcentrationIASCO_8hr} ppb`;
         }
 
         if (sensorData.ConcentrationIASPM2_5_12hr) {
             const pm25 = document.getElementById('smabilityPM25');
+            // AJUSTADO: Evitar unidades duplicadas
             if (pm25) pm25.textContent = `${sensorData.ConcentrationIASPM2_5_12hr} μg/m³`;
         }
 
         if (sensorData.ConcentrationIASPM10_12hr) {
             const pm10 = document.getElementById('smabilityPM10');
+            // AJUSTADO: Evitar unidades duplicadas
             if (pm10) pm10.textContent = `${sensorData.ConcentrationIASPM10_12hr} μg/m³`;
         }
 
         if (sensorData.Temperature || sensorData.Temp_1hr) {
             const temp = document.getElementById('smabilityTemperature');
             const tempValue = sensorData.Temp_1hr || sensorData.Temperature;
+            // AJUSTADO: Evitar unidades duplicadas
             if (temp) temp.textContent = `${tempValue} °C`;
         }
 
         if (sensorData.Humidity || sensorData.HR_1hr) {
             const humidity = document.getElementById('smabilityHumidity');
             const humidityValue = sensorData.HR_1hr || sensorData.Humidity;
+            // AJUSTADO: Evitar unidades duplicadas
             if (humidity) humidity.textContent = `${humidityValue} %`;
         }
 
@@ -346,33 +348,45 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * Cambiar estado de los paneles
+     * AJUSTADO: Cambiar estado - Solo panel principal expandible
      */
     function setState(state) {
         currentState = state;
         
         const container = document.getElementById('smabilityPanelContainer');
         const mainPanel = document.getElementById('smabilityMainPanel');
-        const chartPanel = document.getElementById('smabilityChartPanel');
+        const chartPanel = document.getElementById('smabilityChartPanel'); // Ya no se usa
         
-        if (!container || !mainPanel || !chartPanel) return;
-        
-        container.classList.remove('smability-panels-stacked');
+        if (!container || !mainPanel) return;
         
         if (state === 1) {
+            // Solo mapa - ocultar todo
             container.style.display = 'none';
             mainPanel.style.display = 'none';
-            chartPanel.style.display = 'none';
+            
+            // Asegurar que el gráfico inline esté oculto
+            const chartContainer = document.getElementById('smabilityInlineChartContainer');
+            if (chartContainer) chartContainer.style.display = 'none';
         } else if (state === 2) {
+            // Panel principal visible sin gráfico
             container.style.display = 'block';
             mainPanel.style.display = 'block';
-            chartPanel.style.display = 'none';
+            
+            // Asegurar que el gráfico inline esté oculto
+            const chartContainer = document.getElementById('smabilityInlineChartContainer');
+            if (chartContainer) chartContainer.style.display = 'none';
         } else if (state === 3) {
+            // Panel principal visible con gráfico inline
             container.style.display = 'block';
             mainPanel.style.display = 'block';
-            chartPanel.style.display = 'block';
-            container.classList.add('smability-panels-stacked');
+            
+            // Mostrar el gráfico inline
+            const chartContainer = document.getElementById('smabilityInlineChartContainer');
+            if (chartContainer) chartContainer.style.display = 'block';
         }
+        
+        // El panel separado ya no se usa
+        if (chartPanel) chartPanel.style.display = 'none';
     }
 
     /**
@@ -394,13 +408,38 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * Toggle del gráfico
+     * NUEVO: Toggle del gráfico - Panel único expandible
      */
     function toggleChart() {
         if (currentState === 2) {
-            setState(3);
+            // Expandir panel principal para incluir gráfico
+            const mainPanel = document.getElementById('smabilityMainPanel');
+            const chartContainer = document.getElementById('smabilityInlineChartContainer');
+            
+            if (mainPanel && chartContainer) {
+                // Mostrar área de gráfico dentro del panel principal
+                chartContainer.style.display = 'block';
+                
+                // Ajustar altura del panel principal para incluir el gráfico
+                mainPanel.style.maxHeight = '80vh';
+                mainPanel.style.height = 'auto';
+                
+                setState(3); // Cambiar estado pero sin panel separado
+            }
         } else if (currentState === 3) {
-            setState(2);
+            // Contraer panel principal
+            const mainPanel = document.getElementById('smabilityMainPanel');
+            const chartContainer = document.getElementById('smabilityInlineChartContainer');
+            
+            if (mainPanel && chartContainer) {
+                // Ocultar área de gráfico
+                chartContainer.style.display = 'none';
+                
+                // Restaurar altura original del panel
+                mainPanel.style.maxHeight = '55vh';
+                
+                setState(2);
+            }
         }
     }
 
