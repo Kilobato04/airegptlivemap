@@ -211,127 +211,20 @@
 </div>
 <script src="assets/js/smability-panels.js"></script>
 <script>
-// CREACIÓN FORZADA DE MARKERS SMABILITY
-function createSmabilityMarkers() {
-    console.log('🎯 Creando markers Smability forzadamente...');
-    
-    // Buscar la variable del mapa (puede tener diferentes nombres)
-    let mapInstance = window.map || window.mapboxMap || window.myMap;
-    
-    // Si no encontramos el mapa por variable, buscarlo en el DOM
-    if (!mapInstance) {
-        const mapContainer = document.getElementById('map');
-        if (mapContainer && mapContainer._map) {
-            mapInstance = mapContainer._map;
-        }
-    }
-    
-    if (!mapInstance) {
-        console.log('❌ No se encontró instancia del mapa, reintentando...');
-        setTimeout(createSmabilityMarkers, 2000);
-        return;
-    }
-    
-    console.log('✅ Mapa encontrado:', mapInstance);
-    
-    // Datos del marker CENTRUS 5
-    const markerData = {
-        coordinates: [-99.170692, 19.409618], // Ciudad de México
-        ias: 87,
-        color: '#ff8000',
-        name: 'CENTRUS 5'
-    };
-    
-    // Crear elemento del marker
-    const markerElement = document.createElement('div');
-    markerElement.style.cssText = `
-        cursor: pointer;
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        border: 3px solid white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 14px;
-        color: #000;
-        background-color: ${markerData.color};
-        font-family: 'DIN Pro', Arial, sans-serif;
-        transition: transform 0.2s ease;
-        z-index: 1000;
-    `;
-    markerElement.textContent = markerData.ias;
-    markerElement.title = markerData.name;
-    
-    // Efectos hover
-    markerElement.addEventListener('mouseenter', () => {
-        markerElement.style.transform = 'scale(1.1)';
-        markerElement.style.boxShadow = '0 6px 16px rgba(0,0,0,0.5)';
-    });
-    
-    markerElement.addEventListener('mouseleave', () => {
-        markerElement.style.transform = 'scale(1)';
-        markerElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
-    });
-    
-    // Click handler - ESTE ES EL MÁS IMPORTANTE
-    markerElement.addEventListener('click', (e) => {
-        e.stopPropagation();
-        console.log('🎯 Marker clicked!');
-        
-        // Mostrar panel directamente
-        const container = document.getElementById('smabilityPanelContainer');
-        const panel = document.getElementById('smabilityMainPanel');
-        
-        if (container && panel) {
-            container.style.display = 'block';
-            panel.style.display = 'block';
-            
-            // Actualizar título del panel
-            const title = document.getElementById('smabilityPanelTitle');
-            if (title) title.textContent = markerData.name;
-            
-            // Actualizar valor IAS
-            const iasValue = document.getElementById('smabilityIasValue');
-            if (iasValue) iasValue.textContent = markerData.ias;
-            
-            console.log('✅ Panel Smability abierto!');
-        } else {
-            console.log('❌ Elementos del panel no encontrados');
-        }
-    });
-    
-    // Crear y agregar marker al mapa
-    try {
-        const marker = new mapboxgl.Marker({ 
-            element: markerElement,
-            offset: [0, -17]
-        })
-        .setLngLat(markerData.coordinates)
-        .addTo(mapInstance);
-        
-        console.log('✅ Marker CENTRUS 5 creado exitosamente en:', markerData.coordinates);
-        window.smabilityMarker = marker;
-        return marker;
-        
-    } catch (error) {
-        console.error('❌ Error creando marker:', error);
+function ensureSmabilityMarkers() {
+    if (window.SmabilityPanels && window.SmabilityPanels.getMarkers().size === 0) {
+        console.log('🔄 Ensuring Smability markers...');
+        window.SmabilityPanels.init();
     }
 }
 
-// Ejecutar creación de markers con diferentes timings
-setTimeout(createSmabilityMarkers, 1000);
-setTimeout(createSmabilityMarkers, 3000);
-setTimeout(createSmabilityMarkers, 5000);
+setTimeout(ensureSmabilityMarkers, 2000);
+setTimeout(ensureSmabilityMarkers, 5000);
 
-// También intentar cuando el usuario haga click en el botón
 document.addEventListener('click', (e) => {
-    if (e.target.id === 'toggleSmabilityPanelMarkers' || 
-        e.target.textContent === 'Smability Panels') {
-        console.log('👆 Usuario clickeó botón Smability, creando markers...');
-        setTimeout(createSmabilityMarkers, 100);
+    if (e.target.textContent === 'Smability Panels' && 
+        e.target.style.backgroundColor === 'rgb(66, 100, 251)') {
+        setTimeout(ensureSmabilityMarkers, 100);
     }
 });
 </script>
