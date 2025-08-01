@@ -1,8 +1,7 @@
 /**
  * ==============================================
- * ARCHIVO: smability-panels.js - VERSIÓN CORREGIDA
- * DESCRIPCIÓN: Lógica para los nuevos paneles Smability - Solo CENTRUS 3 y 5
- * INTEGRACIÓN: Cargar después de los JS originales
+ * ARCHIVO: smability-panels.js - VERSIÓN FINAL
+ * DESCRIPCIÓN: Solo CENTRUS 5 con ajustes finales
  * ==============================================
  */
 
@@ -17,17 +16,8 @@ window.SmabilityPanels = (function() {
     let initializationAttempts = 0;
     let maxInitAttempts = 10;
 
-    // CORREGIDO: Solo CENTRUS 3 y CENTRUS 5 para pruebas
+    // AJUSTADO: Solo CENTRUS 5 para pruebas
     const stationData = {
-        'CENTRUS 3': {
-            ias: 75,
-            color: '#ffff00',
-            emoji: '😐',
-            pollutant: 'PM2.5',
-            status1: 'Acceptable',
-            status2: 'Moderate Risk',
-            coordinates: [-99.171021, 19.425217] // Coordenadas del config original
-        },
         'CENTRUS 5': {
             ias: 87,
             color: '#ff8000',
@@ -35,20 +25,18 @@ window.SmabilityPanels = (function() {
             pollutant: 'O3',
             status1: 'Acceptable',
             status2: 'Moderate Risk',
-            coordinates: [-99.170692, 19.409618] // Coordenadas del config original
+            coordinates: [-99.170692, 19.409618]
         }
     };
 
     /**
-     * Inicializar el módulo - VERSIÓN CORREGIDA
+     * Inicializar el módulo
      */
     function init() {
         console.log('SmabilityPanels: Initializing... Attempt:', initializationAttempts + 1);
         
-        // Incrementar intentos
         initializationAttempts++;
         
-        // Verificar si el mapa está disponible
         if (!window.map) {
             console.log('SmabilityPanels: Map not available yet, retrying...');
             if (initializationAttempts < maxInitAttempts) {
@@ -57,7 +45,6 @@ window.SmabilityPanels = (function() {
             return;
         }
 
-        // Verificar si el mapa está cargado
         if (!window.map.loaded()) {
             console.log('SmabilityPanels: Map not loaded yet, waiting...');
             window.map.on('load', () => {
@@ -73,7 +60,7 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * CORREGIDO: Crear markers adicionales de Smability
+     * Crear markers - Solo CENTRUS 5
      */
     function setupSmabilityMarkers() {
         console.log('SmabilityPanels: Setting up markers for stations:', Object.keys(stationData));
@@ -87,7 +74,7 @@ window.SmabilityPanels = (function() {
             
             console.log(`SmabilityPanels: Creating marker for ${stationName} at`, station.coordinates);
             
-            // Crear elemento del marker con estilos más visibles
+            // AJUSTADO: Crear elemento del marker con tipografía DIN Pro
             const markerElement = document.createElement('div');
             markerElement.className = 'smability-marker';
             markerElement.style.cssText = `
@@ -128,10 +115,10 @@ window.SmabilityPanels = (function() {
                 showPanel(stationName);
             });
             
-            // Crear marker de Mapbox con offset para no interferir con originales
+            // Crear marker de Mapbox con offset
             const marker = new mapboxgl.Marker({ 
                 element: markerElement,
-                offset: [20, -20] // Offset mayor para mejor separación
+                offset: [20, -20]
             })
             .setLngLat(station.coordinates)
             .addTo(window.map);
@@ -143,7 +130,7 @@ window.SmabilityPanels = (function() {
         
         console.log(`SmabilityPanels: Total markers created: ${smabilityMarkers.size}`);
         
-        // Forzar actualización con datos reales después de crear markers
+        // Actualizar con datos reales
         setTimeout(() => {
             console.log('SmabilityPanels: Starting real data update...');
             updateAllMarkersData();
@@ -151,23 +138,19 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * CORREGIDO: Función para obtener datos reales de la API
+     * Función para obtener datos reales de la API
      */
     async function updateWithRealData(deviceName) {
         try {
             console.log(`SmabilityPanels: Fetching real data for ${deviceName}`);
             
-            // Usar las funciones existentes de la app principal
             if (window.fetchSensorData && window.API_CONFIG && window.API_CONFIG.tokens[deviceName]) {
                 const sensorData = await window.fetchSensorData(deviceName);
                 
                 console.log(`SmabilityPanels: Received data for ${deviceName}:`, sensorData);
                 
                 if (sensorData) {
-                    // Actualizar con datos reales
                     updatePanelWithAPIData(sensorData);
-                    
-                    // Actualizar marker visual
                     updateMarkerWithRealData(deviceName, sensorData);
                 }
             } else {
@@ -179,7 +162,7 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * NUEVO: Actualizar marker visual con datos reales
+     * Actualizar marker visual con datos reales
      */
     function updateMarkerWithRealData(deviceName, sensorData) {
         if (!smabilityMarkers.has(deviceName)) return;
@@ -188,7 +171,6 @@ window.SmabilityPanels = (function() {
         const element = marker.getElement();
         
         if (sensorData.dataIAS && sensorData.dataIAS !== 'N/A') {
-            // Usar función de colores existente si está disponible
             const { color } = window.getIndicatorColor ? 
                 window.getIndicatorColor(sensorData.dataIAS) : 
                 { color: '#ffff00' };
@@ -196,7 +178,6 @@ window.SmabilityPanels = (function() {
             element.style.backgroundColor = color;
             element.textContent = Math.round(sensorData.dataIAS);
             
-            // Actualizar datos en memoria
             if (stationData[deviceName]) {
                 stationData[deviceName].ias = sensorData.dataIAS;
                 stationData[deviceName].color = color;
@@ -223,7 +204,6 @@ window.SmabilityPanels = (function() {
             chartPanel.style.setProperty('--smability-ias-color', color);
         }
         
-        // Actualizar indicador IAS
         const indicator = document.getElementById('smabilityIasIndicator');
         if (indicator) {
             indicator.style.backgroundColor = color;
@@ -244,22 +224,14 @@ window.SmabilityPanels = (function() {
             return;
         }
 
-        // Mostrar el contenedor
         const container = document.getElementById('smabilityPanelContainer');
         if (container) {
             container.style.display = 'block';
         }
 
-        // Actualizar contenido del panel
         updatePanelContent(deviceName, data);
-        
-        // Actualizar colores
         updatePanelColors(data.color);
-        
-        // Cambiar estado
         setState(2);
-        
-        // Obtener datos reales
         updateWithRealData(deviceName);
     }
 
@@ -267,7 +239,6 @@ window.SmabilityPanels = (function() {
      * Actualizar contenido del panel con datos de la estación
      */
     function updatePanelContent(deviceName, data) {
-        // Títulos
         const title = document.getElementById('smabilityPanelTitle');
         const subtitle = document.getElementById('smabilityPanelSubtitle');
         const chartTitle = document.getElementById('smabilityChartTitle');
@@ -276,7 +247,6 @@ window.SmabilityPanels = (function() {
         if (subtitle) subtitle.textContent = `${deviceName} - Smability - Air Quality`;
         if (chartTitle) chartTitle.textContent = `📈 SMAA ${deviceName}`;
 
-        // IAS
         const emoji = document.getElementById('smabilityIasEmoji');
         const value = document.getElementById('smabilityIasValue');
         const status1 = document.getElementById('smabilityStatusText1');
@@ -287,7 +257,6 @@ window.SmabilityPanels = (function() {
         if (status1) status1.textContent = data.status1;
         if (status2) status2.textContent = data.status2;
 
-        // Contaminante dominante
         const pollutant = document.getElementById('smabilityDominantPollutant');
         if (pollutant) pollutant.textContent = data.pollutant;
     }
@@ -301,7 +270,6 @@ window.SmabilityPanels = (function() {
             const iasValue = document.getElementById('smabilityIasValue');
             if (iasValue) iasValue.textContent = Math.round(sensorData.dataIAS);
             
-            // Actualizar colores basados en IAS real
             const { color, status, risk } = window.getIndicatorColor ? 
                 window.getIndicatorColor(sensorData.dataIAS) : 
                 { color: '#ffff00', status: 'Unknown', risk: 'Unknown' };
@@ -313,14 +281,13 @@ window.SmabilityPanels = (function() {
             if (status1) status1.textContent = status;
             if (status2) status2.textContent = risk;
             
-            // Emoji basado en IAS real
             const emoji = document.getElementById('smabilityIasEmoji');
             if (emoji && window.getIASEmoji) {
                 emoji.textContent = window.getIASEmoji(sensorData.dataIAS);
             }
         }
 
-        // Datos de sensores reales usando los nombres correctos de la API
+        // Datos de sensores reales
         if (sensorData.SensorIAS) {
             const pollutant = document.getElementById('smabilityDominantPollutant');
             if (pollutant) pollutant.textContent = sensorData.SensorIAS;
@@ -390,21 +357,17 @@ window.SmabilityPanels = (function() {
         
         if (!container || !mainPanel || !chartPanel) return;
         
-        // Remover clases existentes
         container.classList.remove('smability-panels-stacked');
         
         if (state === 1) {
-            // Solo mapa - ocultar todo
             container.style.display = 'none';
             mainPanel.style.display = 'none';
             chartPanel.style.display = 'none';
         } else if (state === 2) {
-            // Panel principal visible
             container.style.display = 'block';
             mainPanel.style.display = 'block';
             chartPanel.style.display = 'none';
         } else if (state === 3) {
-            // Ambos paneles visibles
             container.style.display = 'block';
             mainPanel.style.display = 'block';
             chartPanel.style.display = 'block';
@@ -435,16 +398,14 @@ window.SmabilityPanels = (function() {
      */
     function toggleChart() {
         if (currentState === 2) {
-            // Mostrar gráfico
             setState(3);
         } else if (currentState === 3) {
-            // Ocultar gráfico
             setState(2);
         }
     }
 
     /**
-     * CORREGIDO: Actualizar datos de todos los markers
+     * Actualizar datos de todos los markers
      */
     async function updateAllMarkersData() {
         console.log('SmabilityPanels: Updating all markers data...');
@@ -468,7 +429,7 @@ window.SmabilityPanels = (function() {
     }
 
     /**
-     * CORREGIDO: Toggle de visibilidad de markers Smability
+     * Toggle de visibilidad de markers Smability
      */
     function toggleMarkersVisibility(visible = true) {
         console.log(`SmabilityPanels: Toggle markers visibility: ${visible}`);
@@ -484,38 +445,27 @@ window.SmabilityPanels = (function() {
      * Setup de refresh automático
      */
     function setupAutoRefresh() {
-        // Actualizar cada 5 minutos
         setInterval(() => {
             console.log('SmabilityPanels: Auto-refreshing marker data');
             updateAllMarkersData();
             
-            // Si hay un panel abierto, actualizar también
             if (currentDevice && currentState > 1) {
                 updateWithRealData(currentDevice);
             }
-        }, 5 * 60 * 1000); // 5 minutos
+        }, 5 * 60 * 1000);
     }
 
     // API pública del módulo
     return {
-        // Métodos de inicialización
         init: init,
-        
-        // Métodos de control de paneles
         showPanel: showPanel,
         closeMainPanel: closeMainPanel,
         closeBothPanels: closeBothPanels,
         toggleChart: toggleChart,
-        
-        // Métodos de datos
         updateAllMarkersData: updateAllMarkersData,
         updateWithRealData: updateWithRealData,
-        
-        // Métodos de configuración
         toggleMarkersVisibility: toggleMarkersVisibility,
         setupAutoRefresh: setupAutoRefresh,
-        
-        // Getters para debugging
         getCurrentDevice: () => currentDevice,
         getCurrentState: () => currentState,
         getStationData: () => stationData,
@@ -524,33 +474,27 @@ window.SmabilityPanels = (function() {
 })();
 
 /**
- * CORREGIDO: Auto-inicialización con múltiples intentos
+ * Auto-inicialización
  */
 function initializeSmabilityPanels() {
     console.log('SmabilityPanels: Starting initialization...');
     
-    // Intentar inicializar inmediatamente
     window.SmabilityPanels.init();
-    
-    // Setup auto-refresh
     window.SmabilityPanels.setupAutoRefresh();
     
-    // Agregar toggle a la leyenda después de un delay
     setTimeout(() => {
         addSmabilityToggleToLegend();
     }, 3000);
 }
 
 /**
- * CORREGIDO: Integración con la leyenda existente
+ * Integración con la leyenda existente
  */
 function addSmabilityToggleToLegend() {
     console.log('SmabilityPanels: Adding toggle to legend...');
     
-    // Buscar la leyenda existente
     const legend = document.querySelector('.legend-content');
     if (legend) {
-        // Verificar si ya existe el botón
         if (document.getElementById('toggleSmabilityPanelMarkers')) {
             console.log('SmabilityPanels: Toggle button already exists');
             return;
@@ -569,6 +513,7 @@ function addSmabilityToggleToLegend() {
             color: white; 
             cursor: pointer; 
             font-size: 11px;
+            font-family: 'DIN Pro', Arial, sans-serif;
         `;
         
         let visible = true;
@@ -590,15 +535,13 @@ function addSmabilityToggleToLegend() {
     }
 }
 
-// Inicialización con diferentes métodos para asegurar que funcione
+// Inicialización
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeSmabilityPanels);
 } else {
-    // DOM ya está listo
     setTimeout(initializeSmabilityPanels, 1000);
 }
 
-// También intentar cuando la ventana esté completamente cargada
 window.addEventListener('load', () => {
     setTimeout(() => {
         if (window.SmabilityPanels && window.SmabilityPanels.getMarkers().size === 0) {
@@ -608,4 +551,4 @@ window.addEventListener('load', () => {
     }, 2000);
 });
 
-console.log('SmabilityPanels module loaded successfully - CORRECTED VERSION');
+console.log('SmabilityPanels module loaded successfully - FINAL VERSION');
