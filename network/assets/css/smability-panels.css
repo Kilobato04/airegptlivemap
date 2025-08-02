@@ -127,9 +127,34 @@
     gap: 8px;
     margin-bottom: 16px;
     padding: 12px;
-    background: var(--smability-ias-bg, rgba(255, 128, 0, 0.1));  ← NUEVA LÍNEA
+    background: var(--smability-ias-bg, rgba(255, 128, 0, 0.1));
     border-radius: 8px;
-    transition: background-color 0.3s ease;  ← AGREGAR TRANSICIÓN
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.smability-ias-section.smability-clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.smability-ias-section.smability-clickable:hover {
+    background: var(--smability-ias-bg-hover, rgba(255, 128, 0, 0.15));
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.smability-expand-indicator {
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    color: #666;
+    transition: transform 0.3s ease;
+    font-family: 'DIN Pro', Arial, sans-serif;
+}
+
+.smability-expand-indicator.expanded {
+    transform: rotate(180deg);
 }
 
 .smability-ias-emoji {
