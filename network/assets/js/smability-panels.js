@@ -223,6 +223,7 @@ window.SmabilityPanels = (function() {
             mainPanel.style.setProperty('border-color', color);
             mainPanel.style.setProperty('--smability-ias-color', color);
             mainPanel.style.setProperty('--smability-header-bg', `${color}20`);
+            mainPanel.style.setProperty('--smability-ias-bg', `${color}20`);
         }
         
         // Actualizar indicador circular
