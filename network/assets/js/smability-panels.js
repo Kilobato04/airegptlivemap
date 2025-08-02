@@ -258,17 +258,10 @@ window.SmabilityPanels = (function() {
      * Actualizar colores de los paneles según IAS
      */
     function updatePanelColors(color) {
-        const mainPanel = document.getElementById('smabilityMainPanel');
+        const iasValue = document.getElementById('smabilityIasValue');
+        const currentIAS = iasValue ? parseInt(iasValue.textContent) : 87;
         
-        if (mainPanel) {
-            mainPanel.style.setProperty('border-color', color);
-            mainPanel.style.setProperty('--smability-ias-color', color);
-        }
-        
-        const indicator = document.getElementById('smabilityIasIndicator');
-        if (indicator) {
-            indicator.style.backgroundColor = color;
-        }
+        updateIASBarAndColors(currentIAS, color);
     }
 
     /**
