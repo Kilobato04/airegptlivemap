@@ -219,11 +219,9 @@ window.SmabilityPanels = (function() {
     function resetPanelState() {
         // Contraer contenido expandido
         const expandedContent = document.getElementById('smabilityExpandedContent');
-        const expandIndicator = document.getElementById('smabilityExpandIndicator');
         
-        if (expandedContent && expandIndicator) {
+        if (expandedContent) {
             expandedContent.style.display = 'none';
-            expandIndicator.classList.remove('expanded');
         }
                 
         // Ocultar gráfico inline
@@ -568,18 +566,15 @@ window.SmabilityPanels = (function() {
      */
     function toggleDetails() {
         const expandedContent = document.getElementById('smabilityExpandedContent');
-        const expandIndicator = document.getElementById('smabilityExpandIndicator');
         
-        if (!expandedContent || !expandIndicator) return;
+        if (!expandedContent) return;
         
         if (expandedContent.style.display === 'none') {
             // Mostrar detalles
             expandedContent.style.display = 'block';
-            expandIndicator.classList.add('expanded');
         } else {
             // Ocultar detalles
             expandedContent.style.display = 'none';
-            expandIndicator.classList.remove('expanded');
         }
     }
 
