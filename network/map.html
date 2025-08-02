@@ -107,12 +107,11 @@
         
         <div class="smability-panel-content">
             <!-- IAS Principal con etiquetas actualizadas -->
-            <div class="smability-ias-section">
+            <div class="smability-ias-section smability-clickable" id="smabilityIasSection" onclick="SmabilityPanels.toggleDetails()">
                 <span class="smability-ias-emoji" id="smabilityIasEmoji">😐</span>
                 <span class="smability-ias-indicator" id="smabilityIasIndicator"></span>
                 <span class="smability-ias-value" id="smabilityIasValue">87</span>
                 <div class="smability-ias-status">
-                    <!-- AJUSTADO: Nueva estructura de etiquetas -->
                     <div class="smability-status-row">
                         <span class="smability-status-label">Air Quality:</span>
                         <span class="smability-status-value" id="smabilityStatusText1">Acceptable</span>
@@ -122,11 +121,7 @@
                         <span class="smability-status-value" id="smabilityStatusText2">Moderate</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- Botón See More -->
-            <div class="smability-action-buttons">
-                <button class="smability-btn" id="smabilitySeeMoreBtn" onclick="SmabilityPanels.toggleDetails()">🧪 See More</button>
+                <div class="smability-expand-indicator" id="smabilityExpandIndicator">▼</div>
             </div>
             
             <!-- Datos expandidos (inicialmente ocultos) -->
