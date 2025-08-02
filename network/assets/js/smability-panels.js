@@ -213,6 +213,47 @@ window.SmabilityPanels = (function() {
         }
     }
 
+        /**
+     * Actualizar barra IAS y colores del panel
+     */
+    function updateIASBarAndColors(iasValue, color) {
+        // Actualizar colores del panel
+        const mainPanel = document.getElementById('smabilityMainPanel');
+        if (mainPanel) {
+            mainPanel.style.setProperty('border-color', color);
+            mainPanel.style.setProperty('--smability-ias-color', color);
+            mainPanel.style.setProperty('--smability-header-bg', `${color}20`);
+        }
+        
+        // Actualizar indicador circular
+        const indicator = document.getElementById('smabilityIasIndicator');
+        if (indicator) {
+            indicator.style.backgroundColor = color;
+        }
+        
+        // Actualizar posición en barra IAS
+        const iasBar = document.getElementById('smabilityIasBar');
+        if (iasBar && iasValue !== undefined) {
+            // Calcular posición en la barra
+            let position = 0;
+            
+            if (iasValue <= 50) {
+                position = (iasValue / 50) * 25;
+            } else if (iasValue <= 100) {
+                position = 25 + ((iasValue - 50) / 50) * 25;
+            } else if (iasValue <= 150) {
+                position = 50 + ((iasValue - 100) / 50) * 25;
+            } else if (iasValue <= 200) {
+                position = 75 + ((iasValue - 150) / 50) * 12.5;
+            } else {
+                position = 87.5 + Math.min(((iasValue - 200) / 100) * 12.5, 12.5);
+            }
+            
+            position = Math.max(0, Math.min(100, position));
+            iasBar.style.setProperty('--ias-position', `${position}%`);
+        }
+    }
+    
     /**
      * Actualizar colores de los paneles según IAS
      */
