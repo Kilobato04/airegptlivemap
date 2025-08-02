@@ -219,15 +219,13 @@ window.SmabilityPanels = (function() {
     function resetPanelState() {
         // Contraer contenido expandido
         const expandedContent = document.getElementById('smabilityExpandedContent');
-        const seeMoreBtn = document.getElementById('smabilitySeeMoreBtn');
+        const expandIndicator = document.getElementById('smabilityExpandIndicator');
         
-        if (expandedContent && seeMoreBtn) {
+        if (expandedContent && expandIndicator) {
             expandedContent.style.display = 'none';
-            seeMoreBtn.textContent = '🧪 See More';
-            seeMoreBtn.style.background = '#4264fb';
-            seeMoreBtn.style.color = 'white';
+            expandIndicator.classList.remove('expanded');
         }
-        
+                
         // Ocultar gráfico inline
         const chartContainer = document.getElementById('smabilityInlineChartContainer');
         const mainPanel = document.getElementById('smabilityMainPanel');
@@ -569,22 +567,18 @@ window.SmabilityPanels = (function() {
      */
     function toggleDetails() {
         const expandedContent = document.getElementById('smabilityExpandedContent');
-        const seeMoreBtn = document.getElementById('smabilitySeeMoreBtn');
+        const expandIndicator = document.getElementById('smabilityExpandIndicator');
         
-        if (!expandedContent || !seeMoreBtn) return;
+        if (!expandedContent || !expandIndicator) return;
         
         if (expandedContent.style.display === 'none') {
             // Mostrar detalles
             expandedContent.style.display = 'block';
-            seeMoreBtn.textContent = '🔬 See Less';
-            seeMoreBtn.style.background = '#e2e2e2';
-            seeMoreBtn.style.color = '#333';
+            expandIndicator.classList.add('expanded');
         } else {
             // Ocultar detalles
             expandedContent.style.display = 'none';
-            seeMoreBtn.textContent = '🧪 See More';
-            seeMoreBtn.style.background = '#4264fb';
-            seeMoreBtn.style.color = 'white';
+            expandIndicator.classList.remove('expanded');
         }
     }
 
