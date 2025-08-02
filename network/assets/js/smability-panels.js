@@ -508,6 +508,29 @@ window.SmabilityPanels = (function() {
             }
         }
     }
+    /**
+     * Toggle detalles expandidos
+     */
+    function toggleDetails() {
+        const expandedContent = document.getElementById('smabilityExpandedContent');
+        const seeMoreBtn = document.getElementById('smabilitySeeMoreBtn');
+        
+        if (!expandedContent || !seeMoreBtn) return;
+        
+        if (expandedContent.style.display === 'none') {
+            // Mostrar detalles
+            expandedContent.style.display = 'block';
+            seeMoreBtn.textContent = '🔬 See Less';
+            seeMoreBtn.style.background = '#e2e2e2';
+            seeMoreBtn.style.color = '#333';
+        } else {
+            // Ocultar detalles
+            expandedContent.style.display = 'none';
+            seeMoreBtn.textContent = '🧪 See More';
+            seeMoreBtn.style.background = '#4264fb';
+            seeMoreBtn.style.color = 'white';
+        }
+    }
 
     /**
      * NUEVO: Cargar datos reales en el gráfico
@@ -768,6 +791,7 @@ window.SmabilityPanels = (function() {
         closeMainPanel: closeMainPanel,
         closeBothPanels: closeBothPanels,
         toggleChart: toggleChart,
+        toggleDetails: toggleDetails,  // ← NUEVA LÍNEA
         
         // Métodos de datos
         updateAllMarkersData: updateAllMarkersData,
