@@ -352,7 +352,10 @@ window.SmabilityPanels = (function() {
         // Función para evitar unidades duplicadas
         function formatWithSingleUnit(value, unit) {
             const valueStr = String(value);
-            // Si ya tiene la unidad, no la agregues
+            // Detectar variaciones de unidades
+            if (unit === 'μg/m³' && (valueStr.includes('ug/m3') || valueStr.includes('μg/m³'))) {
+                return valueStr;
+            }
             if (valueStr.includes(unit)) {
                 return valueStr;
             }
