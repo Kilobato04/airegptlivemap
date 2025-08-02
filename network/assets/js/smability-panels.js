@@ -213,6 +213,56 @@ window.SmabilityPanels = (function() {
         }
     }
 
+    /**
+     * Resetear estado del panel al abrirlo
+     */
+    function resetPanelState() {
+        // Contraer contenido expandido
+        const expandedContent = document.getElementById('smabilityExpandedContent');
+        const seeMoreBtn = document.getElementById('smabilitySeeMoreBtn');
+        
+        if (expandedContent && seeMoreBtn) {
+            expandedContent.style.display = 'none';
+            seeMoreBtn.textContent = '🧪 See More';
+            seeMoreBtn.style.background = '#4264fb';
+            seeMoreBtn.style.color = 'white';
+        }
+        
+        // Ocultar gráfico inline
+        const chartContainer = document.getElementById('smabilityInlineChartContainer');
+        const mainPanel = document.getElementById('smabilityMainPanel');
+        
+        if (chartContainer && mainPanel) {
+            chartContainer.style.display = 'none';
+            mainPanel.style.maxHeight = '55vh';
+        }
+        
+        // Resetear controles de comparación
+        const comparisonSelect = document.getElementById('smabilityComparisonSelect');
+        const timeframeSelect = document.getElementById('smabilityTimeframeSelect');
+        const sensorSelect = document.getElementById('smabilitySensorSelect');
+        
+        if (comparisonSelect) comparisonSelect.value = '';
+        if (timeframeSelect) timeframeSelect.value = '12';
+        if (sensorSelect) sensorSelect.value = '7';
+        
+        // Limpiar gráfico
+        const chartDiv = document.getElementById('smabilityInlineChart');
+        if (chartDiv && window.Plotly) {
+            window.Plotly.purge(chartDiv);
+            chartDiv.style.display = 'none';
+        }
+        
+        // Mostrar placeholder del gráfico
+        const placeholder = document.getElementById('smabilityChartPlaceholder');
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+            placeholder.innerHTML = '📊 Plotly.js Chart with Real-time Data<br><small style="margin-top: 8px; display: block;">Optimized for air quality visualization</small>';
+        }
+        
+        console.log('SmabilityPanels: Panel state reset');
+    }
+
         /**
      * Actualizar barra IAS y colores del panel
      */
@@ -286,6 +336,12 @@ window.SmabilityPanels = (function() {
 
         updatePanelContent(deviceName, data);
         updatePanelColors(data.color);
+
+        // Resetear estado del panel y controles
+        resetPanelState();
+    
+        // Setup chart controls cuando se muestra el panel
+        setupChartControls();
         
         // Setup chart controls cuando se muestra el panel
         setupChartControls();
