@@ -299,6 +299,21 @@
     color: white;
 }
 
+.smability-btn:hover {
+    background: #4264fb;
+    color: white;
+}
+
+/* === CONTENIDO EXPANDIDO === */
+.smability-expanded-content {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.smability-expanded-content.show {
+    display: block !important;
+}
+
 /* === NUEVO: GRÁFICO INLINE === */
 .smability-inline-chart-container {
     border-top: 1px solid rgba(0,0,0,0.1);
