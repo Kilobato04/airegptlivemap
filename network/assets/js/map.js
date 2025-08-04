@@ -303,6 +303,13 @@ setTimeout(() => {
 
             const feature = features[0];
             console.log('Clicked on station:', feature.properties.name);
+            // NUEVO: Mostrar panel Smability si es una estación activa
+            if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
+                console.log('Showing Smability panel for:', feature.properties.name);
+                if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
+                    window.SmabilityPanels.showPanel(feature.properties.name);
+                }
+            }
             
             const popup = new mapboxgl.Popup({ 
                 offset: [0, -15],
