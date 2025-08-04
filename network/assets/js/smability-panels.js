@@ -103,23 +103,7 @@ window.SmabilityPanels = (function() {
         // Ya no actualizamos markers propios, los datos se muestran en el panel
         console.log(`SmabilityPanels: Updated data for ${deviceName}:`, sensorData);
         // Los markers del mapa se actualizan por el sistema principal
-    }
-        
-        if (sensorData.dataIAS && sensorData.dataIAS !== 'N/A') {
-            const { color } = window.getIndicatorColor ? 
-                window.getIndicatorColor(sensorData.dataIAS) : 
-                { color: '#ffff00' };
-            
-            element.style.backgroundColor = color;
-            element.textContent = Math.round(sensorData.dataIAS);
-            
-            if (stationData[deviceName]) {
-                stationData[deviceName].ias = sensorData.dataIAS;
-                stationData[deviceName].color = color;
-            }
-            
-            console.log(`SmabilityPanels: Updated marker ${deviceName} with IAS: ${sensorData.dataIAS}, Color: ${color}`);
-        }
+        }    
     }
 
     /**
@@ -230,10 +214,39 @@ window.SmabilityPanels = (function() {
         currentDevice = deviceName;
         
         // Verificar si la estación está en las activas
-        if (!window.APP_SETTINGS.activeStations.includes(deviceName)) {
+        if (!window.APP_SETTINGS || !window.APP_SETTINGS.activeStations.includes(deviceName)) {
             console.log(`SmabilityPanels: ${deviceName} is not an active station`);
             return;
         }
+    
+        const container = document.getElementById('smabilityPanelContainer');
+        if (container) {
+            container.style.display = 'block';
+        }
+    
+        // Usar datos por defecto mientras cargan los reales
+        updatePanelContent(deviceName, {
+            ias: '...',
+            color: '#ffff00',
+            emoji: '⏳',
+            pollutant: 'Loading...',
+            status1: 'Loading...',
+            status2: 'Loading...'
+        });
+        
+        // Actualizar colores por defecto
+        updatePanelColors('#ffff00');
+        
+        // Resetear estado del panel y controles
+        resetPanelState();
+        
+        // Setup chart controls cuando se muestra el panel
+        setupChartControls();
+        
+        setState(2);
+        
+        // Cargar datos reales inmediatamente
+        updateWithRealData(deviceName);
     }
 
     /**
@@ -744,7 +757,6 @@ window.SmabilityPanels = (function() {
         // Getters para debugging
         getCurrentDevice: () => currentDevice,
         getCurrentState: () => currentState,
-        getStationData: () => stationData,
         getMarkers: () => smabilityMarkers
     };
 })();
