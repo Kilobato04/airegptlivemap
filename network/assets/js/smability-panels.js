@@ -16,18 +16,6 @@ window.SmabilityPanels = (function() {
     let initializationAttempts = 0;
     let maxInitAttempts = 10;
 
-    // Solo CENTRUS 5 para pruebas
-    const stationData = {
-        'CENTRUS 5': {
-            ias: 87,
-            color: '#ff8000',
-            emoji: '😐',
-            pollutant: 'O3',
-            status1: 'Acceptable',
-            status2: 'Moderate Risk',
-            coordinates: [-99.170692, 19.409618]
-        }
-    };
 
     /**
      * Inicializar el módulo
@@ -112,10 +100,10 @@ window.SmabilityPanels = (function() {
      * Actualizar marker visual con datos reales
      */
     function updateMarkerWithRealData(deviceName, sensorData) {
-        if (!smabilityMarkers.has(deviceName)) return;
-        
-        const marker = smabilityMarkers.get(deviceName);
-        const element = marker.getElement();
+        // Ya no actualizamos markers propios, los datos se muestran en el panel
+        console.log(`SmabilityPanels: Updated data for ${deviceName}:`, sensorData);
+        // Los markers del mapa se actualizan por el sistema principal
+    }
         
         if (sensorData.dataIAS && sensorData.dataIAS !== 'N/A') {
             const { color } = window.getIndicatorColor ? 
@@ -240,32 +228,12 @@ window.SmabilityPanels = (function() {
         console.log(`SmabilityPanels: Showing panel for ${deviceName}`);
         
         currentDevice = deviceName;
-        const data = stationData[deviceName];
         
-        if (!data) {
-            console.error(`SmabilityPanels: No data found for ${deviceName}`);
+        // Verificar si la estación está en las activas
+        if (!window.APP_SETTINGS.activeStations.includes(deviceName)) {
+            console.log(`SmabilityPanels: ${deviceName} is not an active station`);
             return;
         }
-
-        const container = document.getElementById('smabilityPanelContainer');
-        if (container) {
-            container.style.display = 'block';
-        }
-
-        updatePanelContent(deviceName, data);
-        updatePanelColors(data.color);
-
-        // Resetear estado del panel y controles
-        resetPanelState();
-    
-        // Setup chart controls cuando se muestra el panel
-        setupChartControls();
-        
-        // Setup chart controls cuando se muestra el panel
-        setupChartControls();
-        
-        setState(2);
-        updateWithRealData(deviceName);
     }
 
     /**
