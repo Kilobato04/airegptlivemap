@@ -103,7 +103,6 @@ window.SmabilityPanels = (function() {
         // Ya no actualizamos markers propios, los datos se muestran en el panel
         console.log(`SmabilityPanels: Updated data for ${deviceName}:`, sensorData);
         // Los markers del mapa se actualizan por el sistema principal
-        }    
     }
 
     /**
