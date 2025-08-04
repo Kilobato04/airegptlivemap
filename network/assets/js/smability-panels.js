@@ -63,22 +63,14 @@ window.SmabilityPanels = (function() {
      * Crear markers - Solo CENTRUS 5
      */
     function setupSmabilityMarkers() {
-        console.log('SmabilityPanels: Setting up markers for stations:', Object.keys(stationData));
+        console.log('SmabilityPanels: Integrating with existing markers...');
         
         // Limpiar markers existentes si los hay
         smabilityMarkers.forEach(marker => marker.remove());
         smabilityMarkers.clear();
         
-        // Buscar instancia del mapa de forma más robusta
+        // Buscar instancia del mapa
         let mapInstance = window.map || window.mapboxMap || window.myMap;
-        
-        // Si no encontramos el mapa por variable, buscarlo en el DOM
-        if (!mapInstance) {
-            const mapContainer = document.getElementById('map');
-            if (mapContainer && mapContainer._map) {
-                mapInstance = mapContainer._map;
-            }
-        }
         
         if (!mapInstance) {
             console.log('SmabilityPanels: ❌ Map instance not found, retrying...');
@@ -86,81 +78,10 @@ window.SmabilityPanels = (function() {
             return;
         }
         
-        if (typeof mapboxgl === 'undefined') {
-            console.log('SmabilityPanels: ❌ mapboxgl not available');
-            return;
-        }
+        console.log('SmabilityPanels: ✅ Map instance found, integrating with existing markers');
         
-        console.log('SmabilityPanels: ✅ Map instance found:', mapInstance);
-        
-        Object.keys(stationData).forEach(stationName => {
-            const station = stationData[stationName];
-            
-            // Crear elemento del marker
-            const markerElement = document.createElement('div');
-            markerElement.className = 'smability-marker';
-            markerElement.style.cssText = `
-                cursor: pointer;
-                width: 35px;
-                height: 35px;
-                border-radius: 50%;
-                border: 3px solid white;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 14px;
-                color: #000;
-                background-color: ${station.color};
-                font-family: 'DIN Pro', Arial, sans-serif;
-                transition: transform 0.2s ease;
-                z-index: 1000;
-            `;
-            markerElement.textContent = station.ias;
-            markerElement.title = stationName;
-            
-            // Hover effect
-            markerElement.addEventListener('mouseenter', () => {
-                markerElement.style.transform = 'scale(1.1)';
-                markerElement.style.boxShadow = '0 6px 16px rgba(0,0,0,0.5)';
-            });
-            
-            markerElement.addEventListener('mouseleave', () => {
-                markerElement.style.transform = 'scale(1)';
-                markerElement.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
-            });
-            
-            // Click handler
-            markerElement.addEventListener('click', (e) => {
-                e.stopPropagation();
-                console.log(`SmabilityPanels: Marker clicked for ${stationName}`);
-                showPanel(stationName);
-            });
-            
-            // Crear marker de Mapbox
-            try {
-                const marker = new mapboxgl.Marker({ 
-                    element: markerElement,
-                    offset: [0, -17]
-                })
-                .setLngLat(station.coordinates)
-                .addTo(mapInstance);
-                
-                smabilityMarkers.set(stationName, marker);
-                console.log(`SmabilityPanels: ✅ Created marker for ${stationName}`);
-                
-            } catch (error) {
-                console.error(`SmabilityPanels: ❌ Error creating marker for ${stationName}:`, error);
-            }
-        });
-        
-        console.log(`SmabilityPanels: Total markers created: ${smabilityMarkers.size}`);
-        
-        // Actualizar con datos reales
-        setTimeout(() => {
-            updateAllMarkersData();
-        }, 2000);
+        // No crear markers nuevos, solo integrar con los existentes
+        console.log('SmabilityPanels: Integration complete - using existing map markers');
     }
 
     /**
