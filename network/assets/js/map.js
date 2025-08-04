@@ -288,7 +288,7 @@ setTimeout(() => {
         });
     }
 
-/**
+    /**
      * Set up map click handlers
      */
     function setupMapInteractions() {
@@ -300,9 +300,10 @@ setTimeout(() => {
             if (!features.length) {
                 return;
             }
-
+    
             const feature = features[0];
             console.log('Clicked on station:', feature.properties.name);
+            
             // NUEVO: Mostrar panel Smability si es una estación activa
             if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
                 console.log('Showing Smability panel for:', feature.properties.name);
@@ -311,12 +312,13 @@ setTimeout(() => {
                 }
             }
             
+            /* ===== POPUP LEGACY COMENTADO =====
             const popup = new mapboxgl.Popup({ 
                 offset: [0, -15],
                 maxWidth: '300px'
             })
             .setLngLat(feature.geometry.coordinates);
-
+    
             // NUEVO: Event listener para cerrar panel cuando se cierre el popup
             popup.on('close', () => {
                 console.log('Popup closed, checking if chart panel should close...');
@@ -325,7 +327,7 @@ setTimeout(() => {
                     closeChartPanel();
                 }
             });
-
+    
             if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
                 // Show loading popup first
                 popup.setHTML(createPopupContent(feature, null)).addTo(map);
@@ -348,8 +350,10 @@ setTimeout(() => {
                 // For inactive stations, just show basic info
                 popup.setHTML(createPopupContent(feature)).addTo(map);
             }
+            ===== FIN POPUP LEGACY COMENTADO ===== */
         });
-
+    
+        /* ===== CERRAR CHART PANEL COMENTADO =====
         // NUEVO: Cerrar panel cuando se hace click fuera de popup/panel
         map.on('click', (event) => {
             // Si no se hizo click en una estación y hay un panel abierto, cerrarlo
@@ -368,12 +372,13 @@ setTimeout(() => {
                 }, 100);
             }
         });
-
+        ===== FIN CERRAR CHART PANEL COMENTADO ===== */
+    
         // Change cursor on hover
         map.on('mouseenter', 'smaa_network', () => {
             map.getCanvas().style.cursor = 'pointer';
         });
-
+    
         map.on('mouseleave', 'smaa_network', () => {
             map.getCanvas().style.cursor = '';
         });
