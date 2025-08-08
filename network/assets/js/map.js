@@ -66,6 +66,34 @@ setTimeout(() => {
         // Set up data refresh - SOLO UNA VEZ
         setupDataRefresh();
         
+        // NUEVO: Debug de capas después de cargar
+        setTimeout(() => {
+            console.log('🔍 Debugging map layers...');
+            const layers = map.getStyle().layers;
+            console.log('Available layers:', layers.map(l => l.id));
+            
+            // Verificar si las capas existen
+            console.log('smaa_network layer exists:', !!map.getLayer('smaa_network'));
+            console.log('smaa_network_squares layer exists:', !!map.getLayer('smaa_network_squares'));
+            
+            // Verificar features
+            try {
+                const features = map.querySourceFeatures(MAP_LAYERS.source, {
+                    sourceLayer: MAP_LAYERS.sourceLayer
+                });
+                console.log('Total features found:', features.length);
+                
+                // Filtrar por estaciones activas vs no activas
+                const activeFeatures = features.filter(f => APP_SETTINGS.activeStations.includes(f.properties.name));
+                const inactiveFeatures = features.filter(f => !APP_SETTINGS.activeStations.includes(f.properties.name));
+                
+                console.log('Active stations features:', activeFeatures.length, activeFeatures.map(f => f.properties.name));
+                console.log('Inactive stations features:', inactiveFeatures.length, inactiveFeatures.map(f => f.properties.name));
+            } catch (error) {
+                console.error('Error querying features:', error);
+            }
+        }, 2000);
+        
         // Force immediate marker initialization
         setTimeout(() => {
             console.log('Force initializing markers...');
@@ -109,7 +137,24 @@ setTimeout(() => {
             console.log('Initializing IAS values...');
             updateAllMarkerIAS();
         }, 2000);
-
+        
+        // NUEVO: Asegurar que SmabilityPanels esté inicializado
+        setTimeout(() => {
+            console.log('🎯 Ensuring SmabilityPanels is ready...');
+            if (window.SmabilityPanels) {
+                console.log('✅ SmabilityPanels module found');
+                console.log('✅ showPanel function:', typeof window.SmabilityPanels.showPanel);
+            } else {
+                console.error('❌ SmabilityPanels module NOT found');
+            }
+            
+            // Test panel container
+            const container = document.getElementById('smabilityPanelContainer');
+            const mainPanel = document.getElementById('smabilityMainPanel');
+            console.log('📦 Panel container exists:', !!container);
+            console.log('📱 Main panel exists:', !!mainPanel);
+        }, 3000);
+    
         console.log('Map setup complete');
     });
 
@@ -209,17 +254,17 @@ setTimeout(() => {
             }
         });
         
-        // CORREGIDO: Layer para markers cuadrados de SIMAT
+        // Layer para markers cuadrados de SIMAT - SOBREPONER sobre círculos grises
         map.addLayer({
             'id': 'smaa_network_squares',
             'type': 'symbol',
             'source': MAP_LAYERS.source,
             'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], // CORREGIDO: Usar operador 'not'
+            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], 
             'layout': {
-                'text-field': '■', // Usar símbolo simple
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'], // CORREGIDO: Usar fuente más compatible
-                'text-size': 18, // Más grande para mejor visibilidad
+                'text-field': '▪', // Símbolo cuadrado simple
+                'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
+                'text-size': 20, // Más grande
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
@@ -236,7 +281,7 @@ setTimeout(() => {
             'source-layer': MAP_LAYERS.sourceLayer,
             'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
             'layout': {
-                'text-field': '...', // Default placeholder
+                'text-field': '...', 
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
                 'text-size': 10,
                 'text-allow-overlap': true,
@@ -266,6 +311,8 @@ setTimeout(() => {
                 'text-color': '#4264fb'
             }
         });
+        
+        console.log('✅ All map layers added successfully');
     }
 
     /**
@@ -274,24 +321,40 @@ setTimeout(() => {
     function setupMapInteractions() {
         // Click handler principal para todas las estaciones
         map.on('click', 'smaa_network', async (event) => {
+            console.log('🖱️ Click detected on smaa_network layer');
+            
             const features = map.queryRenderedFeatures(event.point, {
                 layers: ['smaa_network']
             });
             
-            if (!features.length) return;
+            if (!features.length) {
+                console.log('❌ No features found at click point');
+                return;
+            }
     
             const feature = features[0];
-            console.log('Clicked on station:', feature.properties.name);
+            console.log('🎯 Clicked on station:', feature.properties.name);
+            console.log('📊 Station properties:', feature.properties);
             
             if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-                // Para estaciones activas: mostrar PANEL SMABILITY (inferior derecha)
-                console.log('Showing Smability panel for active station:', feature.properties.name);
+                console.log('✅ This is an ACTIVE station (Smability)');
+                console.log('🔍 Checking SmabilityPanels...');
+                console.log('SmabilityPanels exists:', !!window.SmabilityPanels);
+                console.log('showPanel function exists:', !!window.SmabilityPanels?.showPanel);
+                
                 if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
-                    window.SmabilityPanels.showPanel(feature.properties.name);
+                    console.log('🚀 Calling SmabilityPanels.showPanel()...');
+                    try {
+                        window.SmabilityPanels.showPanel(feature.properties.name);
+                        console.log('✅ SmabilityPanels.showPanel() called successfully');
+                    } catch (error) {
+                        console.error('❌ Error calling showPanel:', error);
+                    }
+                } else {
+                    console.error('❌ SmabilityPanels or showPanel not available');
                 }
             } else {
-                // Para estaciones SIMAT: mostrar popup básico
-                console.log('Showing basic popup for SIMAT station:', feature.properties.name);
+                console.log('📍 This is a SIMAT station (inactive)');
                 const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
                     .setLngLat(feature.geometry.coordinates)
                     .setHTML(createPopupContent(feature, null))
@@ -299,8 +362,10 @@ setTimeout(() => {
             }
         });
         
-        // Click handler para markers cuadrados (SIMAT) - redundancia
+        // Click handler para markers cuadrados (SIMAT)
         map.on('click', 'smaa_network_squares', (event) => {
+            console.log('🖱️ Click detected on smaa_network_squares layer');
+            
             const features = map.queryRenderedFeatures(event.point, {
                 layers: ['smaa_network_squares']
             });
@@ -308,7 +373,7 @@ setTimeout(() => {
             if (!features.length) return;
             
             const feature = features[0];
-            console.log('Clicked on SIMAT square station:', feature.properties.name);
+            console.log('🔲 Clicked on SIMAT square station:', feature.properties.name);
             
             const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
                 .setLngLat(feature.geometry.coordinates)
@@ -316,16 +381,20 @@ setTimeout(() => {
                 .addTo(map);
         });
     
-        // Click handler para Mapbox markers (círculos de Smability) - PANEL SMABILITY
+        // Click handler para Mapbox markers (círculos de Smability)
         document.addEventListener('click', (event) => {
             if (event.target && event.target.classList.contains('marker-pin')) {
-                // Buscar cuál marker fue clickeado
+                console.log('🎯 Mapbox marker clicked!');
+                
                 for (const [location, marker] of markers) {
                     if (marker.getElement() === event.target) {
-                        console.log('Clicked on Mapbox marker for:', location);
-                        // Mostrar panel Smability (no popup)
+                        console.log('📍 Marker location found:', location);
+                        
                         if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
+                            console.log('🚀 Calling showPanel from marker click...');
                             window.SmabilityPanels.showPanel(location);
+                        } else {
+                            console.error('❌ SmabilityPanels not available for marker click');
                         }
                         break;
                     }
@@ -439,6 +508,8 @@ setTimeout(() => {
         map.on('mouseleave', 'smaa_network_squares', () => {
             map.getCanvas().style.cursor = '';
         });
+        
+        console.log('✅ Map interactions setup complete');
     }
 
     /**
