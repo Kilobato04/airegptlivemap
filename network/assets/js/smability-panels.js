@@ -760,6 +760,16 @@ window.SmabilityPanels = (function() {
     };
 })();
 
+/**
+ * Auto-inicialización
+ */
+function initializeSmabilityPanels() {
+    console.log('SmabilityPanels: Starting initialization...');
+    
+    window.SmabilityPanels.init();
+    window.SmabilityPanels.setupAutoRefresh();
+}
+
 // Inicialización con diferentes métodos para asegurar que funcione
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeSmabilityPanels);
