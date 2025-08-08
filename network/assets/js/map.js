@@ -131,68 +131,33 @@ setTimeout(() => {
             });
         }
     
-        // SIMAT Network toggle functionality
-        const toggleButton = document.getElementById('toggleOffMarkers');
+        // NUEVO: AQ Network toggle consolidado (reemplaza SIMAT y Smability)
+        const toggleButton = document.getElementById('toggleAQNetwork');
         if (toggleButton) {
-            toggleButton.addEventListener('click', () => {
-                offMarkersVisible = !offMarkersVisible;
-                
-                // Toggle visibility of the circle layer
-                map.setFilter('smaa_network', offMarkersVisible ? 
-                    null : 
-                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]
-                );
-                
-                // Update button style
-                if (offMarkersVisible) {
-                    toggleButton.style.backgroundColor = '#4264fb';
-                    toggleButton.style.color = '#ffffff';
-                    toggleButton.style.borderColor = '#4264fb';
-                } else {
-                    toggleButton.style.backgroundColor = '#e2e2e2';
-                    toggleButton.style.color = '#333';
-                    toggleButton.style.borderColor = '#ccc';
-                }
-            });
-        }
-    
-    // Smability Network toggle functionality (CORREGIDO)
-        const smabilityToggleButton = document.getElementById('toggleSmabilityMarkers');
-        if (smabilityToggleButton) {
-            let smabilityVisible = true;
+            let aqNetworkVisible = true;
             
-            smabilityToggleButton.addEventListener('click', () => {
-                smabilityVisible = !smabilityVisible;
+            toggleButton.addEventListener('click', () => {
+                aqNetworkVisible = !aqNetworkVisible;
                 
-                // Toggle visibility of active stations (Smability Network)
-                if (smabilityVisible) {
-                    // Show Smability stations - restore normal filter behavior
-                    map.setFilter('smaa_network', offMarkersVisible ? null : ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]);
-                    // Show IAS labels and station labels
+                if (aqNetworkVisible) {
+                    // Mostrar toda la red AQ (SIMAT + Smability)
+                    map.setFilter('smaa_network', null);
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     
-                    // Show Mapbox markers for active stations
+                    // Mostrar markers de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
                         if (markers.has(location)) {
                             markers.get(location).getElement().style.display = 'flex';
                         }
                     });
                 } else {
-                    // Hide Smability stations (active ones) - CORREGIDO
-                    if (offMarkersVisible) {
-                        // If SIMAT is visible, show only non-active stations
-                        map.setFilter('smaa_network', ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]);
-                    } else {
-                        // If SIMAT is hidden, hide everything
-                        map.setFilter('smaa_network', ['==', ['get', 'name'], '___NONE___']); // Hide all
-                    }
-                    
-                    // Hide IAS labels and station labels
+                    // Ocultar toda la red AQ
+                    map.setFilter('smaa_network', ['==', ['get', 'name'], '___NONE___']);
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
                     
-                    // Hide Mapbox markers for active stations
+                    // Ocultar markers de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
                         if (markers.has(location)) {
                             markers.get(location).getElement().style.display = 'none';
@@ -201,14 +166,14 @@ setTimeout(() => {
                 }
                 
                 // Update button style
-                if (smabilityVisible) {
-                    smabilityToggleButton.style.backgroundColor = '#4264fb';
-                    smabilityToggleButton.style.color = '#ffffff';
-                    smabilityToggleButton.style.borderColor = '#4264fb';
+                if (aqNetworkVisible) {
+                    toggleButton.style.backgroundColor = '#4264fb';
+                    toggleButton.style.color = '#ffffff';
+                    toggleButton.style.borderColor = '#4264fb';
                 } else {
-                    smabilityToggleButton.style.backgroundColor = '#e2e2e2';
-                    smabilityToggleButton.style.color = '#333';
-                    smabilityToggleButton.style.borderColor = '#ccc';
+                    toggleButton.style.backgroundColor = '#e2e2e2';
+                    toggleButton.style.color = '#333';
+                    toggleButton.style.borderColor = '#ccc';
                 }
             });
         }
@@ -221,7 +186,7 @@ setTimeout(() => {
             'url': MAP_LAYERS.vectorTileUrl
         });
     
-        // Add circle layer for stations - 35% smaller
+        // Add layer for stations - CUADRADOS para SIMAT, CÍRCULOS para Smability via Mapbox markers
         map.addLayer({
             'id': 'smaa_network',
             'type': 'circle',
@@ -231,16 +196,39 @@ setTimeout(() => {
                 'circle-color': [
                     'case',
                     ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-                    '#4264fb', // Color for active stations
-                    'gray'    // Color for others
+                    'transparent', // Transparente para estaciones activas (usarán Mapbox markers circulares)
+                    'gray'         // Gris para estaciones SIMAT (cuadradas)
                 ],
-                'circle-radius': 6, // 35% smaller
-                'circle-stroke-width': 1.2,
-                'circle-stroke-color': '#ffffff'
+                'circle-radius': [
+                    'case',
+                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
+                    0,  // Sin radio para estaciones activas (serán markers circulares)
+                    0   // Sin radio, usaremos símbolo cuadrado
+                ],
+                'circle-stroke-width': 0
+            }
+        });
+        
+        // NUEVO: Layer para markers cuadrados de SIMAT
+        map.addLayer({
+            'id': 'smaa_network_squares',
+            'type': 'symbol',
+            'source': MAP_LAYERS.source,
+            'source-layer': MAP_LAYERS.sourceLayer,
+            'filter': ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]], // Solo estaciones NO activas
+            'layout': {
+                'text-field': '■', // Símbolo cuadrado
+                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+                'text-size': 12,
+                'text-allow-overlap': true,
+                'text-ignore-placement': true
+            },
+            'paint': {
+                'text-color': 'gray'
             }
         });
     
-        // Add IAS values as simple text - will be updated by markers
+        // Add IAS values as simple text - solo para estaciones activas
         map.addLayer({
             'id': 'smaa_network_ias',
             'type': 'symbol',
@@ -263,7 +251,7 @@ setTimeout(() => {
             }
         });
     
-        // Add station labels
+        // Add station labels - solo para estaciones activas
         map.addLayer({
             'id': 'smaa_network_labels',
             'type': 'symbol',
@@ -353,6 +341,24 @@ setTimeout(() => {
             ===== FIN POPUP LEGACY COMENTADO ===== */
         });
     
+        // NUEVO: Click handler para markers cuadrados (SIMAT)
+        map.on('click', 'smaa_network_squares', (event) => {
+            const features = map.queryRenderedFeatures(event.point, {
+                layers: ['smaa_network_squares']
+            });
+            
+            if (!features.length) return;
+            
+            const feature = features[0];
+            console.log('Clicked on SIMAT station:', feature.properties.name);
+            
+            // Mostrar popup básico para estaciones SIMAT
+            const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML(createPopupContent(feature, null))
+                .addTo(map);
+        });
+    
         /* ===== CERRAR CHART PANEL COMENTADO =====
         // NUEVO: Cerrar panel cuando se hace click fuera de popup/panel
         map.on('click', (event) => {
@@ -374,12 +380,21 @@ setTimeout(() => {
         });
         ===== FIN CERRAR CHART PANEL COMENTADO ===== */
     
-        // Change cursor on hover
+        // Change cursor on hover - para estaciones circulares (activas)
         map.on('mouseenter', 'smaa_network', () => {
             map.getCanvas().style.cursor = 'pointer';
         });
     
         map.on('mouseleave', 'smaa_network', () => {
+            map.getCanvas().style.cursor = '';
+        });
+        
+        // NUEVO: Change cursor on hover - para markers cuadrados (SIMAT)
+        map.on('mouseenter', 'smaa_network_squares', () => {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+        
+        map.on('mouseleave', 'smaa_network_squares', () => {
             map.getCanvas().style.cursor = '';
         });
     }
