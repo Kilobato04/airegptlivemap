@@ -131,7 +131,7 @@ setTimeout(() => {
             });
         }
     
-        // AQ Network toggle consolidado
+        // AQ Network toggle consolidado - CORREGIDO
         const toggleButton = document.getElementById('toggleAQNetwork');
         if (toggleButton) {
             let aqNetworkVisible = true;
@@ -142,7 +142,7 @@ setTimeout(() => {
                 if (aqNetworkVisible) {
                     // Mostrar toda la red AQ (SIMAT + Smability)
                     map.setFilter('smaa_network', null);
-                    map.setFilter('smaa_network_squares', ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]);
+                    map.setFilter('smaa_network_squares', ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]]); // CORREGIDO
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
@@ -209,22 +209,22 @@ setTimeout(() => {
             }
         });
         
-        // NUEVO: Layer para markers cuadrados de SIMAT - SOBREPONER sobre círculos grises
+        // CORREGIDO: Layer para markers cuadrados de SIMAT
         map.addLayer({
             'id': 'smaa_network_squares',
             'type': 'symbol',
             'source': MAP_LAYERS.source,
             'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['!in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]], // Solo estaciones NO activas
+            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], // CORREGIDO: Usar operador 'not'
             'layout': {
-                'text-field': '⬛', // Emoji cuadrado negro
-                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
-                'text-size': 16, // Más grande para visibilidad
+                'text-field': '■', // Usar símbolo simple
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'], // CORREGIDO: Usar fuente más compatible
+                'text-size': 18, // Más grande para mejor visibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#444444' // Color más oscuro para mejor visibilidad
+                'text-color': '#666666'
             }
         });
     
@@ -234,10 +234,10 @@ setTimeout(() => {
             'type': 'symbol',
             'source': MAP_LAYERS.source,
             'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]], // Solo estaciones activas
+            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
             'layout': {
                 'text-field': '...', // Default placeholder
-                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
                 'text-size': 10,
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
@@ -253,10 +253,10 @@ setTimeout(() => {
             'type': 'symbol',
             'source': MAP_LAYERS.source,
             'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]], // Solo estaciones activas
+            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
             'layout': {
                 'text-field': 'ON',
-                'text-font': ['DIN Pro Medium', 'Arial Unicode MS Bold'],
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
                 'text-size': 6,
                 'text-allow-overlap': true,
                 'text-ignore-placement': true,
