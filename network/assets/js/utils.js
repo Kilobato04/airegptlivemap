@@ -213,22 +213,19 @@ function createLegendHTML() {
     html += '</div>';
     html += '<div class="legend-content">';
     
-    // AQI Colors (igual que antes)
+    // AQI Colors
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #00ff00"></div><span>Good (0-50)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ffff00"></div><span>Acceptable (51-100)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff8000"></div><span>Bad (101-150)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff0000"></div><span>Very Bad (151-200)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #800080"></div><span>Extremely Bad (>201)</span></div>';
 
-    // LAYERS section
+    // LAYERS section - CONSOLIDADO EN UN SOLO BOTÓN
     html += '<div style="margin: 15px 0; border-top: 1px solid #ddd; padding-top: 10px;">';
     html += '<div style="font-weight: bold; margin-bottom: 8px; font-size: 10px;">LAYERS</div>';
     
-    // SIMAT Network toggle
-    html += '<div style="margin: 8px 0;"><button id="toggleOffMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">SIMAT Network</button></div>';
-    
-    // Smability Network toggle (NUEVO)
-    html += '<div style="margin: 8px 0;"><button id="toggleSmabilityMarkers" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">Smability Network</button></div>';
+    // UN SOLO BOTÓN CONSOLIDADO: AQ Network
+    html += '<div style="margin: 8px 0;"><button id="toggleAQNetwork" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">AQ Network</button></div>';
     
     html += '</div>';
 
