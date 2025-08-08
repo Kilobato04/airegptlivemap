@@ -760,68 +760,6 @@ window.SmabilityPanels = (function() {
     };
 })();
 
-/**
- * Auto-inicialización
- */
-function initializeSmabilityPanels() {
-    console.log('SmabilityPanels: Starting initialization...');
-    
-    window.SmabilityPanels.init();
-    window.SmabilityPanels.setupAutoRefresh();
-    
-    setTimeout(() => {
-        addSmabilityToggleToLegend();
-    }, 3000);
-}
-
-/**
- * Integración con la leyenda existente
- */
-function addSmabilityToggleToLegend() {
-    console.log('SmabilityPanels: Adding toggle to legend...');
-    
-    const legend = document.querySelector('.legend-content');
-    if (legend) {
-        if (document.getElementById('toggleSmabilityPanelMarkers')) {
-            console.log('SmabilityPanels: Toggle button already exists');
-            return;
-        }
-        
-        const toggleButton = document.createElement('button');
-        toggleButton.id = 'toggleSmabilityPanelMarkers';
-        toggleButton.textContent = 'Smability Panels';
-        toggleButton.style.cssText = `
-            width: 100%; 
-            padding: 5px; 
-            margin: 8px 0;
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            background: #4264fb; 
-            color: white; 
-            cursor: pointer; 
-            font-size: 11px;
-            font-family: 'DIN Pro', Arial, sans-serif;
-        `;
-        
-        let visible = true;
-        toggleButton.addEventListener('click', () => {
-            visible = !visible;
-            window.SmabilityPanels.toggleMarkersVisibility(visible);
-            
-            toggleButton.style.backgroundColor = visible ? '#4264fb' : '#e2e2e2';
-            toggleButton.style.color = visible ? '#ffffff' : '#333';
-            
-            console.log(`SmabilityPanels: Toggled visibility to: ${visible}`);
-        });
-        
-        legend.appendChild(toggleButton);
-        console.log('SmabilityPanels: ✅ Added toggle button to legend');
-    } else {
-        console.log('SmabilityPanels: Legend not found, retrying...');
-        setTimeout(addSmabilityToggleToLegend, 2000);
-    }
-}
-
 // Inicialización con diferentes métodos para asegurar que funcione
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeSmabilityPanels);
