@@ -176,7 +176,7 @@ setTimeout(() => {
             });
         }
     
-        // AQ Network toggle consolidado - CORREGIDO
+        // AQ Network toggle consolidado - FILTROS ACTUALIZADOS
         const toggleButton = document.getElementById('toggleAQNetwork');
         if (toggleButton) {
             let aqNetworkVisible = true;
@@ -186,8 +186,8 @@ setTimeout(() => {
                 
                 if (aqNetworkVisible) {
                     // Mostrar toda la red AQ (SIMAT + Smability)
-                    map.setFilter('smaa_network', null);
-                    map.setFilter('smaa_network_squares', ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]]); // CORREGIDO
+                    map.setFilter('smaa_network', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]); // SOLO activas
+                    map.setFilter('smaa_network_squares', ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]]); // SOLO inactivas
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
@@ -235,26 +235,22 @@ setTimeout(() => {
             'url': MAP_LAYERS.vectorTileUrl
         });
     
-        // Add circle layer for ALL stations (base layer)
+        // Add circle layer SOLO para estaciones activas (Smability)
         map.addLayer({
             'id': 'smaa_network',
             'type': 'circle',
             'source': MAP_LAYERS.source,
             'source-layer': MAP_LAYERS.sourceLayer,
+            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]], // SOLO activas
             'paint': {
-                'circle-color': [
-                    'case',
-                    ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-                    '#4264fb', // Color para estaciones activas (Smability)
-                    'gray'     // Color para estaciones SIMAT
-                ],
+                'circle-color': '#4264fb', // Solo azul para Smability
                 'circle-radius': 6,
                 'circle-stroke-width': 1.2,
                 'circle-stroke-color': '#ffffff'
             }
         });
         
-        // Layer para markers cuadrados de SIMAT - SOBREPONER sobre círculos grises
+        // Layer para markers cuadrados de SIMAT - FORMA DOMINANTE
         map.addLayer({
             'id': 'smaa_network_squares',
             'type': 'symbol',
@@ -262,9 +258,9 @@ setTimeout(() => {
             'source-layer': MAP_LAYERS.sourceLayer,
             'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], 
             'layout': {
-                'text-field': '▪', // Símbolo cuadrado simple
-                'text-font': ['Open Sans Regular', 'Arial Unicode MS Regular'],
-                'text-size': 20, // Más grande
+                'text-field': '■', // Cuadrado sólido
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                'text-size': 24, // Más grande para ser dominante
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
