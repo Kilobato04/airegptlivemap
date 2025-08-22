@@ -268,9 +268,7 @@ window.SmabilityPanels = (function() {
 
         const pollutant = document.getElementById('smabilityDominantPollutant');
         if (pollutant) pollutant.textContent = data.pollutant;
-    }
-    
-
+    }  
     /**
      * Función para evitar unidades duplicadas
      */
@@ -285,7 +283,6 @@ window.SmabilityPanels = (function() {
         }
         return `${value} ${unit}`;
     }
-
     /**
      * Actualizar panel con datos reales de la API - CORREGIDO: Sin unidades duplicadas
      */
