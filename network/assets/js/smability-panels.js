@@ -269,6 +269,22 @@ window.SmabilityPanels = (function() {
         const pollutant = document.getElementById('smabilityDominantPollutant');
         if (pollutant) pollutant.textContent = data.pollutant;
     }
+    
+
+    /**
+     * Función para evitar unidades duplicadas
+     */
+    function formatWithSingleUnit(value, unit) {
+        const valueStr = String(value);
+        // Detectar variaciones de unidades
+        if (unit === 'μg/m³' && (valueStr.includes('ug/m3') || valueStr.includes('μg/m³'))) {
+            return valueStr;
+        }
+        if (valueStr.includes(unit)) {
+            return valueStr;
+        }
+        return `${value} ${unit}`;
+    }
 
     /**
      * Actualizar panel con datos reales de la API - CORREGIDO: Sin unidades duplicadas
@@ -352,18 +368,6 @@ window.SmabilityPanels = (function() {
                 if (pollutant) pollutant.textContent = sensorData.SensorIAS;
             }
     
-            // Función para evitar unidades duplicadas
-            function formatWithSingleUnit(value, unit) {
-                const valueStr = String(value);
-                if (unit === 'μg/m³' && (valueStr.includes('ug/m3') || valueStr.includes('μg/m³'))) {
-                    return valueStr;
-                }
-                if (valueStr.includes(unit)) {
-                    return valueStr;
-                }
-                return `${value} ${unit}`;
-            }
-    
             if (sensorData.ConcentrationIASO3_1hr) {
                 const o3 = document.getElementById('smabilityO3');
                 if (o3) o3.textContent = formatWithSingleUnit(sensorData.ConcentrationIASO3_1hr, 'ppb');
@@ -429,14 +433,21 @@ window.SmabilityPanels = (function() {
                 mode.textContent = window.translateMode(sensorData.ModeSensor);
             }
         }
+        
+        // NUEVO: Actualizar footer con información de freshness
         updatePanelFooter(sensorData);
     }
-
-        /**
+    
+    /**
      * Actualizar el footer del panel con información de freshness
      */
     function updatePanelFooter(sensorData) {
+        console.log('📅 updatePanelFooter called with:', sensorData);
+        console.log('📅 displayConfig:', sensorData.displayConfig);
+        console.log('📅 hoursSinceUpdate:', sensorData.hoursSinceUpdate);
+        
         const lastUpdateElement = document.querySelector('.smability-last-update');
+        console.log('📅 Footer element found:', !!lastUpdateElement);
         
         if (lastUpdateElement && sensorData.displayConfig) {
             const { displayConfig, hoursSinceUpdate } = sensorData;
@@ -477,6 +488,8 @@ window.SmabilityPanels = (function() {
             lastUpdateElement.setAttribute('style', footerStyle);
             
             console.log(`📅 Footer updated: ${footerText}`);
+        } else {
+            console.log('❌ Footer not updated - missing element or displayConfig');
         }
     }
 
