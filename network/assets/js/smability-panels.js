@@ -274,97 +274,209 @@ window.SmabilityPanels = (function() {
      * Actualizar panel con datos reales de la API - CORREGIDO: Sin unidades duplicadas
      */
     function updatePanelWithAPIData(sensorData) {
-        // IAS real
-        if (sensorData.dataIAS && sensorData.dataIAS !== 'N/A') {
+        // NUEVO: Verificar si debemos mostrar IAS basado en freshness
+        if (sensorData.displayConfig && sensorData.displayConfig.showIAS && sensorData.displayIAS !== 'N/A') {
+            // CASO 1: Datos LIVE/RECENT (≤ 8 horas) - Mostrar IAS normal
             const iasValue = document.getElementById('smabilityIasValue');
-            if (iasValue) iasValue.textContent = Math.round(sensorData.dataIAS);
+            if (iasValue) iasValue.textContent = Math.round(sensorData.displayIAS);
             
             const { color, status, risk } = window.getIndicatorColor ? 
-                window.getIndicatorColor(sensorData.dataIAS) : 
+                window.getIndicatorColor(sensorData.displayIAS) : 
                 { color: '#ffff00', status: 'Unknown', risk: 'Unknown' };
             
             updatePanelColors(color);
             
-            // Status y Risk por separado
+            // Status y Risk normales
             const status1 = document.getElementById('smabilityStatusText1');
             const status2 = document.getElementById('smabilityStatusText2');
             if (status1) status1.textContent = status;
-            if (status2) status2.textContent = risk.replace(' Risk', ''); // Quitar "Risk" duplicado
+            if (status2) status2.textContent = risk.replace(' Risk', '');
             
             const emoji = document.getElementById('smabilityIasEmoji');
             if (emoji && window.getIASEmoji) {
-                emoji.textContent = window.getIASEmoji(sensorData.dataIAS);
+                emoji.textContent = window.getIASEmoji(sensorData.displayIAS);
+            }
+            
+            console.log(`✅ Panel: Showing fresh IAS ${sensorData.displayIAS} (${sensorData.displayConfig.label})`);
+            
+        } else if (sensorData.displayConfig) {
+            // CASO 2: Datos STALE/OFFLINE (> 8 horas) - Mostrar estado de datos
+            const iasValue = document.getElementById('smabilityIasValue');
+            const status1 = document.getElementById('smabilityStatusText1');
+            const status2 = document.getElementById('smabilityStatusText2');
+            const emoji = document.getElementById('smabilityIasEmoji');
+            
+            if (iasValue) iasValue.textContent = sensorData.displayConfig.indicator; // ○ o ×
+            if (status1) status1.textContent = sensorData.displayConfig.status.toUpperCase(); // STALE o OFFLINE
+            if (status2) status2.textContent = sensorData.displayConfig.label; // "Stale" o "Offline"
+            if (emoji) emoji.textContent = '⚠️';
+            
+            // Color gris para datos no confiables
+            updatePanelColors('#888888');
+            
+            console.log(`⚠️ Panel: Showing ${sensorData.displayConfig.status} state (${sensorData.displayConfig.label})`);
+            
+        } else {
+            // CASO 3: Fallback - usar datos legacy si no hay displayConfig
+            if (sensorData.dataIAS && sensorData.dataIAS !== 'N/A') {
+                const iasValue = document.getElementById('smabilityIasValue');
+                if (iasValue) iasValue.textContent = Math.round(sensorData.dataIAS);
+                
+                const { color, status, risk } = window.getIndicatorColor ? 
+                    window.getIndicatorColor(sensorData.dataIAS) : 
+                    { color: '#ffff00', status: 'Unknown', risk: 'Unknown' };
+                
+                updatePanelColors(color);
+                
+                const status1 = document.getElementById('smabilityStatusText1');
+                const status2 = document.getElementById('smabilityStatusText2');
+                if (status1) status1.textContent = status;
+                if (status2) status2.textContent = risk.replace(' Risk', '');
+                
+                const emoji = document.getElementById('smabilityIasEmoji');
+                if (emoji && window.getIASEmoji) {
+                    emoji.textContent = window.getIASEmoji(sensorData.dataIAS);
+                }
+                
+                console.log(`📊 Panel: Fallback display for IAS ${sensorData.dataIAS}`);
             }
         }
-
-        // Datos de sensores reales
-        if (sensorData.SensorIAS) {
+    
+        // RESTO DE DATOS: Solo mostrar si tenemos datos frescos O si es información no relacionada con IAS
+        const showDetailedData = sensorData.displayConfig ? sensorData.displayConfig.showIAS : true;
+        
+        if (showDetailedData) {
+            // Datos de sensores reales - SOLO si datos son frescos
+            if (sensorData.SensorIAS) {
+                const pollutant = document.getElementById('smabilityDominantPollutant');
+                if (pollutant) pollutant.textContent = sensorData.SensorIAS;
+            }
+    
+            // Función para evitar unidades duplicadas
+            function formatWithSingleUnit(value, unit) {
+                const valueStr = String(value);
+                if (unit === 'μg/m³' && (valueStr.includes('ug/m3') || valueStr.includes('μg/m³'))) {
+                    return valueStr;
+                }
+                if (valueStr.includes(unit)) {
+                    return valueStr;
+                }
+                return `${value} ${unit}`;
+            }
+    
+            if (sensorData.ConcentrationIASO3_1hr) {
+                const o3 = document.getElementById('smabilityO3');
+                if (o3) o3.textContent = formatWithSingleUnit(sensorData.ConcentrationIASO3_1hr, 'ppb');
+            }
+    
+            if (sensorData.ConcentrationIASCO_8hr) {
+                const co = document.getElementById('smabilityCO');
+                if (co) co.textContent = formatWithSingleUnit(sensorData.ConcentrationIASCO_8hr, 'ppb');
+            }
+    
+            if (sensorData.ConcentrationIASPM2_5_12hr) {
+                const pm25 = document.getElementById('smabilityPM25');
+                if (pm25) pm25.textContent = formatWithSingleUnit(sensorData.ConcentrationIASPM2_5_12hr, 'μg/m³');
+            }
+    
+            if (sensorData.ConcentrationIASPM10_12hr) {
+                const pm10 = document.getElementById('smabilityPM10');
+                if (pm10) pm10.textContent = formatWithSingleUnit(sensorData.ConcentrationIASPM10_12hr, 'μg/m³');
+            }
+        } else {
+            // Para datos stale/offline, mostrar indicadores de que los datos no son confiables
             const pollutant = document.getElementById('smabilityDominantPollutant');
-            if (pollutant) pollutant.textContent = sensorData.SensorIAS;
-        }
-
-        // Función para evitar unidades duplicadas
-        function formatWithSingleUnit(value, unit) {
-            const valueStr = String(value);
-            // Detectar variaciones de unidades
-            if (unit === 'μg/m³' && (valueStr.includes('ug/m3') || valueStr.includes('μg/m³'))) {
-                return valueStr;
-            }
-            if (valueStr.includes(unit)) {
-                return valueStr;
-            }
-            return `${value} ${unit}`;
-        }
-
-        if (sensorData.ConcentrationIASO3_1hr) {
             const o3 = document.getElementById('smabilityO3');
-            if (o3) o3.textContent = formatWithSingleUnit(sensorData.ConcentrationIASO3_1hr, 'ppb');
-        }
-
-        if (sensorData.ConcentrationIASCO_8hr) {
             const co = document.getElementById('smabilityCO');
-            if (co) co.textContent = formatWithSingleUnit(sensorData.ConcentrationIASCO_8hr, 'ppb');
-        }
-
-        if (sensorData.ConcentrationIASPM2_5_12hr) {
             const pm25 = document.getElementById('smabilityPM25');
-            if (pm25) pm25.textContent = formatWithSingleUnit(sensorData.ConcentrationIASPM2_5_12hr, 'μg/m³');
-        }
-
-        if (sensorData.ConcentrationIASPM10_12hr) {
             const pm10 = document.getElementById('smabilityPM10');
-            if (pm10) pm10.textContent = formatWithSingleUnit(sensorData.ConcentrationIASPM10_12hr, 'μg/m³');
+            
+            if (pollutant) pollutant.textContent = 'Data too old';
+            if (o3) o3.textContent = '-- ppb';
+            if (co) co.textContent = '-- ppb';
+            if (pm25) pm25.textContent = '-- μg/m³';
+            if (pm10) pm10.textContent = '-- μg/m³';
         }
-
+    
+        // DATOS AMBIENTALES: Mostrar siempre (no dependen del IAS)
         if (sensorData.Temperature || sensorData.Temp_1hr) {
             const temp = document.getElementById('smabilityTemperature');
             const tempValue = sensorData.Temp_1hr || sensorData.Temperature;
             if (temp) temp.textContent = formatWithSingleUnit(tempValue, '°C');
         }
-
+    
         if (sensorData.Humidity || sensorData.HR_1hr) {
             const humidity = document.getElementById('smabilityHumidity');
             const humidityValue = sensorData.HR_1hr || sensorData.Humidity;
             if (humidity) humidity.textContent = formatWithSingleUnit(humidityValue, '%');
         }
-
+    
         if (sensorData.Battery_Now) {
             const battery = document.getElementById('smabilityBattery');
             if (battery) battery.textContent = formatWithSingleUnit(sensorData.Battery_Now, '%');
         }
-
+    
         if (sensorData.LocationSensor) {
             const location = document.getElementById('smabilityLocation');
             if (location && window.translateLocation) {
                 location.textContent = window.translateLocation(sensorData.LocationSensor);
             }
         }
-
+    
         if (sensorData.ModeSensor) {
             const mode = document.getElementById('smabilityDeviceMode');
             if (mode && window.translateMode) {
                 mode.textContent = window.translateMode(sensorData.ModeSensor);
             }
+        }
+        updatePanelFooter(sensorData);
+    }
+
+        /**
+     * Actualizar el footer del panel con información de freshness
+     */
+    function updatePanelFooter(sensorData) {
+        const lastUpdateElement = document.querySelector('.smability-last-update');
+        
+        if (lastUpdateElement && sensorData.displayConfig) {
+            const { displayConfig, hoursSinceUpdate } = sensorData;
+            
+            let footerText = '';
+            let footerStyle = '';
+            
+            if (displayConfig.showIAS) {
+                // Para datos LIVE/RECENT (≤ 8 horas)
+                if (hoursSinceUpdate <= 1) {
+                    footerText = `Last update: ${Math.round(hoursSinceUpdate * 60)} min ago [Live data]`;
+                    footerStyle = 'color: #00aa00; font-weight: bold;';
+                } else {
+                    footerText = `Last update: ${Math.round(hoursSinceUpdate)}h ago [Recent data - IAS valid]`;
+                    footerStyle = 'color: #ff8800; font-weight: bold;';
+                }
+            } else {
+                // Para datos STALE/OFFLINE (> 8 horas)
+                if (displayConfig.status === 'stale') {
+                    const hours = Math.round(hoursSinceUpdate);
+                    footerText = `Last update: ${hours}h ago [Stale data - IAS not reliable]`;
+                    footerStyle = 'color: #888888; font-weight: bold;';
+                } else {
+                    // Offline
+                    const days = Math.floor(hoursSinceUpdate / 24);
+                    const remainingHours = Math.round(hoursSinceUpdate % 24);
+                    
+                    if (days > 0) {
+                        footerText = `Last update: ${days}d ${remainingHours}h ago [Device offline]`;
+                    } else {
+                        footerText = `Last update: ${remainingHours}h ago [Device offline]`;
+                    }
+                    footerStyle = 'color: #cc0000; font-weight: bold;';
+                }
+            }
+            
+            lastUpdateElement.innerHTML = footerText;
+            lastUpdateElement.setAttribute('style', footerStyle);
+            
+            console.log(`📅 Footer updated: ${footerText}`);
         }
     }
 
