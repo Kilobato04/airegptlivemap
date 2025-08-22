@@ -43,6 +43,42 @@ async function fetchSensorData(location) {
 
         retryCount = 0;
         
+        // NUEVO: Debug de todos los campos de tiempo disponibles
+        console.log('=== TIMESTAMP DEBUG FOR', location, '===');
+        console.log('DateTime:', data.DateTime);
+        console.log('TimeStamp:', data.TimeStamp);
+        console.log('timestamp:', data.timestamp);
+        console.log('All available keys:', Object.keys(data));
+        
+        // NUEVO: Intentar encontrar el timestamp más relevante
+        const possibleTimestamps = [
+            data.DateTime,
+            data.TimeStamp,
+            data.timestamp,
+            data.lastUpdate,
+            data.date,
+            data.time
+        ].filter(t => t != null && t !== '');
+        
+        console.log('Available timestamps:', possibleTimestamps);
+        
+        const lastUpdateTime = possibleTimestamps[0] || new Date().toISOString();
+        console.log('Selected timestamp:', lastUpdateTime);
+        
+        // NUEVO: Verificar antigüedad de los datos
+        const isRecentEnough = isDataRecentEnoughForIAS(lastUpdateTime, 8); // 8 horas umbral
+        
+        // NUEVO: Calcular horas desde última actualización
+        const lastUpdate = new Date(lastUpdateTime);
+        const now = new Date();
+        const hoursSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60);
+        
+        // NUEVO: Obtener configuración de display
+        const displayConfig = getDisplayConfigByDataAge(hoursSinceUpdate);
+        
+        console.log(`📊 ${location} data age: ${hoursSinceUpdate.toFixed(2)}h, config:`, displayConfig);
+        console.log('===============================');
+        
         // FIXED: Return ALL data from API, not just selected fields
         return {
             // Legacy fields for compatibility
@@ -56,6 +92,15 @@ async function fetchSensorData(location) {
             concentracionIASPM2_5: parseFloat(data.ConcentracionIASPM2_5) || 'N/A',
             modesensor: data.ModeSensor || data.ModeSensor || 'N/A',
             locationsensor: data.LocationSensor || data.LocationSensor || 'N/A',
+            
+            // NUEVO: Metadatos de freshness
+            lastUpdateTime: lastUpdateTime,
+            hoursSinceUpdate: hoursSinceUpdate,
+            isRecentEnough: isRecentEnough,
+            displayConfig: displayConfig,
+            
+            // NUEVO: IAS condicionado por freshness
+            displayIAS: isRecentEnough ? parseFloat(data.DataIAS || data.dataIAS || data.data_ias) : 'N/A',
             
             // NEW: Pass through ALL new API fields
             DataIAS: data.DataIAS,
