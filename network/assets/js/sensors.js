@@ -233,7 +233,66 @@ function initializeMarkers(features) {
     updateMarkerData();
 }
 
-// Make functions available globally
+/**
+ * Verificar si los datos del sensor son suficientemente recientes para mostrar IAS
+ */
+function isDataRecentEnoughForIAS(lastUpdateTime, maxHoursThreshold = 8) {
+    try {
+        const lastUpdate = new Date(lastUpdateTime);
+        const now = new Date();
+        const hoursDiff = (now - lastUpdate) / (1000 * 60 * 60);
+        
+        console.log(`⏰ Data age check: ${hoursDiff.toFixed(2)} hours ago, threshold: ${maxHoursThreshold}h`);
+        
+        return hoursDiff <= maxHoursThreshold;
+    } catch (error) {
+        console.error('Error parsing timestamp:', error);
+        return false;
+    }
+}
+
+/**
+ * Determinar qué mostrar basado en la antigüedad de los datos
+ */
+function getDisplayConfigByDataAge(hoursSinceLastUpdate) {
+    if (hoursSinceLastUpdate <= 1) {
+        return {
+            showIAS: true,
+            status: 'current',
+            indicator: '●',
+            color: '#00ff00',
+            label: 'Live'
+        };
+    } else if (hoursSinceLastUpdate <= 8) {
+        return {
+            showIAS: true,
+            status: 'recent',
+            indicator: '◐',
+            color: '#ffaa00',
+            label: `${Math.round(hoursSinceLastUpdate)}h ago`
+        };
+    } else if (hoursSinceLastUpdate <= 16) {
+        return {
+            showIAS: false,
+            status: 'stale',
+            indicator: '○',
+            color: '#cccccc',
+            label: 'Stale'
+        };
+    } else {
+        return {
+            showIAS: false,
+            status: 'offline',
+            indicator: '×',
+            color: '#ff0000',
+            label: 'Offline'
+        };
+    }
+}
+
+// Make functions globally available
+window.isDataRecentEnoughForIAS = isDataRecentEnoughForIAS;
+window.getDisplayConfigByDataAge = getDisplayConfigByDataAge;
 window.fetchWithCurrentProxy = fetchWithCurrentProxy;
 window.fetchSensorData = fetchSensorData;
 window.fetchSensorDataWithProxy = fetchSensorDataWithProxy;
