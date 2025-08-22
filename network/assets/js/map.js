@@ -518,18 +518,34 @@ setTimeout(() => {
             const sensorData = await fetchSensorData(location);
             const marker = markers.get(location);
             
-            if (sensorData && sensorData.dataIAS !== 'N/A') {
-                const { color } = getIndicatorColor(sensorData.dataIAS);
+            if (sensorData && sensorData.displayConfig) {
+                const { displayConfig } = sensorData;
                 const el = marker.getElement();
                 
-                // Update marker: smaller size + IAS value + BLACK text
-                el.style.backgroundColor = color;
-                el.style.width = '24px';  // 35% smaller
+                if (displayConfig.showIAS && sensorData.displayIAS !== 'N/A') {
+                    // CASO 1: Datos LIVE (≤ 1 hora) - Mostrar IAS con color normal
+                    const { color } = getIndicatorColor(sensorData.displayIAS);
+                    el.style.backgroundColor = color; // Color basado en calidad del aire
+                    el.textContent = Math.round(sensorData.displayIAS); // Valor numérico
+                    el.style.color = '#000000';  // Texto negro
+                    el.title = `IAS: ${sensorData.displayIAS} (${displayConfig.label})`;
+                    
+                    console.log(`✅ ${location}: Live IAS ${sensorData.displayIAS} (${displayConfig.label})`);
+                } else {
+                    // CASO 2: Datos NO LIVE (> 1 hora) - Fondo gris + icono de estado
+                    el.style.backgroundColor = '#888888'; // Gris uniforme para todos los estados no-live
+                    el.textContent = displayConfig.indicator; // ◐, ○, o ×
+                    el.style.color = '#ffffff';  // Texto blanco para contraste
+                    el.title = `${displayConfig.status.toUpperCase()} - Last update: ${displayConfig.label}`;
+                    
+                    console.log(`⚠️ ${location}: ${displayConfig.status} indicator (${displayConfig.label})`);
+                }
+                
+                // Estilo común para todos los markers
+                el.style.width = '24px';
                 el.style.height = '24px';
-                el.textContent = Math.round(sensorData.dataIAS);
                 el.style.fontSize = '10px';
                 el.style.fontWeight = 'bold';
-                el.style.color = '#000000';  // BLACK text instead of white
                 el.style.display = 'flex';
                 el.style.alignItems = 'center';
                 el.style.justifyContent = 'center';
@@ -537,7 +553,22 @@ setTimeout(() => {
                 el.style.borderRadius = '50%';
                 el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
                 
-                console.log(`Updated marker for ${location}: IAS=${sensorData.dataIAS}, Color=${color}`);
+            } else {
+                // Fallback al comportamiento original (para compatibilidad)
+                if (sensorData && sensorData.dataIAS !== 'N/A') {
+                    const { color } = getIndicatorColor(sensorData.dataIAS);
+                    const el = marker.getElement();
+                    
+                    el.style.backgroundColor = color;
+                    el.style.width = '24px';
+                    el.style.height = '24px';
+                    el.textContent = Math.round(sensorData.dataIAS);
+                    el.style.fontSize = '10px';
+                    el.style.fontWeight = 'bold';
+                    el.style.color = '#000000';
+                    
+                    console.log(`📊 ${location}: Fallback IAS display ${sensorData.dataIAS}`);
+                }
             }
         } catch (error) {
             console.error(`Error updating marker for ${location}:`, error);
