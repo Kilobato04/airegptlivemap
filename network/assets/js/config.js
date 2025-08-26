@@ -10,7 +10,7 @@ window.MAPBOX_CONFIG = {
 window.APP_SETTINGS = {
     refreshInterval: 3000,
     maxRetries: 3,
-    activeStations: ['Hipódromo', 'UNAM', 'CENTRUS 3', 'INSYC-Smability', 'CENTRUS 5'], // ADDED CENTRUS 5
+    activeStations: ['Hipódromo', 'UNAM', 'CENTRUS 3', 'INSYC-Smability', 'CENTRUS 5', 'La Diana'], // ADDED La Diana
     whatsappNumber: '525519566483',
     brandUrl: 'http://www.smability.io'
 };
@@ -38,7 +38,8 @@ window.API_CONFIG = {
         'UNAM': '349b1230277f1c67577e4f5bee6ba486',
         'CENTRUS 3': '3843693a0dc1e3aca614cf3e71976527',
         'INSYC-Smability': '3d820ec8b5149f835f6c5cc338d247e2',
-        'CENTRUS 5': 'c7dd6160528b3335d4f366e28a04ac80' // ADDED CENTRUS 5 with correct token
+        'CENTRUS 5': 'c7dd6160528b3335d4f366e28a04ac80', // ADDED CENTRUS 5 with correct token
+        'La Diana': '3843693a0dc1e3aca614cf3e71976527' // ADDED La Diana
     }
 };
 
@@ -48,7 +49,8 @@ window.DEVICE_COORDINATES = {
     'UNAM': [-99.191376, 19.332607], // Approximate - update with real coordinates  
     'CENTRUS 3': [-99.171021, 19.425217], // From previous data
     'INSYC-Smability': [-99.133208, 19.432608], // Approximate - update with real coordinates
-    'CENTRUS 5': [-99.170692, 19.409618] // ADDED CENTRUS 5 with provided coordinates
+    'CENTRUS 5': [-99.170692, 19.409618], // ADDED CENTRUS 5 with provided coordinates
+    'La Diana': [-99.171021, 19.425217] // ADDED La Diana
 };
 
 // AGREGADO: Configuración de sensores para charts
