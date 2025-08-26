@@ -48,7 +48,7 @@ window.DEVICE_COORDINATES = {
     'UNAM': [-99.176137, 19.326450], // Approximate - update with real coordinates marker
     'INSYC-Smability': [-99.169991, 19.406170], // Approximate - update with real coordinates 
     'CENTRUS 5': [-99.200109, 19.365869], // ADDED CENTRUS 5 
-    'La Diana': [-99.171021, 19.425217] // ADDED La Diana igual a CENTRUS 3 
+    'La Diana': [-99.17122087577197, 19.42396506697864] // ADDED La Diana igual a CENTRUS 3 
 };
 
 // AGREGADO: Configuración de sensores para charts
