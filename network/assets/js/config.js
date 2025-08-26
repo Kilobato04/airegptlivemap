@@ -45,9 +45,9 @@ window.API_CONFIG = {
 // ADDED: Device coordinates for programmatic marker creation
 window.DEVICE_COORDINATES = {
     'Hipódromo': [-99.167213, 19.414855], // Approximate - update with real coordinates
-    'UNAM': [-99.191376, 19.332607], // Approximate - update with real coordinates  
-    'INSYC-Smability': [-99.133208, 19.432608], // Approximate - update with real coordinates
-    'CENTRUS 5': [-99.170692, 19.409618], // ADDED CENTRUS 5 with provided coordinates
+    'UNAM': [-99.169991, 19.406170], // Approximate - update with real coordinates 
+    'INSYC-Smability': [-99.169991, 19.406170], // Approximate - update with real coordinates 
+    'CENTRUS 5': [-99.169991, 19.406170], // ADDED CENTRUS 5 with provided coordinates 
     'La Diana': [-99.171021, 19.425217] // ADDED La Diana igual a CENTRUS 3 
 };
 
