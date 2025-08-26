@@ -94,43 +94,10 @@ setTimeout(() => {
             }
         }, 2000);
         
-        // Force immediate marker initialization
+        // Crear marcadores independientes
         setTimeout(() => {
-            console.log('Force initializing markers...');
-            try {
-                const features = map.querySourceFeatures(MAP_LAYERS.source, {
-                    sourceLayer: MAP_LAYERS.sourceLayer
-                });
-                
-                if (features && features.length > 0) {
-                    console.log('Found features, creating markers...');
-                    features.forEach(feature => {
-                        if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-                            if (!markers.has(feature.properties.name)) {
-                                const el = createMarkerElement('#cccccc', '...');
-                                const marker = new mapboxgl.Marker({ element: el })
-                                    .setLngLat(feature.geometry.coordinates)
-                                    .addTo(map);
-                                markers.set(feature.properties.name, marker);
-                                console.log('Created marker for:', feature.properties.name);
-                            }
-                        }
-                    });
-                    
-                    // Update markers with real data
-                    setTimeout(() => {
-                        console.log('Updating marker data...');
-                        updateMarkerData();
-                    }, 500);
-                } else {
-                    console.log('No features found, retrying...');
-                    // Retry after another second if no features found
-                    setTimeout(arguments.callee, 1000);
-                }
-            } catch (error) {
-                console.error('Error initializing markers:', error);
-            }
-        }, 1500);
+            createIndependentMarkers();
+        }, 1000);
         
         // Initialize IAS values after map loads
         setTimeout(() => {
@@ -186,13 +153,13 @@ setTimeout(() => {
                 
                 if (aqNetworkVisible) {
                     // Mostrar toda la red AQ (SIMAT + Smability)
-                    map.setFilter('smaa_network', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]); // SOLO activas
-                    map.setFilter('smaa_network_squares', ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]]); // SOLO inactivas
+                    map.setFilter('smaa_network', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]); 
+                    map.setFilter('smaa_network_squares', ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]]);
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
                     
-                    // Mostrar markers de Smability
+                    // Mostrar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
                         if (markers.has(location)) {
                             markers.get(location).getElement().style.display = 'flex';
@@ -206,7 +173,7 @@ setTimeout(() => {
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'none');
                     
-                    // Ocultar markers de Smability
+                    // Ocultar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
                         if (markers.has(location)) {
                             markers.get(location).getElement().style.display = 'none';
@@ -506,7 +473,84 @@ setTimeout(() => {
         });
         
         console.log('✅ Map interactions setup complete');
+       
+        // Click handler adicional para marcadores independientes
+        document.addEventListener('click', (event) => {
+            if (event.target && event.target.classList.contains('marker-pin')) {
+                const stationName = event.target.getAttribute('data-station');
+                if (stationName) {
+                    console.log('🎯 Independent marker clicked via document listener:', stationName);
+                    
+                    if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
+                        console.log('🚀 Calling showPanel from independent marker...');
+                        window.SmabilityPanels.showPanel(stationName);
+                    }
+                }
+            }
+        });
     }
+    
+
+        /**
+     * Crear marcadores independientes basados únicamente en DEVICE_COORDINATES
+     * No depende del dataset de Mapbox para nombres ni ubicaciones
+     */
+    function createIndependentMarkers() {
+        console.log('🚀 Creating independent markers from DEVICE_COORDINATES...');
+        console.log('Active stations to create:', APP_SETTINGS.activeStations);
+        console.log('Available coordinates:', DEVICE_COORDINATES);
+        
+        APP_SETTINGS.activeStations.forEach(stationName => {
+            if (DEVICE_COORDINATES[stationName]) {
+                const coordinates = DEVICE_COORDINATES[stationName];
+                
+                // Evitar duplicados
+                if (!markers.has(stationName)) {
+                    // Crear elemento del marker
+                    const el = createMarkerElement('#cccccc', '...');
+                    el.setAttribute('data-station', stationName); // Para identificación
+                    el.style.cursor = 'pointer';
+                    
+                    // Crear marker de Mapbox
+                    const marker = new mapboxgl.Marker({ element: el })
+                        .setLngLat(coordinates)
+                        .addTo(map);
+                    
+                    // Guardar referencia
+                    markers.set(stationName, marker);
+                    
+                    // Agregar click handler directamente al elemento
+                    el.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        console.log(`🎯 Independent marker clicked: ${stationName}`);
+                        
+                        if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
+                            console.log('🚀 Opening SmabilityPanels for:', stationName);
+                            window.SmabilityPanels.showPanel(stationName);
+                        } else {
+                            console.error('❌ SmabilityPanels not available');
+                        }
+                    });
+                    
+                    console.log(`✅ Created independent marker: ${stationName} at [${coordinates}]`);
+                } else {
+                    console.log(`⚠️ Marker already exists for: ${stationName}`);
+                }
+            } else {
+                console.error(`❌ No coordinates found for station: ${stationName}`);
+                console.log('Available coordinates keys:', Object.keys(DEVICE_COORDINATES));
+            }
+        });
+        
+        console.log(`📍 Created ${markers.size} independent markers`);
+        
+        // Actualizar datos de los marcadores después de crearlos
+        setTimeout(() => {
+            console.log('🔄 Updating independent marker data...');
+            updateMarkerData();
+        }, 1000);
+    }
+    
 
     /**
      * Update marker color and size with IAS value
