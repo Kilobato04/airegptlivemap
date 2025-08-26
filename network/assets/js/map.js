@@ -343,27 +343,7 @@ setTimeout(() => {
                 .setHTML(createPopupContent(feature, null))
                 .addTo(map);
         });
-    
-        // Click handler para Mapbox markers (círculos de Smability)
-        document.addEventListener('click', (event) => {
-            if (event.target && event.target.classList.contains('marker-pin')) {
-                console.log('🎯 Mapbox marker clicked!');
-                
-                for (const [location, marker] of markers) {
-                    if (marker.getElement() === event.target) {
-                        console.log('📍 Marker location found:', location);
-                        
-                        if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
-                            console.log('🚀 Calling showPanel from marker click...');
-                            window.SmabilityPanels.showPanel(location);
-                        } else {
-                            console.error('❌ SmabilityPanels not available for marker click');
-                        }
-                        break;
-                    }
-                }
-            }
-        });
+
     
         /* ===== POPUP LEGACY COMENTADO - BACKUP =====
         const popup = new mapboxgl.Popup({ 
