@@ -1,0 +1,432 @@
+{
+  "sensorTypes": {
+    "SMAA": [
+      { "idSensor": 1, "description": "Battery" },
+      { "idSensor": 2, "description": "Carbon Monoxide" },
+      { "idSensor": 3, "description": "Relative Humidity" },
+      { "idSensor": 4, "description": "Location" },
+      { "idSensor": 7, "description": "Ozone" },
+      { "idSensor": 8, "description": "PM10*" },
+      { "idSensor": 9, "description": "PM2.5" },
+      { "idSensor": 12, "description": "Temperature" },
+      { "idSensor": 13, "description": "Device Mode" }
+    ],
+    "SMAAso2": [
+      { "idSensor": 1, "description": "Battery" },
+      { "idSensor": 2, "description": "Carbon Monoxide" },
+      { "idSensor": 3, "description": "Relative Humidity" },
+      { "idSensor": 4, "description": "Location" },
+      { "idSensor": 8, "description": "PM10*" },
+      { "idSensor": 9, "description": "PM2.5" },
+      { "idSensor": 11, "description": "Sulfur dioxide" },
+      { "idSensor": 12, "description": "Temperature" },
+      { "idSensor": 13, "description": "Device Mode" }
+    ],
+    "SMAAmicro": [
+      { "idSensor": 3, "description": "Relative Humidity" },
+      { "idSensor": 6, "description": "Nitrogen Dioxide" },
+      { "idSensor": 8, "description": "PM10*" },
+      { "idSensor": 9, "description": "PM2.5" },
+      { "idSensor": 12, "description": "Temperature" }
+    ]
+  },
+  "devices": [
+    {
+      "station_id": "MS1",
+      "station_name": "MicroSensor-01",
+      "serial": "68523100910565576",
+      "type": "SMAAmicro",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.370218,-99.262583",
+        "latitude": 19.370218,
+        "longitude": -99.262583
+      },
+      "token": "b9f56c2a86c59c27e23b93126c508abe",
+      "active": true
+    },
+    {
+      "station_id": "MS2",
+      "station_name": "MicroSensor-02",
+      "serial": "41624101009592618",
+      "type": "SMAAmicro",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.370842,-99.262952",
+        "latitude": 19.370842,
+        "longitude": -99.262952
+      },
+      "token": "941952e3aaee033b7d4a126ef7194a45",
+      "active": true
+    },
+    {
+      "station_id": "MS3",
+      "station_name": "MicroSensor-03",
+      "serial": "33524110111101338",
+      "type": "SMAAmicro",
+      "location": {
+        "city": "Mexico City",
+        "placement": "indoor",
+        "lat_long": "19.371326,-99.263291",
+        "latitude": 19.371326,
+        "longitude": -99.263291
+      },
+      "token": "e25b9d53259785daf60e520834d3f39f",
+      "active": true
+    },
+    {
+      "station_id": "UNM",
+      "station_name": "UNAM",
+      "serial": "76921101413374886",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.326172,-99.176186",
+        "latitude": 19.326172,
+        "longitude": -99.176186
+      },
+      "token": "349b1230277f1c67577e4f5bee6ba486",
+      "active": true
+    },
+    {
+      "station_id": "CN8",
+      "station_name": "CENTRUS 8",
+      "serial": "51622011814302785",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.392838,-99.173172",
+        "latitude": 19.392838,
+        "longitude": -99.173172
+      },
+      "token": "a2a9a62b622014c64426c6484334e577",
+      "active": true
+    },
+    {
+      "station_id": "CN7",
+      "station_name": "CENTRUS 7",
+      "serial": "43122011814310562",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.392725,-99.172752",
+        "latitude": 19.392725,
+        "longitude": -99.172752
+      },
+      "token": "510a41e183a90482275b1bc8a79dfc14",
+      "active": true
+    },
+    {
+      "station_id": "DVL",
+      "station_name": "Del Valle",
+      "serial": "43822011814373284",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.388416,-99.166740",
+        "latitude": 19.388416,
+        "longitude": -99.166740
+      },
+      "token": "1ae5a53b7b315c48206ffa95fdef32d8",
+      "active": true
+    },
+    {
+      "station_id": "CN5",
+      "station_name": "CENTRUS 5",
+      "serial": "81122050410061986",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.409618,-99.170692",
+        "latitude": 19.409618,
+        "longitude": -99.170692
+      },
+      "token": "c7dd6160528b3335d4f366e28a04ac80",
+      "active": true
+    },
+    {
+      "station_id": "HRT",
+      "station_name": "Huerto IBERO",
+      "serial": "49422050410165955",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.372347,-99.263649",
+        "latitude": 19.372347,
+        "longitude": -99.263649
+      },
+      "token": "b8c1bac206b358bde62cb25c374339c3",
+      "active": true
+    },
+    {
+      "station_id": "INI",
+      "station_name": "INIAT",
+      "serial": "14522120309263077",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.368851,-99.263580",
+        "latitude": 19.368851,
+        "longitude": -99.263580
+      },
+      "token": "211b4d2dd56a0ba2eb269f2eeb0945ea",
+      "active": true
+    },
+    {
+      "station_id": "IBA",
+      "station_name": "IBERO A",
+      "serial": "20322121413194178",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.372355,-99.263649",
+        "latitude": 19.372355,
+        "longitude": -99.263649
+      },
+      "token": "1ce05f7c4d1e7a2f048bf5256285a276",
+      "active": true
+    },
+    {
+      "station_id": "CN1",
+      "station_name": "CENTRUS 1",
+      "serial": "80923081611494546",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.368654,-99.263489",
+        "latitude": 19.368654,
+        "longitude": -99.263489
+      },
+      "token": "60374b0d5f818b9f7703cc1a27aeab48",
+      "active": true
+    },
+    {
+      "station_id": "CN2",
+      "station_name": "CENTRUS 2",
+      "serial": "32923082414073238",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.368771,-99.263626",
+        "latitude": 19.368771,
+        "longitude": -99.263626
+      },
+      "token": "993a85c50d07d8a3c367f32d1a3d12af",
+      "active": true
+    },
+    {
+      "station_id": "DIA",
+      "station_name": "La Diana",
+      "serial": "48123082510355910",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.425217,-99.171021",
+        "latitude": 19.425217,
+        "longitude": -99.171021
+      },
+      "token": "3843693a0dc1e3aca614cf3e71976527",
+      "active": true
+    },
+    {
+      "station_id": "CN4",
+      "station_name": "CENTRUS 4",
+      "serial": "38223082511213839",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.371620,-99.262962",
+        "latitude": 19.371620,
+        "longitude": -99.262962
+      },
+      "token": "c0ac14b4df16d24f3e403928412fdc31",
+      "active": true
+    },
+    {
+      "station_id": "HIP",
+      "station_name": "Hipódromo",
+      "serial": "86021042311335275",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.414782,-99.167183",
+        "latitude": 19.414782,
+        "longitude": -99.167183
+      },
+      "token": "1c5e12e8f00c9f2cbb4c7c8f07c9d398",
+      "active": true
+    },
+    {
+      "station_id": "TPJ",
+      "station_name": "Tepeji",
+      "serial": "51021101413365703",
+      "type": "SMAA",
+      "location": {
+        "city": "Hidalgo",
+        "placement": "outdoor",
+        "lat_long": "19.905210,-99.341881",
+        "latitude": 19.905210,
+        "longitude": -99.341881
+      },
+      "token": "b44eebc1879479e4534abddccef2d0fc",
+      "active": true
+    },
+    {
+      "station_id": "UAM",
+      "station_name": "UAM",
+      "serial": "36923102516463212",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.388735,-99.209564",
+        "latitude": 19.388735,
+        "longitude": -99.209564
+      },
+      "token": "b031aca25a4746368da8e718631e06e7",
+      "active": true
+    },
+    {
+      "station_id": "ANC",
+      "station_name": "Anahuac Cancun",
+      "serial": "91522050410070391",
+      "type": "SMAA",
+      "location": {
+        "city": "Cancun",
+        "placement": "outdoor",
+        "lat_long": "21.062897,-86.844299",
+        "latitude": 21.062897,
+        "longitude": -86.844299
+      },
+      "token": "b1a3d78281c7e0cd6cd56dad7d83353c",
+      "active": true
+    },
+    {
+      "station_id": "GUA",
+      "station_name": "Guatemala",
+      "serial": "25623033116080874",
+      "type": "SMAA",
+      "location": {
+        "city": "Guatemala",
+        "placement": "outdoor",
+        "lat_long": "14.619596,-90.514061",
+        "latitude": 14.619596,
+        "longitude": -90.514061
+      },
+      "token": "081b88e22304cdf62c2dfdc98ebe5b50",
+      "active": true
+    },
+    {
+      "station_id": "DUR",
+      "station_name": "Durango",
+      "serial": "10423050810531370",
+      "type": "SMAA",
+      "location": {
+        "city": "Durango",
+        "placement": "outdoor",
+        "lat_long": "24.035458,-104.648380",
+        "latitude": 24.035458,
+        "longitude": -104.648380
+      },
+      "token": "3f3e47237b129621105502db5d51f2d7",
+      "active": true
+    },
+    {
+      "station_id": "INS",
+      "station_name": "INSYC",
+      "serial": "70123081514592538",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "indoor",
+        "lat_long": "19.406158,-99.169975",
+        "latitude": 19.406158,
+        "longitude": -99.169975
+      },
+      "token": "3d820ec8b5149f835f6c5cc338d247e2",
+      "active": true
+    },
+    {
+      "station_id": "UN3",
+      "station_name": "UNAM-II-SMAA",
+      "serial": "47323120410102799",
+      "type": "SMAA",
+      "location": {
+        "city": "Mexico City",
+        "placement": "outdoor",
+        "lat_long": "19.326214,-99.176163",
+        "latitude": 19.326214,
+        "longitude": -99.176163
+      },
+      "token": "03e85a1e71f0b9ffaf041862303b250b",
+      "active": true
+    },
+    {
+      "station_id": "ALB",
+      "station_name": "ALISBio",
+      "serial": "38224053016485045",
+      "type": "SMAAso2",
+      "location": {
+        "city": "Monterrey",
+        "placement": "outdoor",
+        "lat_long": "25.670582,-100.316834",
+        "latitude": 25.670582,
+        "longitude": -100.316834
+      },
+      "token": "2a53e9174dcf7ee42b9c8bbda7990571",
+      "active": true
+    },
+    {
+      "station_id": "AL2",
+      "station_name": "ALISBio-02",
+      "serial": "11424053116020447",
+      "type": "SMAAso2",
+      "location": {
+        "city": "Monterrey",
+        "placement": "outdoor",
+        "lat_long": "25.667362,-100.309264",
+        "latitude": 25.667362,
+        "longitude": -100.309264
+      },
+      "token": "3f3b878fdb02f61d5ed43168c075cec8",
+      "active": true
+    },
+    {
+      "station_id": "ITD",
+      "station_name": "ITD",
+      "serial": "75822011814280292",
+      "type": "SMAA",
+      "location": {
+        "city": "Durango",
+        "placement": "outdoor",
+        "lat_long": "24.035458,-104.648380",
+        "latitude": 24.035458,
+        "longitude": -104.648380
+      },
+      "token": "005cdaeb7b1392ad59a4335f4a832043",
+      "active": true
+    }
+  ],
+  "settings": {
+    "dataCollectionIntervalMinutes": 1,
+    "hourlyAggregationEnabled": true,
+    "apiBaseUrl": "http://smability.sidtecmx.com/SmabilityAPI",
+    "lastUpdated": "2025-04-30T18:30:00Z"
+  },
+  "version": "1.0.6"
+}
