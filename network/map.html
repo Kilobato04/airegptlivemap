@@ -226,11 +226,34 @@
 </div>
 <script src="assets/js/smability-panels.js"></script>
 <script>
+    
 function ensureSmabilityMarkers() {
-    if (window.map && window.map.isStyleLoaded() && window.SmabilityPanels) {
-        window.SmabilityPanels.init();
+    console.log('🔍 Checking SmabilityPanels initialization...');
+    console.log('window.map exists:', !!window.map);
+    console.log('window.SmabilityPanels exists:', !!window.SmabilityPanels);
+    
+    // Verificar que el mapa exista y tenga los métodos necesarios
+    if (window.map && 
+        typeof window.map.isStyleLoaded === 'function' && 
+        window.map.isStyleLoaded() && 
+        window.SmabilityPanels) {
+        
+        console.log('✅ All components ready, initializing SmabilityPanels...');
+        try {
+            window.SmabilityPanels.init();
+            console.log('✅ SmabilityPanels initialized successfully');
+        } catch (error) {
+            console.error('❌ Error initializing SmabilityPanels:', error);
+            // Reintentar después de 1 segundo
+            setTimeout(ensureSmabilityMarkers, 1000);
+        }
     } else {
-        setTimeout(ensureSmabilityMarkers, 200);
+        console.log('⏳ Components not ready yet, retrying...');
+        console.log('- Map loaded:', window.map && typeof window.map.isStyleLoaded === 'function' ? window.map.isStyleLoaded() : false);
+        console.log('- SmabilityPanels available:', !!window.SmabilityPanels);
+        
+        // Reintentar después de 500ms
+        setTimeout(ensureSmabilityMarkers, 500);
     }
 }
 
