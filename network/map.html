@@ -227,9 +227,10 @@
 <script src="assets/js/smability-panels.js"></script>
 <script>
 function ensureSmabilityMarkers() {
-    if (window.SmabilityPanels && window.SmabilityPanels.getMarkers().size === 0) {
-        console.log('🔄 Ensuring Smability markers...');
+    if (window.map && window.map.isStyleLoaded() && window.SmabilityPanels) {
         window.SmabilityPanels.init();
+    } else {
+        setTimeout(ensureSmabilityMarkers, 200);
     }
 }
 
