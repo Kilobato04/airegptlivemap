@@ -227,32 +227,33 @@
 <script src="assets/js/smability-panels.js"></script>
 <script>
     
+let smabilityInitAttempts = 0;
+const maxSmabilityAttempts = 10;
+
 function ensureSmabilityMarkers() {
-    console.log('🔍 Checking SmabilityPanels initialization...');
-    console.log('window.map exists:', !!window.map);
-    console.log('window.SmabilityPanels exists:', !!window.SmabilityPanels);
+    smabilityInitAttempts++;
     
-    // Verificar que el mapa exista y tenga los métodos necesarios
+    // CRÍTICO: Límite de intentos
+    if (smabilityInitAttempts > maxSmabilityAttempts) {
+        console.error('❌ ensureSmabilityMarkers: Max attempts reached, STOPPING');
+        return;
+    }
+    
+    console.log(`🔍 ensureSmabilityMarkers attempt ${smabilityInitAttempts}/${maxSmabilityAttempts}`);
+    
     if (window.map && 
         typeof window.map.isStyleLoaded === 'function' && 
         window.map.isStyleLoaded() && 
         window.SmabilityPanels) {
         
-        console.log('✅ All components ready, initializing SmabilityPanels...');
+        console.log('✅ All ready, initializing SmabilityPanels...');
         try {
             window.SmabilityPanels.init();
-            console.log('✅ SmabilityPanels initialized successfully');
         } catch (error) {
-            console.error('❌ Error initializing SmabilityPanels:', error);
-            // Reintentar después de 1 segundo
-            setTimeout(ensureSmabilityMarkers, 1000);
+            console.error('❌ Error initializing:', error);
         }
     } else {
-        console.log('⏳ Components not ready yet, retrying...');
-        console.log('- Map loaded:', window.map && typeof window.map.isStyleLoaded === 'function' ? window.map.isStyleLoaded() : false);
-        console.log('- SmabilityPanels available:', !!window.SmabilityPanels);
-        
-        // Reintentar después de 500ms
+        console.log('⏳ Not ready, will retry...');
         setTimeout(ensureSmabilityMarkers, 500);
     }
 }
