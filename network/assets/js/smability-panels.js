@@ -25,26 +25,33 @@ window.SmabilityPanels = (function() {
         
         initializationAttempts++;
         
+        // CRÍTICO: Límite de intentos
+        if (initializationAttempts > maxInitAttempts) {
+            console.error('❌ SmabilityPanels: Max attempts reached, STOPPING');
+            return;
+        }
+        
         if (!window.map) {
             console.log('SmabilityPanels: Map not available yet, retrying...');
-            if (initializationAttempts < maxInitAttempts) {
-                setTimeout(init, 1000);
-            }
+            setTimeout(init, 1000);
             return;
         }
     
-        // CAMBIO PRINCIPAL: Usar isStyleLoaded() en lugar de loaded()
-        if (typeof window.map.isStyleLoaded !== 'function' || !window.map.isStyleLoaded()) {
+        // CRÍTICO: Verificar método antes de usar
+        if (typeof window.map.isStyleLoaded !== 'function') {
+            console.log('SmabilityPanels: isStyleLoaded method not available yet, retrying...');
+            setTimeout(init, 1000);
+            return;
+        }
+    
+        if (!window.map.isStyleLoaded()) {
             console.log('SmabilityPanels: Map not loaded yet, waiting...');
-            
-            // Si el mapa tiene el método on, usar el evento load
             if (typeof window.map.on === 'function') {
                 window.map.on('load', () => {
                     console.log('SmabilityPanels: Map loaded via event, setting up markers...');
                     setupSmabilityMarkers();
                 });
             } else {
-                // Fallback: reintentar después de un tiempo
                 setTimeout(init, 1000);
             }
         } else {
