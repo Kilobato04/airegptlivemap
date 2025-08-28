@@ -32,13 +32,21 @@ window.SmabilityPanels = (function() {
             }
             return;
         }
-
-        if (!window.map.loaded()) {
+    
+        // CAMBIO PRINCIPAL: Usar isStyleLoaded() en lugar de loaded()
+        if (typeof window.map.isStyleLoaded !== 'function' || !window.map.isStyleLoaded()) {
             console.log('SmabilityPanels: Map not loaded yet, waiting...');
-            window.map.on('load', () => {
-                console.log('SmabilityPanels: Map loaded, setting up markers...');
-                setupSmabilityMarkers();
-            });
+            
+            // Si el mapa tiene el método on, usar el evento load
+            if (typeof window.map.on === 'function') {
+                window.map.on('load', () => {
+                    console.log('SmabilityPanels: Map loaded via event, setting up markers...');
+                    setupSmabilityMarkers();
+                });
+            } else {
+                // Fallback: reintentar después de un tiempo
+                setTimeout(init, 1000);
+            }
         } else {
             console.log('SmabilityPanels: Map already loaded, setting up markers...');
             setupSmabilityMarkers();
