@@ -5,29 +5,53 @@ let mapInitializationAttempted = false;
 
 // Wait for config and dependencies to load
 setTimeout(() => {
+    // CRÍTICO: Evitar múltiples intentos
+    if (mapInitializationAttempted) {
+        console.log('❌ Map initialization already attempted, STOPPING to prevent loop');
+        return;
+    }
+    mapInitializationAttempted = true;
+    
     // Check if all required dependencies are loaded
     const requiredDeps = ['MAPBOX_CONFIG', 'APP_SETTINGS', 'AQI_THRESHOLDS', 'MAP_LAYERS', 'createLegendHTML', 'createPopupContent'];
     const missingDeps = requiredDeps.filter(dep => typeof window[dep] === 'undefined');
     
     if (missingDeps.length > 0) {
         console.error('Missing dependencies:', missingDeps);
-        console.log('Retrying in 500ms...');
-        setTimeout(arguments.callee, 500);
-        return;
+        console.log('STOPPING - Dependencies missing, will NOT retry');
+        return; // QUITAR setTimeout recursivo
     }
 
     console.log('All dependencies loaded, initializing map...');
 
+    // CRÍTICO: WebGL check ANTES de crear mapa
+    try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) throw new Error('WebGL not supported');
+    } catch (error) {
+        console.error('❌ WebGL check failed:', error);
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; color: red;"><h3>WebGL Error</h3><p>' + error.message + '</p><button onclick="location.reload()">Refresh</button></div>';
+        return;
+    }
+
     // Set Mapbox access token
     mapboxgl.accessToken = MAPBOX_CONFIG.accessToken;
 
-    // Initialize the map
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: MAPBOX_CONFIG.style,
-        center: MAPBOX_CONFIG.center,
-        zoom: MAPBOX_CONFIG.zoom
-    });
+    // CRÍTICO: TRY-CATCH alrededor de Map creation
+    let map;
+    try {
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: MAPBOX_CONFIG.style,
+            center: MAPBOX_CONFIG.center,
+            zoom: MAPBOX_CONFIG.zoom
+        });
+    } catch (error) {
+        console.error('❌ Map creation failed:', error);
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; color: red;"><h3>Map Failed</h3><p>' + error.message + '</p><button onclick="location.reload()">Refresh</button></div>';
+        return;
+    }
 
     // Make map available globally
     window.map = map;
