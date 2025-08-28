@@ -1,6 +1,7 @@
 // Map initialization and control functions - Complete Version
 
 console.log('Starting map initialization...');
+let mapInitializationAttempted = false;
 
 // Wait for config and dependencies to load
 setTimeout(() => {
