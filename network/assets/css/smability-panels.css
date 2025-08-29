@@ -20,13 +20,14 @@
     bottom: 20px;
     right: 20px;
     width: 650px;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.95); /* Cambiado de 0.98 a 0.95 para más transparencia */
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    border: 3px solid var(--smability-ias-color, #ffff00);
-    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15); /* Sombra más sutil */
+    border: 2px solid var(--smability-ias-color, #ffff00); /* Borde más delgado */
+    backdrop-filter: blur(20px); /* Más blur para efecto glass */
+    -webkit-backdrop-filter: blur(20px); /* Safari compatibility */
     z-index: 2001;
-    max-height: 55vh; /* Altura inicial */
+    max-height: 55vh;
     overflow-y: auto;
     transition: all 0.3s ease;
     pointer-events: all;
@@ -35,15 +36,17 @@
 
 /* === HEADER DEL PANEL - CON AIR QUALITY === */
 .smability-panel-header {
-    background: var(--smability-header-bg, rgba(255, 128, 0, 0.1)); /* Usar color dinámico */
+    background: rgba(255, 255, 255, 0.85); /* Fondo más translúcido y neutro */
     padding: 16px;
     border-radius: 12px 12px 0 0;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-bottom: 1px solid rgba(0,0,0,0.08); /* Borde más sutil */
     position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    transition: background-color 0.3s ease; /* Transición suave */
+    transition: background-color 0.3s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .smability-header-left {
@@ -126,11 +129,14 @@
     align-items: center;
     gap: 8px;
     margin-bottom: 16px;
-    padding: 12px;
-    background: var(--smability-ias-bg, rgba(255, 128, 0, 0.1));
-    border-radius: 8px;
+    padding: 14px; /* Más padding */
+    background: rgba(255, 255, 255, 0.6); /* Más transparente */
+    border-radius: 10px; /* Más redondeado */
     transition: all 0.3s ease;
     position: relative;
+    border: 1px solid rgba(0,0,0,0.05); /* Borde muy sutil */
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
 }
 
 .smability-ias-section.smability-clickable {
@@ -139,9 +145,9 @@
 }
 
 .smability-ias-section.smability-clickable:hover {
-    background: var(--smability-ias-bg-hover, rgba(255, 128, 0, 0.25));
+    background: rgba(255, 255, 255, 0.8); /* Más opaco al hover */
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra más sutil */
 }
 
 
@@ -199,10 +205,20 @@
 }
 
 .smability-data-item {
-    background: rgba(0,0,0,0.03);
-    padding: 8px;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.6); /* Más transparente */
+    padding: 10px; /* Más padding */
+    border-radius: 8px; /* Más redondeado */
     font-size: 12px;
+    border: 1px solid rgba(0,0,0,0.04); /* Borde muy sutil */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.smability-data-item:hover {
+    background: rgba(255, 255, 255, 0.8);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .smability-data-label {
@@ -294,27 +310,26 @@
 
 .smability-btn {
     padding: 12px 24px;
-    border: 1px solid #4264fb;
-    border-radius: 6px;
-    background: white;
+    border: 2px solid #4264fb;
+    border-radius: 8px; /* Bordes más redondeados */
+    background: rgba(66, 100, 251, 0.05); /* Fondo azul muy claro por defecto */
     cursor: pointer;
     font-size: 14px;
     text-align: center;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     text-decoration: none;
     color: #4264fb;
     font-weight: bold;
     font-family: 'DIN Pro', Arial, sans-serif;
+    box-shadow: 0 2px 8px rgba(66, 100, 251, 0.1); /* Sombra azul sutil */
 }
 
 .smability-btn:hover {
-    background: #4264fb;
-    color: white;
-}
-
-.smability-btn:hover {
-    background: #4264fb;
-    color: white;
+    background: rgba(66, 100, 251, 0.15); /* Azul claro al hover */
+    border-color: #3251d8; /* Borde más oscuro al hover */
+    color: #3251d8;
+    transform: translateY(-1px); /* Efecto de elevación */
+    box-shadow: 0 4px 12px rgba(66, 100, 251, 0.2); /* Sombra más intensa */
 }
 
 /* === CONTENIDO EXPANDIDO === */
@@ -369,21 +384,23 @@
 }
 
 .smability-inline-chart-area {
-    background: white;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9); /* Más transparente */
+    border-radius: 8px;
     padding: 12px;
     min-height: 250px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.06); /* Borde más sutil */
     position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .smability-chart-placeholder {
     width: 100%;
     height: 200px;
-    background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+    background: linear-gradient(135deg, rgba(66, 100, 251, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -392,6 +409,7 @@
     font-size: 16px;
     font-family: 'DIN Pro', Arial, sans-serif;
     color: #666;
+    border: 2px dashed rgba(66, 100, 251, 0.2); /* Borde punteado sutil */
 }
 
 /* NUEVO: Contenedor para gráfico real de Plotly */
@@ -415,8 +433,8 @@
 /* === FOOTER DEL PANEL === */
 .smability-panel-footer {
     padding: 12px 16px;
-    border-top: 1px solid rgba(0,0,0,0.1);
-    background: rgba(0,0,0,0.02);
+    border-top: 1px solid rgba(0,0,0,0.06); /* Borde más sutil */
+    background: rgba(255, 255, 255, 0.7); /* Más transparente */
     border-radius: 0 0 12px 12px;
     display: flex;
     justify-content: space-between;
@@ -424,6 +442,8 @@
     font-size: 11px;
     color: #666;
     font-family: 'DIN Pro', Arial, sans-serif;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .smability-last-update {
@@ -449,20 +469,40 @@
         grid-template-columns: 1fr;
     }
 
-    .smability-inline-chart-controls {
-        gap: 4px;
-        flex-wrap: wrap;
-    }
-    
+   .smability-inline-chart-controls {
+       display: flex;
+       gap: 8px;
+       align-items: center;
+       flex-wrap: nowrap;
+       justify-content: flex-start;
+       padding: 10px 12px; /* Padding más equilibrado */
+       background: rgba(66, 100, 251, 0.04); /* Azul más sutil */
+       border-radius: 8px;
+       border: 1px solid rgba(66, 100, 251, 0.1); /* Borde azul muy sutil */
+   }
+       
     .smability-inline-chart-controls label {
         font-size: 9px;
     }
     
-    .smability-inline-chart-controls select {
-        font-size: 9px;
-        min-width: 60px;
-        max-width: 90px;
-    }
+   .smability-inline-chart-controls select {
+       font-size: 10px;
+       padding: 4px 8px; /* Más padding */
+       border: 1px solid rgba(66, 100, 251, 0.2);
+       border-radius: 6px; /* Más redondeado */
+       background: rgba(255, 255, 255, 0.9);
+       min-width: 80px;
+       max-width: 120px;
+       font-family: 'DIN Pro', Arial, sans-serif;
+       transition: all 0.2s ease;
+   }
+   
+   .smability-inline-chart-controls select:focus {
+    outline: none;
+    border-color: #4264fb;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(66, 100, 251, 0.1);
+   }
 
     .smability-inline-chart-area {
         min-height: 200px; /* Menos altura en móvil */
