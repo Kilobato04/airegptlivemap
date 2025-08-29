@@ -359,9 +359,10 @@
     align-items: center;
     flex-wrap: nowrap;
     justify-content: flex-start;
-    padding: 8px;
-    background: rgba(66, 100, 251, 0.05);
-    border-radius: 6px;
+    padding: 10px 12px; /* ← Mejor padding */
+    background: rgba(66, 100, 251, 0.04); /* ← Color más sutil */
+    border-radius: 8px; /* ← Más redondeado */
+    border: 1px solid rgba(66, 100, 251, 0.1); /* ← Borde sutil */
 }
 
 .smability-inline-chart-controls label {
@@ -468,18 +469,6 @@
     .smability-data-grid {
         grid-template-columns: 1fr;
     }
-
-   .smability-inline-chart-controls {
-       display: flex;
-       gap: 8px;
-       align-items: center;
-       flex-wrap: nowrap;
-       justify-content: flex-start;
-       padding: 10px 12px; /* Padding más equilibrado */
-       background: rgba(66, 100, 251, 0.04); /* Azul más sutil */
-       border-radius: 8px;
-       border: 1px solid rgba(66, 100, 251, 0.1); /* Borde azul muy sutil */
-   }
        
     .smability-inline-chart-controls label {
         font-size: 9px;
