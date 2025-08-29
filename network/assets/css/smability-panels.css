@@ -20,10 +20,10 @@
     bottom: 20px;
     right: 20px;
     width: 650px;
-    background: rgba(255, 255, 255, 0.95); /* Cambiado de 0.98 a 0.95 para más transparencia */
+    background: var(--smability-ias-bg);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15); /* Sombra más sutil */
-    border: 2px solid var(--smability-ias-color, #ffff00); /* Borde más delgado */
+    border: 2px solid var(--smability-ias-color);
     backdrop-filter: blur(20px); /* Más blur para efecto glass */
     -webkit-backdrop-filter: blur(20px); /* Safari compatibility */
     z-index: 2001;
@@ -36,7 +36,7 @@
 
 /* === HEADER DEL PANEL - CON AIR QUALITY === */
 .smability-panel-header {
-    background: rgba(255, 255, 255, 0.85); /* Fondo más translúcido y neutro */
+    background: var(--smability-header-bg);
     padding: 16px;
     border-radius: 12px 12px 0 0;
     border-bottom: 1px solid rgba(0,0,0,0.08); /* Borde más sutil */
@@ -130,11 +130,11 @@
     gap: 8px;
     margin-bottom: 16px;
     padding: 14px; /* Más padding */
-    background: rgba(255, 255, 255, 0.6); /* Más transparente */
+    background: var(--smability-ias-bg);
     border-radius: 10px; /* Más redondeado */
     transition: all 0.3s ease;
     position: relative;
-    border: 1px solid rgba(0,0,0,0.05); /* Borde muy sutil */
+    border: 1px solid var(--smability-ias-color);
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
 }
@@ -145,9 +145,9 @@
 }
 
 .smability-ias-section.smability-clickable:hover {
-    background: rgba(255, 255, 255, 0.8); /* Más opaco al hover */
+    background: var(--smability-ias-bg-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra más sutil */
+    box-shadow: 0 4px 12px var(--smability-ias-color);
 }
 
 
@@ -205,20 +205,20 @@
 }
 
 .smability-data-item {
-    background: rgba(255, 255, 255, 0.6); /* Más transparente */
+    background: var(--smability-data-bg);
     padding: 10px; /* Más padding */
     border-radius: 8px; /* Más redondeado */
     font-size: 12px;
-    border: 1px solid rgba(0,0,0,0.04); /* Borde muy sutil */
+    border: 1px solid var(--smability-ias-color);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: all 0.2s ease;
 }
 
 .smability-data-item:hover {
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--smability-data-bg-hover);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px var(--smability-ias-color)
 }
 
 .smability-data-label {
@@ -435,7 +435,7 @@
 .smability-panel-footer {
     padding: 12px 16px;
     border-top: 1px solid rgba(0,0,0,0.06); /* Borde más sutil */
-    background: rgba(255, 255, 255, 0.7); /* Más transparente */
+    background: var(--smability-footer-bg);
     border-radius: 0 0 12px 12px;
     display: flex;
     justify-content: space-between;
