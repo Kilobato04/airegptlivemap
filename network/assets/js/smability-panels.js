@@ -177,7 +177,7 @@ window.SmabilityPanels = (function() {
             const colorRgb = hexToRgb(color);
             if (colorRgb) {
                 // Panel principal - color IAS translúcido (25% opacidad)
-               mainPanel.style.setProperty('--smability-ias-bg', `rgba(240, 240, 240, 0.85)`);
+               mainPanel.style.setProperty('--smability-ias-bg', `rgba(240, 240, 240, 0.65)`);
                 
                 // Header - color IAS más intenso (35% opacidad)
                 mainPanel.style.setProperty('--smability-header-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.35)`);
