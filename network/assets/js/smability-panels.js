@@ -170,14 +170,32 @@ window.SmabilityPanels = (function() {
      * Actualizar barra IAS y colores del panel
      */
     function updateIASBarAndColors(iasValue, color) {
-        // Actualizar colores del panel
+        // Actualizar colores del panel basado en el color REAL del IAS
         const mainPanel = document.getElementById('smabilityMainPanel');
         if (mainPanel) {
-            mainPanel.style.setProperty('border-color', color);
-            mainPanel.style.setProperty('--smability-ias-color', color);
-            mainPanel.style.setProperty('--smability-header-bg', `${color}20`);
-            mainPanel.style.setProperty('--smability-ias-bg', `${color}20`);
-            mainPanel.style.setProperty('--smability-ias-bg-hover', `${color}40`);  // ← NUEVA LÍNEA
+            // LÓGICA CORRECTA: Convertir el color del IAS a diferentes intensidades translúcidas
+            const colorRgb = hexToRgb(color);
+            if (colorRgb) {
+                // Panel principal - color IAS translúcido (25% opacidad)
+                mainPanel.style.setProperty('--smability-ias-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.25)`);
+                
+                // Header - color IAS más intenso (35% opacidad)
+                mainPanel.style.setProperty('--smability-header-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.35)`);
+                
+                // Hover states - color IAS intenso (40% opacidad)
+                mainPanel.style.setProperty('--smability-ias-bg-hover', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.40)`);
+                
+                // Footer - color IAS muy sutil (15% opacidad)
+                mainPanel.style.setProperty('--smability-footer-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.15)`);
+                
+                // Data items - color IAS muy sutil (8% opacidad)
+                mainPanel.style.setProperty('--smability-data-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.08)`);
+                mainPanel.style.setProperty('--smability-data-bg-hover', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.15)`);
+                
+                // Bordes - color IAS sólido
+                mainPanel.style.setProperty('--smability-ias-color', color);
+                mainPanel.style.setProperty('border-color', color);
+            }
         }
         
         // Actualizar indicador circular
@@ -208,7 +226,16 @@ window.SmabilityPanels = (function() {
             iasBar.style.setProperty('--ias-position', `${position}%`);
         }
     }
-    
+    // Función helper para convertir hex a rgb
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+        
     /**
      * Actualizar colores de los paneles según IAS
      */
