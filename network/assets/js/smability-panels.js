@@ -442,21 +442,34 @@ window.SmabilityPanels = (function() {
         }
     
         // DATOS AMBIENTALES: Mostrar siempre (no dependen del IAS)
-        if (sensorData.Temperature || sensorData.Temp_1hr) {
+        // DATOS AMBIENTALES: Mostrar según freshness de datos
+        if (showDetailedData) {
+            // DATOS FRESCOS: Mostrar redondeados
+            if (sensorData.Temperature || sensorData.Temp_1hr) {
+                const temp = document.getElementById('smabilityTemperature');
+                const tempValue = sensorData.Temp_1hr || sensorData.Temperature;
+                if (temp) temp.textContent = formatWithSingleUnit(Math.round(tempValue), '°C');
+            }
+        
+            if (sensorData.Humidity || sensorData.HR_1hr) {
+                const humidity = document.getElementById('smabilityHumidity');
+                const humidityValue = sensorData.HR_1hr || sensorData.Humidity;
+                if (humidity) humidity.textContent = formatWithSingleUnit(Math.round(humidityValue), '%');
+            }
+        
+            if (sensorData.Battery_Now) {
+                const battery = document.getElementById('smabilityBattery');
+                if (battery) battery.textContent = formatWithSingleUnit(Math.round(sensorData.Battery_Now), '%');
+            }
+        } else {
+            // DATOS STALE/OFFLINE: Mostrar como "-- unidad"
             const temp = document.getElementById('smabilityTemperature');
-            const tempValue = sensorData.Temp_1hr || sensorData.Temperature;
-            if (temp) temp.textContent = formatWithSingleUnit(tempValue, '°C');
-        }
-    
-        if (sensorData.Humidity || sensorData.HR_1hr) {
             const humidity = document.getElementById('smabilityHumidity');
-            const humidityValue = sensorData.HR_1hr || sensorData.Humidity;
-            if (humidity) humidity.textContent = formatWithSingleUnit(humidityValue, '%');
-        }
-    
-        if (sensorData.Battery_Now) {
             const battery = document.getElementById('smabilityBattery');
-            if (battery) battery.textContent = formatWithSingleUnit(sensorData.Battery_Now, '%');
+            
+            if (temp) temp.textContent = '-- °C';
+            if (humidity) humidity.textContent = '-- %';
+            if (battery) battery.textContent = '-- %';
         }
     
         if (sensorData.LocationSensor) {
