@@ -465,7 +465,10 @@ window.SmabilityPanels = (function() {
         
             if (sensorData.Battery_Now) {
                 const battery = document.getElementById('smabilityBattery');
-                if (battery) battery.textContent = formatWithSingleUnit(Math.round(sensorData.Battery_Now), '%');
+                const batteryNumber = parseFloat(sensorData.Battery_Now);
+                if (battery && !isNaN(batteryNumber)) {
+                    battery.textContent = formatWithSingleUnit(Math.round(batteryNumber), '%');
+                }
             }
         } else {
             // DATOS STALE/OFFLINE: Mostrar como "-- unidad"
