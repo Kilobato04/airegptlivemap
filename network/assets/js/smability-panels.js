@@ -444,17 +444,23 @@ window.SmabilityPanels = (function() {
         // DATOS AMBIENTALES: Mostrar siempre (no dependen del IAS)
         // DATOS AMBIENTALES: Mostrar según freshness de datos
         if (showDetailedData) {
-            // DATOS FRESCOS: Mostrar redondeados
+            // DATOS FRESCOS: Mostrar redondeados con conversión segura a número
             if (sensorData.Temperature || sensorData.Temp_1hr) {
                 const temp = document.getElementById('smabilityTemperature');
                 const tempValue = sensorData.Temp_1hr || sensorData.Temperature;
-                if (temp) temp.textContent = formatWithSingleUnit(Math.round(tempValue), '°C');
+                const tempNumber = parseFloat(tempValue);
+                if (temp && !isNaN(tempNumber)) {
+                    temp.textContent = formatWithSingleUnit(Math.round(tempNumber), '°C');
+                }
             }
-        
+            
             if (sensorData.Humidity || sensorData.HR_1hr) {
                 const humidity = document.getElementById('smabilityHumidity');
                 const humidityValue = sensorData.HR_1hr || sensorData.Humidity;
-                if (humidity) humidity.textContent = formatWithSingleUnit(Math.round(humidityValue), '%');
+                const humidityNumber = parseFloat(humidityValue);
+                if (humidity && !isNaN(humidityNumber)) {
+                    humidity.textContent = formatWithSingleUnit(Math.round(humidityNumber), '%');
+                }
             }
         
             if (sensorData.Battery_Now) {
