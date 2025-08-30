@@ -459,11 +459,11 @@
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
     .smability-main-panel {
-        right: 10px;
-        left: auto;
-        width: calc(100vw - 40px);
-        max-width: 450px;
-        max-height: 70vh; /* Más altura en móvil para gráfico */
+        left: 10px;  /* ← CAMBIO: Alinear al lado izquierdo como la leyenda */
+        right: auto; /* ← CAMBIO: Quitar alineación derecha */
+        width: calc(100vw - 20px); /* ← CAMBIO: Usar casi todo el ancho */
+        max-width: none; /* ← CAMBIO: Sin límite de ancho máximo */
+        max-height: 70vh;
     }
     
     .smability-data-grid {
