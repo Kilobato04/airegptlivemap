@@ -516,34 +516,34 @@ window.SmabilityPanels = (function() {
             let footerText = '';
             let footerStyle = '';
             
-            if (displayConfig.showIAS) {
-                // Para datos LIVE/RECENT (≤ 8 horas)
-                if (hoursSinceUpdate <= 1) {
-                    footerText = `Last update: ${Math.round(hoursSinceUpdate * 60)} min ago [Live data]`;
-                    footerStyle = 'color: #00aa00; font-weight: bold;';
-                } else {
-                    footerText = `Last update: ${Math.round(hoursSinceUpdate)}h ago [Recent data - IAS valid]`;
-                    footerStyle = 'color: #ff8800; font-weight: bold;';
-                }
+        if (displayConfig.showIAS) {
+            // Para datos LIVE/RECENT (≤ 8 horas) - VERSIONES CORTAS
+            if (hoursSinceUpdate <= 1) {
+                footerText = `Updated ${Math.round(hoursSinceUpdate * 60)}m ago • Live`;
+                footerStyle = 'color: #00aa00; font-weight: bold;';
             } else {
-                // Para datos STALE/OFFLINE (> 8 horas)
-                if (displayConfig.status === 'stale') {
-                    const hours = Math.round(hoursSinceUpdate);
-                    footerText = `Last update: ${hours}h ago [Stale data - IAS not reliable]`;
-                    footerStyle = 'color: #888888; font-weight: bold;';
-                } else {
-                    // Offline
-                    const days = Math.floor(hoursSinceUpdate / 24);
-                    const remainingHours = Math.round(hoursSinceUpdate % 24);
-                    
-                    if (days > 0) {
-                        footerText = `Last update: ${days}d ${remainingHours}h ago [Device offline]`;
-                    } else {
-                        footerText = `Last update: ${remainingHours}h ago [Device offline]`;
-                    }
-                    footerStyle = 'color: #cc0000; font-weight: bold;';
-                }
+                footerText = `Updated ${Math.round(hoursSinceUpdate)}h ago • Fresh`;
+                footerStyle = 'color: #ff8800; font-weight: bold;';
             }
+        } else {
+            // Para datos STALE/OFFLINE (> 8 horas) - VERSIONES CORTAS  
+            if (displayConfig.status === 'stale') {
+                const hours = Math.round(hoursSinceUpdate);
+                footerText = `Updated ${hours}h ago • Stale`;
+                footerStyle = 'color: #888888; font-weight: bold;';
+            } else {
+                // Offline
+                const days = Math.floor(hoursSinceUpdate / 24);
+                const remainingHours = Math.round(hoursSinceUpdate % 24);
+                
+                if (days > 0) {
+                    footerText = `Updated ${days}d ago • Offline`;
+                } else {
+                    footerText = `Updated ${remainingHours}h ago • Offline`;
+                }
+                footerStyle = 'color: #cc0000; font-weight: bold;';
+            }
+        }
             
             lastUpdateElement.innerHTML = footerText;
             lastUpdateElement.setAttribute('style', footerStyle);
@@ -788,7 +788,9 @@ window.SmabilityPanels = (function() {
                 tickangle: -45,
                 showgrid: true,
                 gridcolor: '#E4E4E4',
-                tickfont: { size: 8 }
+                tickfont: { size: 8 },
+                autorange: true,  // ← NUEVO: Auto ajustar rango
+                fixedrange: false // ← NUEVO: Permitir zoom pero mostrar todo inicialmente
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
