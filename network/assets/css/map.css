@@ -207,6 +207,12 @@ body {
     border-radius: 50%;
 }
 
+/* NUEVO: Divisor entre secciones de leyenda */
+.legend-divider {
+    height: 8px; /* Espacio vertical */
+    margin: 4px 0; /* Margen adicional arriba y abajo */
+}
+
 .legend-branding {
     margin-top: 5px;
     padding-top: 4px;
