@@ -220,9 +220,9 @@ function createLegendHTML() {
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff0000"></div><span>Very Bad (151-200)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #800080"></div><span>Extremely Bad (>201)</span></div>';
 
-    // NUEVOS: Iconos de referencia y Smability
-    html += '<div class="legend-item"><div class="legend-icon legend-square" style="background-color: #666666"></div><span>Reference</span></div>';
-    html += '<div class="legend-item"><div class="legend-icon legend-circle" style="background-color: #4264fb"></div><span>Smability</span></div>';
+    // NUEVOS: Iconos de referencia y Smability - ambos negro
+    html += '<div class="legend-item"><div class="legend-icon legend-square" style="background-color: #000000"></div><span>Reference</span></div>';
+    html += '<div class="legend-item"><div class="legend-icon legend-circle" style="background-color: #000000"></div><span>Smability</span></div>';
 
     // LAYERS section - UN SOLO BOTÓN
     html += '<div style="margin: 15px 0; border-top: 1px solid #ddd; padding-top: 10px;">';
