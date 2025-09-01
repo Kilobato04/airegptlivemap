@@ -220,6 +220,9 @@ function createLegendHTML() {
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff0000"></div><span>Very Bad (151-200)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #800080"></div><span>Extremely Bad (>201)</span></div>';
 
+    // ESPACIO DIVISORIO entre secciones
+    html += '<div class="legend-divider"></div>';
+    
     // NUEVOS: Iconos de referencia y Smability - ambos negro
     html += '<div class="legend-item"><div class="legend-icon legend-square" style="background-color: #000000"></div><span>Reference</span></div>';
     html += '<div class="legend-item"><div class="legend-icon legend-circle" style="background-color: #000000"></div><span>Smability</span></div>';
