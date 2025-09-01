@@ -191,6 +191,22 @@ body {
     border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
+/* NUEVO: Estilos para iconos de leyenda */
+.legend-icon {
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.legend-square {
+    border-radius: 2px; /* Ligeramente redondeado para consistencia */
+}
+
+.legend-circle {
+    border-radius: 50%;
+}
+
 .legend-branding {
     margin-top: 5px;
     padding-top: 4px;
