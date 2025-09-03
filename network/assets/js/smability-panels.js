@@ -556,7 +556,7 @@ window.SmabilityPanels = (function() {
             console.log('❌ Footer not updated - missing element or displayConfig');
         }
     }
-        /**
+    /**
      * NUEVO: Filtrar estaciones online para el dropdown de comparación
      */
     async function updateComparisonDropdown() {
@@ -565,10 +565,11 @@ window.SmabilityPanels = (function() {
             return;
         }
         
-        // Limpiar opciones existentes excepto la primera (vacía)
-        while (comparisonSelect.children.length > 1) {
-            comparisonSelect.removeChild(comparisonSelect.lastChild);
-        }
+        // CORREGIDO: Guardar el valor seleccionado actual
+        const currentValue = comparisonSelect.value;
+        
+        // CORREGIDO: Limpiar TODAS las opciones y recrear desde cero
+        comparisonSelect.innerHTML = '<option value="">Select station to compare</option>';
         
         console.log('SmabilityPanels: Filtering comparison stations...');
         
@@ -593,6 +594,14 @@ window.SmabilityPanels = (function() {
                 }
             } catch (error) {
                 console.error(`Error checking ${stationName} for comparison:`, error);
+            }
+        }
+        
+        // CORREGIDO: Restaurar selección previa si la opción sigue disponible
+        if (currentValue) {
+            const optionExists = Array.from(comparisonSelect.options).some(option => option.value === currentValue);
+            if (optionExists) {
+                comparisonSelect.value = currentValue;
             }
         }
         
