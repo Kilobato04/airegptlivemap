@@ -284,6 +284,9 @@ window.SmabilityPanels = (function() {
         // Setup chart controls cuando se muestra el panel
         setupChartControls();
         
+        // NUEVO: Actualizar dropdown de comparación con estaciones online
+        updateComparisonDropdown();
+                
         setState(2);
         
         // Cargar datos reales inmediatamente
@@ -552,6 +555,48 @@ window.SmabilityPanels = (function() {
         } else {
             console.log('❌ Footer not updated - missing element or displayConfig');
         }
+    }
+        /**
+     * NUEVO: Filtrar estaciones online para el dropdown de comparación
+     */
+    async function updateComparisonDropdown() {
+        const comparisonSelect = document.getElementById('smabilityComparisonSelect');
+        if (!comparisonSelect || !window.APP_SETTINGS || !window.APP_SETTINGS.activeStations) {
+            return;
+        }
+        
+        // Limpiar opciones existentes excepto la primera (vacía)
+        while (comparisonSelect.children.length > 1) {
+            comparisonSelect.removeChild(comparisonSelect.lastChild);
+        }
+        
+        console.log('SmabilityPanels: Filtering comparison stations...');
+        
+        // Filtrar estaciones online (≤ 8 horas)
+        for (const stationName of window.APP_SETTINGS.activeStations) {
+            if (stationName === currentDevice) continue; // Excluir estación actual
+            
+            try {
+                if (window.fetchSensorData && window.API_CONFIG && window.API_CONFIG.tokens[stationName]) {
+                    const sensorData = await window.fetchSensorData(stationName);
+                    
+                    // Solo incluir estaciones con datos frescos (≤ 8 horas)
+                    if (sensorData.displayConfig && sensorData.displayConfig.showIAS) {
+                        const option = document.createElement('option');
+                        option.value = stationName;
+                        option.textContent = stationName;
+                        comparisonSelect.appendChild(option);
+                        console.log(`✅ Added ${stationName} to comparison (${Math.round(sensorData.hoursSinceUpdate)}h ago)`);
+                    } else {
+                        console.log(`❌ Excluded ${stationName} from comparison (${Math.round(sensorData.hoursSinceUpdate)}h ago)`);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error checking ${stationName} for comparison:`, error);
+            }
+        }
+        
+        console.log(`SmabilityPanels: Comparison dropdown updated with ${comparisonSelect.children.length - 1} online stations`);
     }
 
     /**
@@ -861,6 +906,11 @@ window.SmabilityPanels = (function() {
                 if (currentState === 3) {
                     loadChartData();
                 }
+            });
+            
+            // NUEVO: Actualizar dropdown periódicamente
+            comparisonSelect.addEventListener('focus', () => {
+                updateComparisonDropdown();
             });
         }
     }
