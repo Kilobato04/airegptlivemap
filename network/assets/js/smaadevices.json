@@ -129,7 +129,7 @@
       "location": {
         "city": "Mexico City",
         "placement": "outdoor",
-        "lat_long": "19.388391,-99.167000", 
+        "lat_long": "19.388391,-99.167000",
         "latitude": 19.388391,
         "longitude": -99.167000
       },
@@ -144,7 +144,7 @@
       "location": {
         "city": "Mexico City",
         "placement": "outdoor",
-        "lat_long": "19.365869,-99.200109",  
+        "lat_long": "19.365869,-99.200109",
         "latitude": 19.365869,
         "longitude": -99.200109
       },
@@ -309,9 +309,9 @@
       "location": {
         "city": "Cancun",
         "placement": "outdoor",
-        "lat_long": "21.062897,-86.844299",
-        "latitude": 21.062897,
-        "longitude": -86.844299
+        "lat_long": "21.067920239176036,-86.84543905576808",
+        "latitude": 21.067920239176036,
+        "longitude": -86.84543905576808
       },
       "token": "b1a3d78281c7e0cd6cd56dad7d83353c",
       "active": true
@@ -384,9 +384,9 @@
       "location": {
         "city": "Monterrey",
         "placement": "outdoor",
-        "lat_long": "25.670582,-100.316834",
-        "latitude": 25.670582,
-        "longitude": -100.316834
+        "lat_long": "25.675648,-100.290960",
+        "latitude": 25.675648,
+        "longitude": -100.290960
       },
       "token": "2a53e9174dcf7ee42b9c8bbda7990571",
       "active": true
@@ -414,9 +414,9 @@
       "location": {
         "city": "Durango",
         "placement": "outdoor",
-        "lat_long": "24.035458,-104.648380",
-        "latitude": 24.035458,
-        "longitude": -104.648380
+        "lat_long": "24.034481,-104.645030",
+        "latitude": 24.034481,
+        "longitude": -104.645030
       },
       "token": "005cdaeb7b1392ad59a4335f4a832043",
       "active": true
