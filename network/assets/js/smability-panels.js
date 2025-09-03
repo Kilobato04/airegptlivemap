@@ -235,6 +235,24 @@ window.SmabilityPanels = (function() {
             b: parseInt(result[3], 16)
         } : null;
     }
+
+    // NUEVO: Función para verificar si una estación está "online" (≤ 8 horas)
+    async function isStationOnline(stationName, maxHours = 8) {
+        try {
+            if (window.fetchSensorData && window.API_CONFIG && window.API_CONFIG.tokens[stationName]) {
+                const sensorData = await window.fetchSensorData(stationName);
+                if (sensorData && sensorData.displayConfig) {
+                    return sensorData.displayConfig.showIAS; // true si ≤ 8 horas
+                }
+                // Fallback: verificar si tiene datos IAS válidos
+                return sensorData && sensorData.dataIAS !== 'N/A';
+            }
+            return false;
+        } catch (error) {
+            console.error(`Error checking ${stationName}:`, error);
+            return false;
+        }
+    }
         
     /**
      * Actualizar colores de los paneles según IAS
@@ -282,7 +300,7 @@ window.SmabilityPanels = (function() {
         resetPanelState();
         
         // Setup chart controls cuando se muestra el panel
-        setupChartControls();
+        await setupChartControls();
         
         setState(2);
         
@@ -835,10 +853,36 @@ window.SmabilityPanels = (function() {
     /**
      * NUEVO: Setup de event listeners para controles del gráfico
      */
-    function setupChartControls() {
+    async function setupChartControls() {
         const sensorSelect = document.getElementById('smabilitySensorSelect');
         const timeframeSelect = document.getElementById('smabilityTimeframeSelect');
         const comparisonSelect = document.getElementById('smabilityComparisonSelect');
+        
+        // NUEVO: Poblar dropdown de comparación solo con estaciones online
+        if (comparisonSelect) {
+            // Limpiar opciones existentes
+            comparisonSelect.innerHTML = '<option value="">None</option>';
+            
+            console.log('🔍 Filtering comparison stations (8h max)...');
+            
+            // Agregar solo estaciones online
+            for (const station of APP_SETTINGS.activeStations) {
+                if (station !== currentDevice) { // Excluir estación actual
+                    const isOnline = await isStationOnline(station);
+                    if (isOnline) {
+                        const option = document.createElement('option');
+                        option.value = station;
+                        option.textContent = station;
+                        comparisonSelect.appendChild(option);
+                        console.log(`✅ Added ${station} to comparison (online)`);
+                    } else {
+                        console.log(`⚠️ Excluded ${station} from comparison (offline)`);
+                    }
+                }
+            }
+            
+            console.log(`📊 Comparison dropdown populated with online stations`);
+        }
         
         if (sensorSelect) {
             sensorSelect.addEventListener('change', () => {
