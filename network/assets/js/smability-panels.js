@@ -197,6 +197,24 @@ window.SmabilityPanels = (function() {
                 mainPanel.style.setProperty('border-color', color);
             }
         }
+
+        // NUEVO: Función para verificar si una estación está "online" (≤ 8 horas)
+        async function isStationOnline(stationName, maxHours = 8) {
+            try {
+                if (window.fetchSensorData && window.API_CONFIG && window.API_CONFIG.tokens[stationName]) {
+                    const sensorData = await window.fetchSensorData(stationName);
+                    if (sensorData && sensorData.displayConfig) {
+                        return sensorData.displayConfig.showIAS; // true si ≤ 8 horas
+                    }
+                    // Fallback: verificar si tiene datos IAS válidos
+                    return sensorData && sensorData.dataIAS !== 'N/A';
+                }
+                return false;
+            } catch (error) {
+                console.error(`Error checking ${stationName}:`, error);
+                return false;
+            }
+        }
         
         // Actualizar indicador circular
         const indicator = document.getElementById('smabilityIasIndicator');
@@ -234,24 +252,6 @@ window.SmabilityPanels = (function() {
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : null;
-    }
-
-    // NUEVO: Función para verificar si una estación está "online" (≤ 8 horas)
-    async function isStationOnline(stationName, maxHours = 8) {
-        try {
-            if (window.fetchSensorData && window.API_CONFIG && window.API_CONFIG.tokens[stationName]) {
-                const sensorData = await window.fetchSensorData(stationName);
-                if (sensorData && sensorData.displayConfig) {
-                    return sensorData.displayConfig.showIAS; // true si ≤ 8 horas
-                }
-                // Fallback: verificar si tiene datos IAS válidos
-                return sensorData && sensorData.dataIAS !== 'N/A';
-            }
-            return false;
-        } catch (error) {
-            console.error(`Error checking ${stationName}:`, error);
-            return false;
-        }
     }
         
     /**
