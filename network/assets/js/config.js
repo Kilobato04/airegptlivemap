@@ -7,6 +7,43 @@ window.MAPBOX_CONFIG = {
     zoom: 12.5
 };
 
+// NUEVO: Función para cargar configuración desde JSON
+window.loadDevicesFromJSON = async function() {
+    try {
+        const response = await fetch('./assets/js/smaadevices.json');
+        const devicesData = await response.json();
+        
+        // Limpiar configuraciones existentes
+        window.APP_SETTINGS.activeStations = [];
+        window.API_CONFIG.tokens = {};
+        window.DEVICE_COORDINATES = {};
+        
+        // Cargar solo dispositivos activos de Mexico City
+        devicesData.devices
+            .filter(device => device.active && device.location.city === 'Mexico City')
+            .forEach(device => {
+                const stationName = device.station_name;
+                
+                // Agregar a estaciones activas
+                window.APP_SETTINGS.activeStations.push(stationName);
+                
+                // Agregar token
+                window.API_CONFIG.tokens[stationName] = device.token;
+                
+                // Agregar coordenadas
+                window.DEVICE_COORDINATES[stationName] = [device.location.longitude, device.location.latitude];
+            });
+            
+        console.log('Devices loaded from JSON:', window.APP_SETTINGS.activeStations.length);
+        return true;
+        
+    } catch (error) {
+        console.error('Error loading devices from JSON:', error);
+        // Fallback a configuración manual si falla
+        return false;
+    }
+};
+
 window.APP_SETTINGS = {
     refreshInterval: 3000,
     maxRetries: 3,
@@ -95,4 +132,14 @@ window.formatDateForAPI = function(date) {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-console.log('Config loaded successfully');
+// NUEVO: Inicializar configuración al cargar
+window.addEventListener('DOMContentLoaded', async () => {
+    const jsonLoaded = await window.loadDevicesFromJSON();
+    
+    if (!jsonLoaded) {
+        console.warn('Fallback to manual configuration');
+        // Tu configuración manual de respaldo ya actualizada
+    }
+    
+    console.log('Config loaded successfully');
+});
