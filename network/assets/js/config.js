@@ -47,7 +47,7 @@ window.loadDevicesFromJSON = async function() {
 window.APP_SETTINGS = {
     refreshInterval: 3000,
     maxRetries: 3,
-    activeStations: ['Hipódromo', 'UNAM', 'INSYC', 'CENTRUS 5', 'La Diana', 'Huerto IBERO', 'INIAT','Del Valle'], // ADDED La Diana
+    activeStations: [], // ADDED La Diana
     whatsappNumber: '525519566483',
     brandUrl: 'http://www.smability.io'
 };
@@ -70,29 +70,11 @@ window.MAP_LAYERS = {
 window.API_CONFIG = {
     baseUrl: 'http://smability.sidtecmx.com/SmabilityAPI/BioBox',
     dataUrl: 'http://smability.sidtecmx.com/SmabilityAPI/GetData',
-    tokens: {
-        'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
-        'UNAM': '349b1230277f1c67577e4f5bee6ba486',
-        'INSYC': '3d820ec8b5149f835f6c5cc338d247e2',
-        'CENTRUS 5': 'c7dd6160528b3335d4f366e28a04ac80', // ADDED CENTRUS 5 with correct token
-        'La Diana': '3843693a0dc1e3aca614cf3e71976527', // ADDED La Diana
-        'Huerto IBERO': 'b8c1bac206b358bde62cb25c374339c3', // ADDED
-        'INIAT': '211b4d2dd56a0ba2eb269f2eeb0945ea',  // ADDED
-        'Del Valle': '1ae5a53b7b315c48206ffa95fdef32d8' // ADDED
-    }
+    tokens: {}
 };
 
 // ADDED: Device coordinates for programmatic marker creation
-window.DEVICE_COORDINATES = {
-    'Hipódromo': [-99.167213, 19.414855], // Approximate - update with real coordinates
-    'UNAM': [-99.176137, 19.326450], // Approximate - update with real coordinates marker
-    'INSYC': [-99.169991, 19.406170], // Approximate - update with real coordinates 
-    'CENTRUS 5': [-99.200109, 19.365869], // ADDED CENTRUS 5 
-    'La Diana': [-99.17122087577197, 19.42396506697864], // ADDED La Diana igual a CENTRUS 3
-    'Huerto IBERO': [-99.263649, 19.372347],   // ADDED
-    'INIAT': [-99.263580, 19.368851],    // ADDED
-    'Del Valle': [-99.167000, 19.388391]  // ADDED
-};
+window.DEVICE_COORDINATES = {};
 
 // AGREGADO: Configuración de sensores para charts
 window.SENSOR_CONFIG = {
@@ -134,12 +116,38 @@ window.formatDateForAPI = function(date) {
 
 // NUEVO: Inicializar configuración al cargar
 window.addEventListener('DOMContentLoaded', async () => {
-    const jsonLoaded = await window.loadDevicesFromJSON();
-    
-    if (!jsonLoaded) {
-        console.warn('Fallback to manual configuration');
-        // Tu configuración manual de respaldo ya actualizada
-    }
-    
-    console.log('Config loaded successfully');
+   const jsonLoaded = await window.loadDevicesFromJSON();
+   
+   if (!jsonLoaded) {
+       console.warn('Fallback to manual configuration');
+       
+       window.APP_SETTINGS.activeStations = [
+           'Hipódromo', 'UNAM', 'INSYC', 'CENTRUS 5', 'La Diana', 
+           'Huerto IBERO', 'INIAT', 'Del Valle'
+       ];
+       
+       window.API_CONFIG.tokens = {
+           'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
+           'UNAM': '349b1230277f1c67577e4f5bee6ba486',
+           'INSYC': '3d820ec8b5149f835f6c5cc338d247e2',
+           'CENTRUS 5': 'c7dd6160528b3335d4f366e28a04ac80',
+           'La Diana': '3843693a0dc1e3aca614cf3e71976527',
+           'Huerto IBERO': 'b8c1bac206b358bde62cb25c374339c3',
+           'INIAT': '211b4d2dd56a0ba2eb269f2eeb0945ea',
+           'Del Valle': '1ae5a53b7b315c48206ffa95fdef32d8'
+       };
+       
+       window.DEVICE_COORDINATES = {
+           'Hipódromo': [-99.167213, 19.414855],
+           'UNAM': [-99.176137, 19.326450],
+           'INSYC': [-99.169991, 19.406170],
+           'CENTRUS 5': [-99.200109, 19.365869],
+           'La Diana': [-99.17122087577197, 19.42396506697864],
+           'Huerto IBERO': [-99.263649, 19.372347],
+           'INIAT': [-99.263580, 19.368851],
+           'Del Valle': [-99.167000, 19.388391]
+       };
+   }
+   
+   console.log('Config loaded successfully');
 });
