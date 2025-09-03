@@ -893,33 +893,37 @@ window.SmabilityPanels = (function() {
         const timeframeSelect = document.getElementById('smabilityTimeframeSelect');
         const comparisonSelect = document.getElementById('smabilityComparisonSelect');
         
-        if (sensorSelect) {
+        if (sensorSelect && !sensorSelect.hasAttribute('data-listener-added')) {
             sensorSelect.addEventListener('change', () => {
                 if (currentState === 3) {
                     loadChartData();
                 }
             });
+            sensorSelect.setAttribute('data-listener-added', 'true');
         }
         
-        if (timeframeSelect) {
+        if (timeframeSelect && !timeframeSelect.hasAttribute('data-listener-added')) {
             timeframeSelect.addEventListener('change', () => {
                 if (currentState === 3) {
                     loadChartData();
                 }
             });
+            timeframeSelect.setAttribute('data-listener-added', 'true');
         }
         
-        if (comparisonSelect) {
+        if (comparisonSelect && !comparisonSelect.hasAttribute('data-listener-added')) {
             comparisonSelect.addEventListener('change', () => {
                 if (currentState === 3) {
                     loadChartData();
                 }
             });
             
-            // NUEVO: Actualizar dropdown periódicamente
+            // NUEVO: Actualizar dropdown periódicamente - SOLO UNA VEZ
             comparisonSelect.addEventListener('focus', () => {
                 updateComparisonDropdown();
             });
+            
+            comparisonSelect.setAttribute('data-listener-added', 'true');
         }
     }
 
