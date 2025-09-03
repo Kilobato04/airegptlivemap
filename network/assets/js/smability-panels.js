@@ -284,6 +284,7 @@ window.SmabilityPanels = (function() {
         // Setup chart controls cuando se muestra el panel
         setupChartControls();
         
+        // ← LÍNEA ELIMINADA: updateComparisonDropdown();
                 
         setState(2);
         
