@@ -129,7 +129,7 @@
       "location": {
         "city": "Mexico City",
         "placement": "outdoor",
-        "lat_long": "19.388391,-99.167000",
+        "lat_long": "19.388391,-99.167000", 
         "latitude": 19.388391,
         "longitude": -99.167000
       },
@@ -144,7 +144,7 @@
       "location": {
         "city": "Mexico City",
         "placement": "outdoor",
-        "lat_long": "19.365869,-99.200109", 
+        "lat_long": "19.365869,-99.200109",  
         "latitude": 19.365869,
         "longitude": -99.200109
       },
@@ -234,9 +234,9 @@
       "location": {
         "city": "Mexico City",
         "placement": "outdoor",
-        "lat_long": "19.425217,-99.171021",
-        "latitude": 19.425217,
-        "longitude": -99.171021
+        "lat_long": "19.42396506697864,-99.17122087577197", 
+        "latitude": 19.42396506697864,
+        "longitude": -99.17122087577197
       },
       "token": "3843693a0dc1e3aca614cf3e71976527",
       "active": true
