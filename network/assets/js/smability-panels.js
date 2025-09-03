@@ -284,8 +284,6 @@ window.SmabilityPanels = (function() {
         // Setup chart controls cuando se muestra el panel
         setupChartControls();
         
-        // NUEVO: Actualizar dropdown de comparación con estaciones online
-        updateComparisonDropdown();
                 
         setState(2);
         
