@@ -150,6 +150,13 @@ async function fetchSensorData(location) {
         } else {
             retryCount = 0;
             currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
+            
+            // NUEVO: Límite global de intentos
+            if (currentProxyIndex === 0) {
+                console.error(`❌ All proxies failed for ${location}, skipping...`);
+                return { dataIAS: 'N/A', error: 'All proxies failed' };
+            }
+            
             console.log(`Switching to next proxy: ${CORS_PROXIES[currentProxyIndex].name}`);
             return fetchSensorData(location);
         }
