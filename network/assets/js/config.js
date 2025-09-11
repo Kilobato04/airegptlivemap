@@ -126,9 +126,9 @@ window.SENSOR_CONFIG = {
 window.CORS_PROXIES = [
     { name: 'allOrigins', url: 'https://api.allorigins.win/raw?url=' },
     { name: 'corsproxy.io', url: 'https://corsproxy.io/?' },
-    { name: 'cors.sh', url: 'https://cors.sh/' },
+    { name: 'cors-anywhere-heroku', url: 'https://cors-anywhere.herokuapp.com/' },
     { name: 'thingproxy', url: 'https://thingproxy.freeboard.io/fetch/' },
-    { name: 'proxy.cors.sh', url: 'https://proxy.cors.sh/' }
+    { name: 'corsfix', url: 'https://corsfix.com/proxy?url=' }
 ];
 
 window.currentProxyIndex = 0;
