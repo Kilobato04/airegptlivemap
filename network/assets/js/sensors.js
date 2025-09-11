@@ -5,6 +5,10 @@
  * @param {string} location - Location name
  * @returns {Promise} - Promise that resolves to sensor data
  */
+
+// NUEVO: Cache para evitar múltiples requests simultáneos
+const requestCache = new Map();
+
 async function fetchWithCurrentProxy(location) {
     const proxy = CORS_PROXIES[currentProxyIndex];
     const token = API_CONFIG.tokens[location];
@@ -32,7 +36,78 @@ async function fetchWithCurrentProxy(location) {
  * @param {string} location - Location name
  * @returns {Promise} - Promise that resolves to processed sensor data
  */
+/**
+ * Fetch sensor data con throttling para evitar requests múltiples
+ */
 async function fetchSensorData(location) {
+    // Evitar requests simultáneos
+    if (requestCache.has(location)) {
+        console.log(`⏳ Request for ${location} already in progress, waiting...`);
+        return requestCache.get(location);
+    }
+
+    try {
+        console.log(`📡 Starting new request for ${location}`);
+        
+        // Cachear la promesa
+        const requestPromise = actualFetchSensorData(location);
+        requestCache.set(location, requestPromise);
+        
+        const result = await requestPromise;
+        
+        // Limpiar cache después de completar (mantener por 5 segundos)
+        setTimeout(() => {
+            requestCache.delete(location);
+            console.log(`🗑️ Cache cleared for ${location}`);
+        }, 5000);
+        
+        return result;
+        
+    } catch (error) {
+        // Limpiar cache inmediatamente en caso de error
+        requestCache.delete(location);
+        throw error;
+    }
+}
+
+/**
+ * Fetch sensor data con throttling para evitar requests múltiples
+ */
+async function fetchSensorData(location) {
+    // Evitar requests simultáneos
+    if (requestCache.has(location)) {
+        console.log(`⏳ Request for ${location} already in progress, waiting...`);
+        return requestCache.get(location);
+    }
+
+    try {
+        console.log(`📡 Starting new request for ${location}`);
+        
+        // Cachear la promesa
+        const requestPromise = actualFetchSensorData(location);
+        requestCache.set(location, requestPromise);
+        
+        const result = await requestPromise;
+        
+        // Limpiar cache después de completar (mantener por 5 segundos)
+        setTimeout(() => {
+            requestCache.delete(location);
+            console.log(`🗑️ Cache cleared for ${location}`);
+        }, 5000);
+        
+        return result;
+        
+    } catch (error) {
+        // Limpiar cache inmediatamente en caso de error
+        requestCache.delete(location);
+        throw error;
+    }
+}
+
+/**
+ * Función interna con la lógica original de fetch
+ */
+async function actualFetchSensorData(location) {
     try {
         const data = await fetchWithCurrentProxy(location);
         console.log(`Received data for ${location}:`, data);
@@ -146,7 +221,7 @@ async function fetchSensorData(location) {
             retryCount++;
             console.log(`Retry ${retryCount}/${APP_SETTINGS.maxRetries} with current proxy...`);
             await sleep(1000);
-            return fetchSensorData(location);
+            return actualFetchSensorData(location);
         } else {
             retryCount = 0;
             currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
@@ -158,7 +233,7 @@ async function fetchSensorData(location) {
             }
             
             console.log(`Switching to next proxy: ${CORS_PROXIES[currentProxyIndex].name}`);
-            return fetchSensorData(location);
+            return actualFetchSensorData(location);
         }
     }
 }
