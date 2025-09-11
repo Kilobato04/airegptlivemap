@@ -76,7 +76,14 @@ async function fetchSensorData(location) {
  */
 async function actualFetchSensorData(location) {
     try {
-        const data = await fetchWithCurrentProxy(location);
+        // Timeout global por dispositivo (30 segundos máximo)
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Global timeout reached')), 30000);
+        });
+        
+        const dataPromise = fetchWithCurrentProxy(location);
+        const data = await Promise.race([dataPromise, timeoutPromise]);
+        
         console.log(`Received data for ${location}:`, data);
 
         if (!data) {
@@ -193,11 +200,18 @@ async function actualFetchSensorData(location) {
             retryCount = 0;
             currentProxyIndex = (currentProxyIndex + 1) % CORS_PROXIES.length;
             
-            // NUEVO: Límite global de intentos
-            if (currentProxyIndex === 0) {
-                console.error(`❌ All proxies failed for ${location}, skipping...`);
-                return { dataIAS: 'N/A', error: 'All proxies failed' };
-            }
+        // NUEVO: Límite global de intentos mejorado
+        if (currentProxyIndex === 0) {
+            console.error(`❌ All proxies failed for ${location}, skipping...`);
+            // FORZAR limpieza de cache y estado
+            requestCache.delete(location);
+            retryCount = 0;
+            return { 
+                dataIAS: 'N/A', 
+                error: 'All proxies failed',
+                displayConfig: { showIAS: false, status: 'offline', indicator: '×', color: '#ff0000', label: 'Offline' }
+            };
+        }
             
             console.log(`Switching to next proxy: ${CORS_PROXIES[currentProxyIndex].name}`);
             return actualFetchSensorData(location);
