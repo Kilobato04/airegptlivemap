@@ -36,39 +36,6 @@ async function fetchWithCurrentProxy(location) {
  * @param {string} location - Location name
  * @returns {Promise} - Promise that resolves to processed sensor data
  */
-/**
- * Fetch sensor data con throttling para evitar requests múltiples
- */
-async function fetchSensorData(location) {
-    // Evitar requests simultáneos
-    if (requestCache.has(location)) {
-        console.log(`⏳ Request for ${location} already in progress, waiting...`);
-        return requestCache.get(location);
-    }
-
-    try {
-        console.log(`📡 Starting new request for ${location}`);
-        
-        // Cachear la promesa
-        const requestPromise = actualFetchSensorData(location);
-        requestCache.set(location, requestPromise);
-        
-        const result = await requestPromise;
-        
-        // Limpiar cache después de completar (mantener por 5 segundos)
-        setTimeout(() => {
-            requestCache.delete(location);
-            console.log(`🗑️ Cache cleared for ${location}`);
-        }, 5000);
-        
-        return result;
-        
-    } catch (error) {
-        // Limpiar cache inmediatamente en caso de error
-        requestCache.delete(location);
-        throw error;
-    }
-}
 
 /**
  * Fetch sensor data con throttling para evitar requests múltiples
