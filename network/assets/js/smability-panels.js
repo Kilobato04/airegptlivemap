@@ -298,7 +298,10 @@ window.SmabilityPanels = (function() {
     function updatePanelContent(deviceName, data) {
         const title = document.getElementById('smabilityPanelTitle');
         // Solo el nombre del dispositivo, sin subtítulo
-        if (title) title.textContent = deviceName;
+        if (title) {
+        const deviceModel = window.DEVICE_MODELS && window.DEVICE_MODELS[deviceName] ? window.DEVICE_MODELS[deviceName] : 'Unknown';
+        title.innerHTML = `${deviceName}<br><small style="font-size: 0.7em; color: #666; font-weight: normal;">${deviceModel}</small>`;
+        }
 
         const emoji = document.getElementById('smabilityIasEmoji');
         const value = document.getElementById('smabilityIasValue');
