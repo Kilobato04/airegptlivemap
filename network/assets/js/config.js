@@ -114,6 +114,34 @@ window.DEVICE_COORDINATES = {
     'AlisBio2': [-100.309264, 25.667362]             // NUEVO - ACTIVO (coordenadas del JSON)
 };
 
+// AGREGADO: Mapeo de modelos de dispositivos
+window.DEVICE_MODELS = {
+    'MicroSensor-01': 'SMAAmicro',
+    'MicroSensor-02': 'SMAAmicro', 
+    'MicroSensor-03': 'SMAAmicro',
+    'UNAM': 'SMAA',
+    'CENTRUS 8': 'SMAA',
+    'CENTRUS 7': 'SMAA',
+    'Del Valle': 'SMAA',
+    'CENTRUS 5': 'SMAA',
+    'Huerto IBERO': 'SMAA',
+    'INIAT': 'SMAA',
+    'IBERO A': 'SMAA',
+    'CENTRUS 1': 'SMAA',
+    'CENTRUS 2': 'SMAA',
+    'La Diana': 'SMAA',
+    'CENTRUS 4': 'SMAA',
+    'Hipódromo': 'SMAA',
+    'UAM': 'SMAA',
+    'INSYC': 'SMAA',
+    'UNAM-II-SMAA': 'SMAA',
+    'Anahuac Cancun': 'SMAA',
+    'ITD': 'SMAA',
+    'Tepeji': 'SMAA',
+    'ALISBio': 'SMAAso2',
+    'ALISBio-02': 'SMAAso2'
+};
+
 // AGREGADO: Configuración de sensores para charts
 window.SENSOR_CONFIG = {
     '12': { name: 'Temperature', units: '°C', color: '#4264fb' },
