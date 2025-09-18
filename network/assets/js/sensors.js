@@ -76,13 +76,6 @@ async function fetchSensorData(location) {
  */
 async function actualFetchSensorData(location) {
     try {
-        // TEMPORAL: Timeout comentado para debug
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Global timeout reached')), 30000);
-        });
-        const dataPromise = fetchWithCurrentProxy(location);
-        const data = await Promise.race([dataPromise, timeoutPromise]);
-        
         const data = await fetchWithCurrentProxy(location);
         console.log(`Received data for ${location}:`, data);
 
