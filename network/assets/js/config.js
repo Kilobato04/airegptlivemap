@@ -22,8 +22,8 @@ window.APP_SETTINGS = {
         'Huerto IBERO',
         'INIAT',
         // 'IBERO A',           // EN REPARACIÓN
-        // 'CENTRUS 1',         // EN REPARACIÓN
-        // 'CENTRUS 2',         // EN REPARACIÓN
+        'Zacatlan 1',         // MINA
+        'Zacatlan 2',         // MINA
         'La Diana',
         // 'CENTRUS 4',         // EN REPARACIÓN
         'Hipódromo',
@@ -71,9 +71,9 @@ window.API_CONFIG = {
         'INIAT': '211b4d2dd56a0ba2eb269f2eeb0945ea',
         // 'IBERO A': '1ce05f7c4d1e7a2f048bf5256285a276',           // EN REPARACIÓN
         // 'CENTRUS 1': '60374b0d5f818b9f7703cc1a27aeab48',         // EN REPARACIÓN
-        // 'CENTRUS 2': '993a85c50d07d8a3c367f32d1a3d12af',         // EN REPARACIÓN
+        'Zacatlan 1': '993a85c50d07d8a3c367f32d1a3d12af',         // MINA
         'La Diana': '3843693a0dc1e3aca614cf3e71976527',
-        // 'CENTRUS 4': 'c0ac14b4df16d24f3e403928412fdc31',         // EN REPARACIÓN
+        'Zacatlan 2': 'c0ac14b4df16d24f3e403928412fdc31',         // MINA
         'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
         'UAM': 'b031aca25a4746368da8e718631e06e7',
         'INSYC': '3d820ec8b5149f835f6c5cc338d247e2',
@@ -100,9 +100,9 @@ window.DEVICE_COORDINATES = {
     'INIAT': [-99.263580, 19.368851],
     // 'IBERO A': [-99.263649, 19.372355],           // EN REPARACIÓN
     // 'CENTRUS 1': [-99.263489, 19.368654],         // EN REPARACIÓN
-    // 'CENTRUS 2': [-99.263626, 19.368771],         // EN REPARACIÓN
+    'Zacatlan 1': [-98.058182, 19.984287],         // MINA
     'La Diana': [-99.171021, 19.425217],
-    // 'CENTRUS 4': [-99.262962, 19.371620],         // EN REPARACIÓN
+    'Zacatlan 2': [-98.058884, 19.963730],         // MINA 
     'Hipódromo': [-99.167183, 19.414782],
     'UAM': [-99.209564, 19.388735],
     'INSYC': [-99.169975, 19.406158],
@@ -127,8 +127,8 @@ window.DEVICE_MODELS = {
     'Huerto IBERO': 'SMAA',
     'INIAT': 'SMAA',
     'IBERO A': 'SMAA',
-    'CENTRUS 1': 'SMAA',
-    'CENTRUS 2': 'SMAA',
+    'Zacatlan 1': 'SMAA',
+    'Zacatlan 2': 'SMAA',
     'La Diana': 'SMAA',
     'CENTRUS 4': 'SMAA',
     'Hipódromo': 'SMAA',
