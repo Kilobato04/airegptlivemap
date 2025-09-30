@@ -111,7 +111,7 @@ window.DEVICE_COORDINATES = {
     'ITD': [-104.645030, 24.034481],                  // NUEVO
     'Tepeji': [-99.341911, 19.905193],               // NUEVO
     'AlisBio': [-100.290960, 25.675648],             // NUEVO
-    'AlisBio2': [-100.309264, 25.667362]             // NUEVO - ACTIVO (coordenadas del JSON)
+    'AlisBio2': [-99.995773, 25.382708]             // NUEVO - ACTIVO (coordenadas del JSON) 
 };
 
 // AGREGADO: Mapeo de modelos de dispositivos
