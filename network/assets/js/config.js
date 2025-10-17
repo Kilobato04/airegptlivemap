@@ -97,7 +97,7 @@ window.MASTER_API_CONFIG = {
  */
 window.REFERENCE_STATION_MAPPING = {
     // SOLO UNA ESTACIÓN PARA TESTING
-    'TLI': 'Tultitlán'
+    'TLI': 'Tultitlán',
     
     // COMENTADAS para testing - descomentar después:
     // 'CUA': 'Cuajimalpa', 
