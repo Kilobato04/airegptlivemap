@@ -446,3 +446,364 @@ function setupHourlyScheduling() {
         if (window.logSchedule) {
             window.logSchedule('Fallback update triggered');
         }
+    
+    console.log('🔄 Fallback Master API update (every 30 min)...');
+        updateReferenceStations();
+    }, window.MASTER_API_CONFIG.scheduleConfig.fallbackInterval);
+    
+    console.log('✅ Hourly scheduling system configured');
+}
+
+// ============================================================================
+// TESTING AND DEBUG FUNCTIONS
+// ============================================================================
+
+/**
+ * Manual trigger for testing con logging mejorado
+ */
+function testMasterAPI() {
+    console.log('🧪 Manual Master API test triggered...');
+    if (window.logSchedule) {
+        window.logSchedule('Manual test triggered');
+    }
+    updateReferenceStations();
+}
+
+/**
+ * Test function para probar el sistema de scheduling
+ */
+function testScheduling() {
+    console.log('🧪 Testing scheduling system...');
+    if (window.debugScheduling) {
+        window.debugScheduling();
+    } else {
+        console.log('❌ debugScheduling function not available');
+    }
+}
+
+/**
+ * Debug function to check current map state
+ */
+function debugMapState() {
+    console.log('=== MAP STATE DEBUG ===');
+    console.log('Map exists:', !!window.map);
+    console.log('Map loaded:', window.map && window.map.isStyleLoaded ? window.map.isStyleLoaded() : 'unknown');
+    console.log('smaa_network_squares layer exists:', window.map && window.map.getLayer ? !!window.map.getLayer('smaa_network_squares') : 'unknown');
+    
+    if (window.map && window.MAP_LAYERS) {
+        try {
+            const allFeatures = window.map.querySourceFeatures(window.MAP_LAYERS.source, {
+                sourceLayer: window.MAP_LAYERS.sourceLayer
+            });
+            console.log('Total features in source:', allFeatures.length);
+            
+            // Sample de nombres de features
+            const sampleNames = allFeatures.slice(0, 10).map(f => f.properties.name);
+            console.log('Sample feature names:', sampleNames);
+            
+            // Buscar específicamente features mapeadas
+            Object.keys(window.REFERENCE_STATION_MAPPING).forEach(stationId => {
+                const mappedName = window.REFERENCE_STATION_MAPPING[stationId];
+                const matchingFeatures = allFeatures.filter(f => 
+                    f.properties.name === stationId ||
+                    f.properties.name === mappedName
+                );
+                console.log(`${stationId} → ${mappedName}: ${matchingFeatures.length} features found`);
+            });
+            
+        } catch (error) {
+            console.log('Error querying features:', error);
+        }
+    }
+    console.log('=======================');
+}
+
+/**
+ * Función para simular diferentes horarios (solo para testing)
+ * @param {number} hour - Hora a simular (0-23)
+ * @param {number} minute - Minuto a simular (0-59)
+ */
+function simulateTimeAndTest(hour, minute) {
+    console.log(`🕐 Simulating time: ${hour}:${minute.toString().padStart(2, '0')}`);
+    
+    // Crear fecha simulada
+    const simulatedNow = new Date();
+    simulatedNow.setHours(hour);
+    simulatedNow.setMinutes(minute);
+    simulatedNow.setSeconds(0);
+    
+    // Temporalmente sobrescribir Date para la simulación
+    const originalNow = Date;
+    window.Date = function(...args) {
+        if (args.length === 0) {
+            return simulatedNow;
+        }
+        return new originalNow(...args);
+    };
+    window.Date.now = () => simulatedNow.getTime();
+    
+    // Probar el scheduling
+    const scheduleInfo = window.getTimeUntilNextScheduledUpdate();
+    console.log('📊 Simulation results:');
+    console.log('  Next update minute:', scheduleInfo.targetMinute);
+    console.log('  Time until next:', Math.round(scheduleInfo.timeUntilNext / 1000), 'seconds');
+    console.log('  Target time:', window.formatTimeForLogging(scheduleInfo.targetTime));
+    
+    // Restaurar Date original
+    window.Date = originalNow;
+}
+
+/**
+ * Test completo de toda la funcionalidad
+ */
+function runCompleteTest() {
+    console.log('🧪 Running complete Master API test...');
+    console.log('=====================================');
+    
+    // 1. Test configuración
+    console.log('1. Testing configuration...');
+    if (window.debugMasterAPIConfig) {
+        window.debugMasterAPIConfig();
+    }
+    
+    // 2. Test scheduling
+    console.log('2. Testing scheduling...');
+    testScheduling();
+    
+    // 3. Test map state
+    console.log('3. Testing map state...');
+    debugMapState();
+    
+    // 4. Test API call
+    console.log('4. Testing API call...');
+    testMasterAPI();
+    
+    // 5. Test time simulations
+    console.log('5. Testing time simulations...');
+    simulateTimeAndTest(10, 5);   // Should go to 10:15
+    simulateTimeAndTest(10, 17);  // Should go to 10:20
+    simulateTimeAndTest(10, 25);  // Should go to 11:15
+    
+    console.log('=====================================');
+    console.log('🧪 Complete test finished');
+}
+
+/**
+ * Función simplificada de debug para probar solo la estructura de datos
+ */
+async function debugAPIStructure() {
+    console.log('🔍 DEBUG: Testing API structure...');
+    console.log('=====================================');
+    
+    try {
+        const params = new URLSearchParams(window.MASTER_API_CONFIG.params);
+        const url = `${window.MASTER_API_CONFIG.baseUrl}?${params.toString()}`;
+        
+        console.log('📍 API URL:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        
+        console.log('✅ API Response received');
+        console.log('📊 Type:', typeof data);
+        console.log('📊 Structure:', Object.keys(data));
+        
+        if (data.stations && Array.isArray(data.stations)) {
+            console.log('📊 Stations array length:', data.stations.length);
+            
+            if (data.stations.length > 0) {
+                const firstStation = data.stations[0];
+                console.log('📋 First station structure:');
+                console.log('  station_id:', firstStation.station_id);
+                console.log('  station_name:', firstStation.station_name);
+                console.log('  device_type:', firstStation.device_type);
+                console.log('  ias_numeric_value:', firstStation.ias_numeric_value);
+                console.log('  color_code:', firstStation.color_code);
+                console.log('  reading_status:', firstStation.reading_status);
+                
+                // Buscar estaciones mapeadas específicamente
+                Object.keys(window.REFERENCE_STATION_MAPPING).forEach(stationId => {
+                    const station = data.stations.find(s => s.station_id === stationId);
+                    if (station) {
+                        console.log(`🎯 ${stationId} Station found:`, {
+                            name: station.station_name,
+                            ias: station.ias_numeric_value,
+                            color: station.color_code,
+                            status: station.reading_status
+                        });
+                    } else {
+                        console.log(`⚠️ ${stationId} not found in API response`);
+                    }
+                });
+                
+                // Contar tipos de dispositivos
+                const deviceTypes = {};
+                data.stations.forEach(station => {
+                    deviceTypes[station.device_type] = (deviceTypes[station.device_type] || 0) + 1;
+                });
+                console.log('📊 Device types count:', deviceTypes);
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Debug failed:', error);
+    }
+    
+    console.log('=====================================');
+}
+
+// ============================================================================
+// AUTO-INITIALIZATION SYSTEM
+// ============================================================================
+
+// Variables de control para inicialización
+let masterAPIInitAttempts = 0;
+const maxMasterAPIAttempts = 15;
+let initializationCompleted = false;
+
+function attemptMasterAPIInit() {
+    // Evitar múltiples inicializaciones
+    if (initializationCompleted) {
+        console.log('✅ Master API already initialized, skipping');
+        return;
+    }
+    
+    masterAPIInitAttempts++;
+    
+    if (masterAPIInitAttempts > maxMasterAPIAttempts) {
+        console.log('⏰ Master API: Max initialization attempts reached');
+        return;
+    }
+    
+    console.log(`🔍 Master API init attempt ${masterAPIInitAttempts}/${maxMasterAPIAttempts}`);
+    
+    // Verificar que todas las dependencias estén listas
+    const dependencies = [
+        window.map,
+        window.map?.isStyleLoaded,
+        window.map?.getLayer,
+        window.MAP_LAYERS,
+        window.MASTER_API_CONFIG,
+        window.getTimeUntilNextScheduledUpdate
+    ];
+    
+    const allDepsReady = dependencies.every(dep => !!dep);
+    const mapReady = window.map?.isStyleLoaded();
+    const layerReady = window.map?.getLayer('smaa_network_squares');
+    
+    console.log('🔍 Dependencies check:', {
+        allDeps: allDepsReady,
+        mapReady: mapReady,
+        layerReady: !!layerReady,
+        hasConfig: !!window.MASTER_API_CONFIG,
+        hasScheduling: !!window.getTimeUntilNextScheduledUpdate
+    });
+    
+    if (allDepsReady && mapReady && layerReady) {
+        console.log('✅ All Master API prerequisites ready, initializing...');
+        initializationCompleted = true;
+        initializeMasterAPI();
+    } else {
+        console.log('⏳ Master API prerequisites not ready, retrying...');
+        setTimeout(attemptMasterAPIInit, 1000);
+    }
+}
+
+// Función para iniciar el sistema de inicialización
+function startMasterAPIInitialization() {
+    console.log('🚀 Starting Master API initialization system...');
+    
+    // Primer intento después de un delay
+    setTimeout(attemptMasterAPIInit, 3000);
+    
+    // También intentar cuando se detecte que el mapa está listo
+    if (window.map) {
+        window.map.on('sourcedata', (e) => {
+            if (e.sourceId === window.MAP_LAYERS?.source && 
+                e.isSourceLoaded && 
+                !initializationCompleted) {
+                console.log('📡 Map source loaded, attempting Master API init...');
+                setTimeout(attemptMasterAPIInit, 1000);
+            }
+        });
+    }
+    
+    // Fallback: intentar después de 10 segundos sin importar el estado
+    setTimeout(() => {
+        if (!initializationCompleted && masterAPIInitAttempts === 0) {
+            console.log('⏰ Fallback Master API initialization...');
+            attemptMasterAPIInit();
+        }
+    }, 10000);
+    
+    // Backup fallback: forzar inicialización después de 20 segundos
+    setTimeout(() => {
+        if (!initializationCompleted) {
+            console.log('🚨 Force Master API initialization (backup)...');
+            initializationCompleted = true;
+            
+            if (window.map) {
+                initializeMasterAPI();
+            } else {
+                console.log('❌ Map still not available after 20 seconds');
+            }
+        }
+    }, 20000);
+}
+
+// ============================================================================
+// GLOBAL EXPORTS
+// ============================================================================
+
+// Make functions globally available for debugging and external calls
+window.MasterAPI = {
+    // Core functions
+    fetchData: fetchMasterAPIData,
+    updateStations: updateReferenceStations,
+    updateSquare: updateReferenceStationSquare,
+    
+    // Scheduling
+    initialize: initializeMasterAPI,
+    setupScheduling: setupHourlyScheduling,
+    
+    // Testing functions
+    test: testMasterAPI,
+    testScheduling: testScheduling,
+    testComplete: runCompleteTest,
+    debugAPI: debugAPIStructure,
+    debugMap: debugMapState,
+    simulateTime: simulateTimeAndTest,
+    
+    // Initialization
+    start: startMasterAPIInitialization,
+    
+    // State
+    isInitialized: () => initializationCompleted,
+    getAttempts: () => masterAPIInitAttempts
+};
+
+// Legacy global functions for backward compatibility
+window.fetchMasterAPIData = fetchMasterAPIData;
+window.updateReferenceStations = updateReferenceStations;
+window.updateReferenceStationSquare = updateReferenceStationSquare;
+window.testMasterAPI = testMasterAPI;
+window.testScheduling = testScheduling;
+window.debugMapState = debugMapState;
+window.simulateTimeAndTest = simulateTimeAndTest;
+window.setupHourlyScheduling = setupHourlyScheduling;
+window.getContrastColor = getContrastColor;
+window.runCompleteTest = runCompleteTest;
+window.debugAPIStructure = debugAPIStructure;
+
+console.log('✅ Master API functions loaded successfully');
+console.log('🔧 Available via window.MasterAPI object');
+console.log('🧪 Test functions: testMasterAPI(), runCompleteTest(), debugAPIStructure()');
+
+// Auto-start initialization when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('📄 DOM loaded, starting Master API initialization...');
+    startMasterAPIInitialization();
+});
+        
