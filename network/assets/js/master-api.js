@@ -80,7 +80,7 @@ async function fetchMasterAPIData() {
                 console.warn('⚠️ Invalid station object:', station);
                 return false;
             }
-            return station.device_type === 'reference' || station.device_type === 'smaa';
+            return station.device_type === 'reference' || station.device_type === 'smability-SMAA';
         });
 
         console.log(`✅ Filtered ${filteredStations.length} reference+smaa stations from ${stationsArray.length} total`);
