@@ -283,6 +283,11 @@ document.addEventListener('click', (e) => {
  * Maneja la estructura conocida de la API con los campos específicos que necesitamos
  * @returns {Promise<Array>} Array of station data
  */
+/**
+ * Fetch data from Master API - VERSIÓN FINAL CORREGIDA
+ * Maneja la estructura correcta de la API: {stations: [...]}
+ * @returns {Promise<Array>} Array of station data
+ */
 async function fetchMasterAPIData() {
     const now = Date.now();
     
@@ -319,24 +324,31 @@ async function fetchMasterAPIData() {
         const data = await response.json();
         
         console.log('📊 Raw API response type:', typeof data);
-        console.log('📊 Is array:', Array.isArray(data));
+        console.log('📊 API response structure:', Object.keys(data));
         
-        // Validar que la respuesta sea un array (basado en la estructura proporcionada)
-        if (!Array.isArray(data)) {
-            console.error('❌ API response is not an array. Response:', data);
-            throw new Error(`Expected array but got: ${typeof data}`);
+        // Extraer el array de estaciones de la respuesta
+        let stationsArray;
+        if (Array.isArray(data)) {
+            stationsArray = data;
+            console.log('✅ Response is direct array format');
+        } else if (data.stations && Array.isArray(data.stations)) {
+            stationsArray = data.stations;
+            console.log('✅ Response is nested in data.stations format');
+        } else {
+            console.error('❌ API response does not contain stations array. Response:', data);
+            throw new Error(`Expected stations array but got: ${typeof data}`);
         }
 
-        console.log(`📊 Master API response: ${data.length} stations total`);
+        console.log(`📊 Master API response: ${stationsArray.length} stations total`);
 
         // Mostrar primeras estaciones para debug
         console.log('📋 First 3 stations from API:');
-        data.slice(0, 3).forEach((station, index) => {
+        stationsArray.slice(0, 3).forEach((station, index) => {
             console.log(`  ${index + 1}. ID: ${station.station_id}, Name: ${station.station_name}, Type: ${station.device_type}, IAS: ${station.ias_numeric_value}`);
         });
 
         // Filtrar solo estaciones reference
-        const referenceStations = data.filter(station => {
+        const referenceStations = stationsArray.filter(station => {
             // Validar que el objeto tenga las propiedades mínimas necesarias
             if (!station || typeof station !== 'object') {
                 console.warn('⚠️ Invalid station object:', station);
@@ -346,7 +358,7 @@ async function fetchMasterAPIData() {
             return station.device_type === 'reference';
         });
 
-        console.log(`✅ Filtered ${referenceStations.length} reference stations from ${data.length} total`);
+        console.log(`✅ Filtered ${referenceStations.length} reference stations from ${stationsArray.length} total`);
         
         // Log reference stations con los campos que nos interesan
         console.log('🎯 Reference stations found:');
@@ -383,7 +395,7 @@ async function fetchMasterAPIData() {
             console.log('📋 Available reference station IDs:', allReferenceIds);
             
             // También mostrar todos los tipos de device disponibles
-            const allDeviceTypes = [...new Set(data.map(s => s.device_type))];
+            const allDeviceTypes = [...new Set(stationsArray.map(s => s.device_type))];
             console.log('📋 All device types in response:', allDeviceTypes);
         }
         
