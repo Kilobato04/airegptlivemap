@@ -72,7 +72,7 @@ window.REFERENCE_STATION_MAPPING = {
     // 'SJA': 'San Juan Aragón',
     // 'TAX': 'Taxqueña',
     // 'TEC': 'Tecnológico',
-    // 'TLA': 'Tlalnepantla',
+    'TLA': 'Tlalnepantla'
     // 'UAX': 'UAM Xochimilco',
     // 'VIF': 'Villa de las Flores'
 };
