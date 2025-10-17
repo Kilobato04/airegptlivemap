@@ -86,7 +86,9 @@ window.REFERENCE_STATION_MAPPING = {
  */
 window.SMAA_STATION_MAPPING = {
     'DVL': 'Del Valle', // 40 - Smability
-    'HRT': 'Huerto IBERO' // 41 - Smability
+    'HRT': 'Huerto IBERO', // 41 - Smability
+    'CN2': 'CENTRUS 2', // 42 - Smability
+    'CN4': 'CENTRUS 4' // 43 - Smability
 };
 
 /**
