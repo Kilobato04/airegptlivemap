@@ -48,7 +48,7 @@ window.REFERENCE_STATION_MAPPING = {
     // 'SAG': 'San Agustín',
     'PED': 'Pedregal',
     // 'LAG': 'Lagunas',
-    // 'MER': 'Merced',
+    'MER': 'Merced',
     // 'TAH': 'Tlahuac',
     // 'UIZ': 'UAM Iztapalapa',
     // 'XAL': 'Xalostoc',
