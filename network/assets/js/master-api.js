@@ -150,7 +150,8 @@ async function fetchMasterAPIData() {
 }
 
 /**
- * Process Master API data and update reference station squares
+ * Process Master API data and update reference station squares - VERSIÓN CORREGIDA
+ * Actualiza TODAS las estaciones mapeadas de una vez
  */
 async function updateReferenceStations() {
     try {
@@ -167,32 +168,210 @@ async function updateReferenceStations() {
 
         console.log(`📍 Processing ${stations.length} reference stations`);
         
-        // Update square markers for each mapped reference station
-        let updatedCount = 0;
-        let mappedCount = 0;
-        
         // Filtrar solo estaciones mapeadas
-        stations.forEach(station => {
-            const isMapped = window.REFERENCE_STATION_MAPPING[station.station_id];
-            if (isMapped) {
-                mappedCount++;
-                const updated = updateReferenceStationSquare(station);
-                if (updated) updatedCount++;
-            } else {
-                console.log(`⚠️ Station ${station.station_id} not in mapping, skipping`);
-            }
+        const mappedStations = stations.filter(station => 
+            window.REFERENCE_STATION_MAPPING[station.station_id]
+        );
+        
+        if (mappedStations.length === 0) {
+            console.log('⚠️ No mapped stations found');
+            window.logSchedule('No mapped stations found');
+            return;
+        }
+        
+        console.log(`🎯 Found ${mappedStations.length} mapped stations to update`);
+        mappedStations.forEach(station => {
+            console.log(`  - ${station.station_id} (${station.station_name}) - IAS: ${station.ias_numeric_value}`);
         });
-
-        console.log(`✅ Reference stations update complete: ${updatedCount}/${mappedCount} mapped stations updated`);
+        
+        // NUEVO: Actualizar todas las estaciones de una vez
+        const updateResult = updateAllReferenceStationSquares(mappedStations);
+        
+        console.log(`✅ Reference stations update complete: ${updateResult.updated}/${mappedStations.length} mapped stations updated`);
+        if (updateResult.errors.length > 0) {
+            console.log('⚠️ Update errors:', updateResult.errors);
+        }
+        
         window.logSchedule('Update complete', {
             total: stations.length,
-            mapped: mappedCount,
-            updated: updatedCount
+            mapped: mappedStations.length,
+            updated: updateResult.updated
         });
 
     } catch (error) {
         console.error('❌ Error updating reference stations:', error);
         window.logSchedule('Update error', error.message);
+    }
+}
+
+/**
+ * NUEVA FUNCIÓN: Actualizar todas las estaciones reference de una vez
+ * @param {Array} mappedStations - Array de estaciones mapeadas
+ * @returns {Object} - Resultado de la actualización
+ */
+function updateAllReferenceStationSquares(mappedStations) {
+    try {
+        console.log('🎨 Updating all reference station squares...');
+        
+        // Verificar que el mapa y las capas existen
+        if (!window.map || !window.map.getLayer || !window.map.getLayer('smaa_network_squares')) {
+            console.log('⚠️ Map or smaa_network_squares layer not ready');
+            return { updated: 0, errors: ['Map not ready'] };
+        }
+
+        // Obtener todas las features del mapa
+        let allFeatures;
+        try {
+            allFeatures = window.map.querySourceFeatures(window.MAP_LAYERS.source, {
+                sourceLayer: window.MAP_LAYERS.sourceLayer
+            });
+            console.log(`📋 Found ${allFeatures.length} total features in map`);
+        } catch (error) {
+            console.error('❌ Error querying map features:', error);
+            return { updated: 0, errors: ['Map query failed'] };
+        }
+
+        // Preparar arrays para las expresiones de Mapbox
+        const textColorCases = [];
+        const textFieldCases = [];
+        const haloColorCases = [];
+        const haloWidthCases = [];
+        
+        let updatedCount = 0;
+        const errors = [];
+
+        // Procesar cada estación mapeada
+        mappedStations.forEach(station => {
+            const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
+            
+            console.log(`🎯 Processing station: ${station_id} (${station_name})`);
+            
+            // Buscar features para esta estación
+            const mappedName = window.REFERENCE_STATION_MAPPING[station_id];
+            const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
+            
+            console.log(`🔍 Looking for identifiers: [${stationIdentifiers.join(', ')}]`);
+            
+            // Encontrar features que coincidan
+            const matchingFeatures = allFeatures.filter(feature => 
+                stationIdentifiers.includes(feature.properties.name)
+            );
+            
+            if (matchingFeatures.length === 0) {
+                console.log(`❌ No features found for ${station_id} with identifiers: ${stationIdentifiers}`);
+                
+                // Debug: buscar nombres similares
+                const similarFeatures = allFeatures.filter(f => 
+                    f.properties.name && (
+                        f.properties.name.toLowerCase().includes(station_id.toLowerCase()) ||
+                        f.properties.name.toLowerCase().includes(station_name.toLowerCase().substring(0, 5))
+                    )
+                );
+                if (similarFeatures.length > 0) {
+                    console.log(`🔍 Similar features found: ${similarFeatures.map(f => f.properties.name)}`);
+                }
+                
+                errors.push(`No features for ${station_id}`);
+                return;
+            }
+            
+            console.log(`✅ Found ${matchingFeatures.length} feature(s) for ${station_id}: ${matchingFeatures.map(f => f.properties.name)}`);
+            
+            // Determinar qué mostrar
+            let displayText, textColor;
+            
+            if (reading_status === 'current' && ias_numeric_value) {
+                displayText = Math.round(ias_numeric_value).toString();
+                textColor = getContrastColor(color_code);
+                console.log(`📊 ${station_id}: IAS ${displayText}, Color ${color_code}, Text ${textColor}`);
+            } else {
+                displayText = reading_status === 'stale' ? '○' : '×';
+                textColor = '#ffffff';
+                console.log(`⚠️ ${station_id}: Status ${displayText} (${reading_status})`);
+            }
+            
+            // Agregar casos a las expresiones de Mapbox SOLO para features encontradas
+            matchingFeatures.forEach(feature => {
+                const featureName = feature.properties.name;
+                
+                // Text color
+                textColorCases.push(['==', ['get', 'name'], featureName]);
+                textColorCases.push(textColor);
+                
+                // Text field (display text)
+                textFieldCases.push(['==', ['get', 'name'], featureName]);
+                textFieldCases.push(displayText);
+                
+                // Halo color y width para estaciones con datos actuales
+                if (reading_status === 'current' && color_code) {
+                    haloColorCases.push(['==', ['get', 'name'], featureName]);
+                    haloColorCases.push(color_code);
+                    
+                    haloWidthCases.push(['==', ['get', 'name'], featureName]);
+                    haloWidthCases.push(4);
+                }
+            });
+            
+            updatedCount++;
+        });
+
+        // Aplicar todas las actualizaciones al mapa de una vez
+        try {
+            console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
+            console.log(`📊 Text cases: ${textColorCases.length / 2}, Halo cases: ${haloColorCases.length / 2}`);
+            
+            // Actualizar color de texto
+            if (textColorCases.length > 0) {
+                window.map.setPaintProperty('smaa_network_squares', 'text-color', [
+                    'case',
+                    ...textColorCases,
+                    '#666666' // color por defecto
+                ]);
+                console.log('✅ Text color updated');
+            }
+            
+            // Actualizar texto mostrado
+            if (textFieldCases.length > 0) {
+                window.map.setLayoutProperty('smaa_network_squares', 'text-field', [
+                    'case',
+                    ...textFieldCases,
+                    '■' // símbolo por defecto
+                ]);
+                console.log('✅ Text field updated');
+            }
+            
+            // Actualizar color del halo
+            if (haloColorCases.length > 0) {
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', [
+                    'case',
+                    ...haloColorCases,
+                    'rgba(0,0,0,0)' // transparente por defecto
+                ]);
+                console.log('✅ Halo color updated');
+            }
+            
+            // Actualizar ancho del halo
+            if (haloWidthCases.length > 0) {
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', [
+                    'case',
+                    ...haloWidthCases,
+                    0 // sin halo por defecto
+                ]);
+                console.log('✅ Halo width updated');
+            }
+            
+            console.log(`✅ Successfully updated ${updatedCount} stations on map`);
+            
+        } catch (mapError) {
+            console.error('❌ Error applying map updates:', mapError);
+            errors.push('Map update failed: ' + mapError.message);
+        }
+        
+        return { updated: updatedCount, errors };
+        
+    } catch (error) {
+        console.error('❌ Error in updateAllReferenceStationSquares:', error);
+        return { updated: 0, errors: [error.message] };
     }
 }
 
