@@ -88,14 +88,14 @@ async function fetchMasterAPIData() {
         // Log reference+smaa stations con los campos que nos interesan
         console.log('🎯 Reference+SMAA stations found:');
         filteredStations.forEach(station => {
-            const isMapped = window.REFERENCE_STATION_MAPPING && window.REFERENCE_STATION_MAPPING[station.station_id];
+            const isMapped = window.ALL_STATIONS_MAPPING && window.ALL_STATIONS_MAPPING[station.station_id];
             console.log(`  - ${station.station_id} (${station.station_name}) - Type: ${station.device_type}`);
             console.log(`    IAS: ${station.ias_numeric_value}, Color: ${station.color_code}, Status: ${station.reading_status}`);
             console.log(`    Mapped: ${isMapped ? '✅ YES' : '⚠️ NO'}`);
         });
         
         // Check para estaciones mapeadas específicamente
-        const mappedStations = filteredStations.filter(s => window.REFERENCE_STATION_MAPPING[s.station_id]);
+        const mappedStations = filteredStations.filter(s => window.ALL_STATIONS_MAPPING[s.station_id]);
         mappedStations.forEach(station => {
             console.log(`🎯 MAPPED STATION FOUND: ${station.station_id} (${station.station_name})`);
             console.log(`  IAS Value: ${station.ias_numeric_value}`);
@@ -117,7 +117,9 @@ async function fetchMasterAPIData() {
             
             const allFilteredIds = filteredStations.map(s => s.station_id);
             console.log('📋 Available filtered station IDs:', allFilteredIds);
-            console.log('📋 Configured mappings:', Object.keys(window.REFERENCE_STATION_MAPPING));
+            console.log('📋 Reference mappings:', Object.keys(window.REFERENCE_STATION_MAPPING || {}));
+            console.log('📋 SMAA mappings:', Object.keys(window.SMAA_STATION_MAPPING || {}));
+            console.log('📋 ALL mappings:', Object.keys(window.ALL_STATIONS_MAPPING || {}));
         }
         
         // Cache the results
