@@ -55,12 +55,12 @@ window.REFERENCE_STATION_MAPPING = {
     'XAL': 'Xalostoc', // 12
     'AJM': 'Ajusco Medio', // 13
     'AJU': 'Ajusco', // 14
-    'ATI': 'Atizapan', // 15*
+    'ATI': 'Atizapan', // 15
     'BJU': 'Benito Juarez', // 16
     'CAM': 'Camarones', // 17
     'CHO': 'Chalco', // 18
     'COY': 'Coyoacan', // 19
-    'CUT': 'Cuautitlan', // 20*
+    'CUT': 'Cuautitlan', // 20
     'FAC': 'FES Acatlan', // 21
     'HAN': 'Hangares', // 22
     'IMP': 'IMP', // 23
@@ -74,12 +74,12 @@ window.REFERENCE_STATION_MAPPING = {
     'TAX': 'Taxqueña', // 31
     'TEC': 'Tecnologico', // 32
     'TLA': 'Tlalnepantla', // 33
-    'UAX': 'UAM Xochimilco', // 34* no mapbox
+    'UAX': 'UAM Xochimilco', // 34
     'LLA': 'Los Laureles', // 35
     'INN': 'Investigaciones Nucleares', // 36
-    'CCA': 'Centro de Ciencias de la Atmosfera', // 37*
-    'ACO': 'Acolman', // 38 - pending
-    'VIF': 'Villa de las Flores' // 39* no mapbox
+    'CCA': 'Centro de Ciencias de la Atmosfera', // 37
+    'ACO': 'Acolman', // 38
+    'VIF': 'Villa de las Flores' // 39
 };
 
 /**
