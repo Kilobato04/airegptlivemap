@@ -74,28 +74,28 @@ async function fetchMasterAPIData() {
             console.log(`  ${index + 1}. ID: ${station.station_id}, Name: ${station.station_name}, Type: ${station.device_type}, IAS: ${station.ias_numeric_value}`);
         });
 
-        // Filtrar solo estaciones reference
-        const referenceStations = stationsArray.filter(station => {
+        // Filtrar estaciones reference Y smaa
+        const filteredStations = stationsArray.filter(station => {
             if (!station || typeof station !== 'object') {
                 console.warn('⚠️ Invalid station object:', station);
                 return false;
             }
-            return station.device_type === 'reference';
+            return station.device_type === 'reference' || station.device_type === 'smaa';
         });
 
-        console.log(`✅ Filtered ${referenceStations.length} reference stations from ${stationsArray.length} total`);
+        console.log(`✅ Filtered ${filteredStations.length} reference+smaa stations from ${stationsArray.length} total`);
         
-        // Log reference stations con los campos que nos interesan
-        console.log('🎯 Reference stations found:');
-        referenceStations.forEach(station => {
-            const isMapped = window.ALL_STATIONS_MAPPING && window.ALL_STATIONS_MAPPING[station.station_id];
-            console.log(`  - ${station.station_id} (${station.station_name})`);
+        // Log reference+smaa stations con los campos que nos interesan
+        console.log('🎯 Reference+SMAA stations found:');
+        filteredStations.forEach(station => {
+            const isMapped = window.REFERENCE_STATION_MAPPING && window.REFERENCE_STATION_MAPPING[station.station_id];
+            console.log(`  - ${station.station_id} (${station.station_name}) - Type: ${station.device_type}`);
             console.log(`    IAS: ${station.ias_numeric_value}, Color: ${station.color_code}, Status: ${station.reading_status}`);
             console.log(`    Mapped: ${isMapped ? '✅ YES' : '⚠️ NO'}`);
         });
         
         // Check para estaciones mapeadas específicamente
-        const mappedStations = referenceStations.filter(s => window.ALL_STATIONS_MAPPING[s.station_id]);
+        const mappedStations = filteredStations.filter(s => window.REFERENCE_STATION_MAPPING[s.station_id]);
         mappedStations.forEach(station => {
             console.log(`🎯 MAPPED STATION FOUND: ${station.station_id} (${station.station_name})`);
             console.log(`  IAS Value: ${station.ias_numeric_value}`);
@@ -112,19 +112,19 @@ async function fetchMasterAPIData() {
         });
         
         if (mappedStations.length === 0) {
-            console.warn('⚠️ NO MAPPED STATIONS FOUND in reference stations');
+            console.warn('⚠️ NO MAPPED STATIONS FOUND in filtered stations');
             window.logSchedule('No mapped stations found');
             
-            const allReferenceIds = referenceStations.map(s => s.station_id);
-            console.log('📋 Available reference station IDs:', allReferenceIds);
-            console.log('📋 Configured mappings:', Object.keys(window.ALL_STATIONS_MAPPING));
+            const allFilteredIds = filteredStations.map(s => s.station_id);
+            console.log('📋 Available filtered station IDs:', allFilteredIds);
+            console.log('📋 Configured mappings:', Object.keys(window.REFERENCE_STATION_MAPPING));
         }
         
         // Cache the results
-        window.MASTER_API_CONFIG.cache.set('all_stations', referenceStations);
+        window.MASTER_API_CONFIG.cache.set('all_stations', filteredStations);
         window.MASTER_API_CONFIG.lastFetch = now;
-
-        return referenceStations;
+        
+        return filteredStations;
 
     } catch (error) {
         console.error('❌ Error fetching Master API data:', error);
