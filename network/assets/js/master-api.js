@@ -172,21 +172,16 @@ async function updateReferenceStations() {
         let mappedCount = 0;
         
         // Filtrar solo estaciones mapeadas
-        const mappedStations = stations.filter(station => 
-            window.REFERENCE_STATION_MAPPING[station.station_id]
-        );
-        
-        if (mappedStations.length === 0) {
-            console.log('⚠️ No mapped stations found');
-            return;
-        }
-        
-        console.log(`🎯 Found ${mappedStations.length} mapped stations to update`);
-        
-        // NUEVO: Actualizar todas las estaciones de una vez
-        const updateResult = updateAllReferenceStationSquares(mappedStations);
-        updatedCount = updateResult.updated;
-        mappedCount = mappedStations.length;
+        stations.forEach(station => {
+            const isMapped = window.REFERENCE_STATION_MAPPING[station.station_id];
+            if (isMapped) {
+                mappedCount++;
+                const updated = updateReferenceStationSquare(station);
+                if (updated) updatedCount++;
+            } else {
+                console.log(`⚠️ Station ${station.station_id} not in mapping, skipping`);
+            }
+        });
 
         console.log(`✅ Reference stations update complete: ${updatedCount}/${mappedCount} mapped stations updated`);
         window.logSchedule('Update complete', {
