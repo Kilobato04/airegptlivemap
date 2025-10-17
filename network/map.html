@@ -279,7 +279,8 @@ document.addEventListener('click', (e) => {
 // ============================================================================
 
 /**
- * Fetch data from Master API
+ * Fetch data from Master API - VERSIÓN FINAL CORREGIDA
+ * Maneja la estructura conocida de la API con los campos específicos que necesitamos
  * @returns {Promise<Array>} Array of station data
  */
 async function fetchMasterAPIData() {
@@ -312,41 +313,61 @@ async function fetchMasterAPIData() {
         });
 
         if (!response.ok) {
-            throw new Error(`Master API failed with status: ${response.status}`);
+            throw new Error(`Master API failed with status: ${response.status} - ${response.statusText}`);
         }
 
         const data = await response.json();
-        console.log('📊 Master API response received:', data.length, 'stations');
-
-        // Log all stations received for debugging
-        console.log('📋 All stations from API:');
-        data.forEach((station, index) => {
-            if (index < 5) { // Show first 5 for debugging
-                console.log(`  ${index + 1}. ${station.station_id} (${station.station_name}) - Type: ${station.device_type} - IAS: ${station.ias_numeric_value}`);
-            }
-        });
-        if (data.length > 5) {
-            console.log(`  ... and ${data.length - 5} more stations`);
+        
+        console.log('📊 Raw API response type:', typeof data);
+        console.log('📊 Is array:', Array.isArray(data));
+        
+        // Validar que la respuesta sea un array (basado en la estructura proporcionada)
+        if (!Array.isArray(data)) {
+            console.error('❌ API response is not an array. Response:', data);
+            throw new Error(`Expected array but got: ${typeof data}`);
         }
 
+        console.log(`📊 Master API response: ${data.length} stations total`);
+
+        // Mostrar primeras estaciones para debug
+        console.log('📋 First 3 stations from API:');
+        data.slice(0, 3).forEach((station, index) => {
+            console.log(`  ${index + 1}. ID: ${station.station_id}, Name: ${station.station_name}, Type: ${station.device_type}, IAS: ${station.ias_numeric_value}`);
+        });
+
         // Filtrar solo estaciones reference
-        const referenceStations = data.filter(station => 
-            station.device_type === 'reference'
-        );
+        const referenceStations = data.filter(station => {
+            // Validar que el objeto tenga las propiedades mínimas necesarias
+            if (!station || typeof station !== 'object') {
+                console.warn('⚠️ Invalid station object:', station);
+                return false;
+            }
+            
+            return station.device_type === 'reference';
+        });
 
         console.log(`✅ Filtered ${referenceStations.length} reference stations from ${data.length} total`);
         
-        // Log reference stations found
+        // Log reference stations con los campos que nos interesan
         console.log('🎯 Reference stations found:');
         referenceStations.forEach(station => {
-            const isMapped = window.REFERENCE_STATION_MAPPING[station.station_id];
-            console.log(`  - ${station.station_id} (${station.station_name}) - IAS: ${station.ias_numeric_value}, Color: ${station.color_code} ${isMapped ? '✅ MAPPED' : '⚠️ NOT MAPPED'}`);
+            const isMapped = window.REFERENCE_STATION_MAPPING && window.REFERENCE_STATION_MAPPING[station.station_id];
+            console.log(`  - ${station.station_id} (${station.station_name})`);
+            console.log(`    IAS: ${station.ias_numeric_value}, Color: ${station.color_code}, Status: ${station.reading_status}`);
+            console.log(`    Mapped: ${isMapped ? '✅ YES' : '⚠️ NO'}`);
         });
         
-        // Check specifically for Tultitlán
+        // Check específicamente para Tultitlán (TLI)
         const tultitlanStation = referenceStations.find(s => s.station_id === 'TLI');
         if (tultitlanStation) {
-            console.log('🎯 TULTITLÁN FOUND:', tultitlanStation);
+            console.log('🎯 TULTITLÁN (TLI) FOUND:');
+            console.log('  Station ID:', tultitlanStation.station_id);
+            console.log('  Station Name:', tultitlanStation.station_name);
+            console.log('  IAS Value:', tultitlanStation.ias_numeric_value);
+            console.log('  Color Code:', tultitlanStation.color_code);
+            console.log('  Reading Status:', tultitlanStation.reading_status);
+            console.log('  Category:', tultitlanStation.category);
+            
             window.logSchedule('Tultitlán station found', {
                 station_id: tultitlanStation.station_id,
                 ias: tultitlanStation.ias_numeric_value,
@@ -356,6 +377,14 @@ async function fetchMasterAPIData() {
         } else {
             console.warn('⚠️ TULTITLÁN (TLI) NOT FOUND in reference stations');
             window.logSchedule('Tultitlán station NOT found');
+            
+            // Debug: mostrar todas las station_id disponibles
+            const allReferenceIds = referenceStations.map(s => s.station_id);
+            console.log('📋 Available reference station IDs:', allReferenceIds);
+            
+            // También mostrar todos los tipos de device disponibles
+            const allDeviceTypes = [...new Set(data.map(s => s.device_type))];
+            console.log('📋 All device types in response:', allDeviceTypes);
         }
         
         // Cache the results
@@ -366,6 +395,12 @@ async function fetchMasterAPIData() {
 
     } catch (error) {
         console.error('❌ Error fetching Master API data:', error);
+        console.error('❌ Error details:', {
+            message: error.message,
+            stack: error.stack,
+            url: `${window.MASTER_API_CONFIG.baseUrl}?${new URLSearchParams(window.MASTER_API_CONFIG.params).toString()}`
+        });
+        
         window.logSchedule('API fetch error', error.message);
         
         // Return cached data if available, even if expired
@@ -375,6 +410,8 @@ async function fetchMasterAPIData() {
             return window.MASTER_API_CONFIG.cache.get('all_stations');
         }
         
+        // Return empty array instead of undefined to avoid forEach errors
+        console.log('❌ No cached data available, returning empty array');
         return [];
     }
 }
@@ -870,6 +907,7 @@ window.simulateTimeAndTest = simulateTimeAndTest;
 window.setupHourlyScheduling = setupHourlyScheduling;
 window.getContrastColor = getContrastColor;
 window.runCompleteTest = runCompleteTest;
+window.debugAPIStructure = debugAPIStructure;
 
 console.log('📡 Master API integration script loaded with enhanced debugging');
 
@@ -1091,6 +1129,68 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
     
     console.log('🧪 Enhanced debug panel added for Master API testing');
 }
+
+/**
+ * Función simplificada de debug para probar solo la estructura de datos
+ */
+async function debugAPIStructure() {
+    console.log('🔍 DEBUG: Testing API structure...');
+    console.log('=====================================');
+    
+    try {
+        const params = new URLSearchParams(window.MASTER_API_CONFIG.params);
+        const url = `${window.MASTER_API_CONFIG.baseUrl}?${params.toString()}`;
+        
+        console.log('📍 API URL:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.json();
+        
+        console.log('✅ API Response received');
+        console.log('📊 Type:', typeof data);
+        console.log('📊 Is Array:', Array.isArray(data));
+        console.log('📊 Length:', data?.length || 'N/A');
+        
+        if (Array.isArray(data) && data.length > 0) {
+            const firstStation = data[0];
+            console.log('📋 First station structure:');
+            console.log('  station_id:', firstStation.station_id);
+            console.log('  station_name:', firstStation.station_name);
+            console.log('  device_type:', firstStation.device_type);
+            console.log('  ias_numeric_value:', firstStation.ias_numeric_value);
+            console.log('  color_code:', firstStation.color_code);
+            console.log('  reading_status:', firstStation.reading_status);
+            
+            // Buscar TLI específicamente
+            const tliStation = data.find(s => s.station_id === 'TLI');
+            if (tliStation) {
+                console.log('🎯 TLI Station found:');
+                console.log('  IAS:', tliStation.ias_numeric_value);
+                console.log('  Color:', tliStation.color_code);
+                console.log('  Status:', tliStation.reading_status);
+            } else {
+                console.log('⚠️ TLI not found');
+                const allIds = data.map(s => s.station_id).slice(0, 10);
+                console.log('📋 Sample station IDs:', allIds);
+            }
+            
+            // Contar tipos de dispositivos
+            const deviceTypes = {};
+            data.forEach(station => {
+                deviceTypes[station.device_type] = (deviceTypes[station.device_type] || 0) + 1;
+            });
+            console.log('📊 Device types count:', deviceTypes);
+        }
+        
+    } catch (error) {
+        console.error('❌ Debug failed:', error);
+    }
+    
+    console.log('=====================================');
+}
 </script>
+
 </body>
 </html>
