@@ -40,7 +40,6 @@ window.MASTER_API_CONFIG = {
  * Expandir según se necesiten más estaciones
  */
 window.REFERENCE_STATION_MAPPING = {
-    // ESTACIONES ACTIVAS
     'TLI': 'Tultitlan',  // 1
     'CUA': 'Cuajimalpa', // 2
     'MGH': 'Miguel Hidalgo', // 3
@@ -79,9 +78,22 @@ window.REFERENCE_STATION_MAPPING = {
     'INN': 'Investigaciones Nucleares', // 36
     'CCA': 'Centro de Ciencias de la Atmosfera', // 37
     'ACO': 'Acolman', // 38
-    'VIF': 'Villa de las Flores', // 39
-    // ESTACIONES SMAA (SMABILITY)
+    'VIF': 'Villa de las Flores' // 39
+};
+
+/**
+ * Mapeo de estaciones SMAA (Smability)
+ */
+window.SMAA_STATION_MAPPING = {
     'DVL': 'Del Valle' // 40 - Smability
+};
+
+/**
+ * Mapeo combinado de todas las estaciones
+ */
+window.ALL_STATIONS_MAPPING = {
+    ...window.REFERENCE_STATION_MAPPING,
+    ...window.SMAA_STATION_MAPPING
 };
 
 /**
