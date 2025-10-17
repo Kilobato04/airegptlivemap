@@ -79,7 +79,8 @@ window.REFERENCE_STATION_MAPPING = {
     'INN': 'Investigaciones Nucleares', // 36
     'CCA': 'Centro de Ciencias de la Atmosfera', // 37
     'ACO': 'Acolman', // 38
-    'VIF': 'Villa de las Flores' // 39
+    'VIF': 'Villa de las Flores', // 39
+    'DVL': 'Del Valle' // 40 - Smability
 };
 
 /**
