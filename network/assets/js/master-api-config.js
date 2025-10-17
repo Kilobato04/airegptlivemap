@@ -80,6 +80,7 @@ window.REFERENCE_STATION_MAPPING = {
     'CCA': 'Centro de Ciencias de la Atmosfera', // 37
     'ACO': 'Acolman', // 38
     'VIF': 'Villa de las Flores', // 39
+    // ESTACIONES SMAA (SMABILITY)
     'DVL': 'Del Valle' // 40 - Smability
 };
 
