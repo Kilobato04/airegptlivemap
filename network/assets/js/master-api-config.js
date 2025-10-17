@@ -44,9 +44,9 @@ window.REFERENCE_STATION_MAPPING = {
     'TLI': 'Tultitlan',  // ← SIN ACENTO (como aparece en Mapbox)
     
     // AGREGAR MÁS ESTACIONES SEGÚN SE NECESITEN:
-    // 'CUA': 'Cuajimalpa', 
+    'CUA': 'Cuajimalpa', 
     // 'SAG': 'San Agustín',
-    // 'PED': 'Pedregal',
+    'PED': 'Pedregal',
     // 'LAG': 'Lagunas',
     // 'MER': 'Merced',
     // 'TAH': 'Tlahuac',
@@ -72,7 +72,7 @@ window.REFERENCE_STATION_MAPPING = {
     // 'SJA': 'San Juan Aragón',
     // 'TAX': 'Taxqueña',
     // 'TEC': 'Tecnológico',
-    'TLA': 'Tlalnepantla',
+    // 'TLA': 'Tlalnepantla',
     // 'UAX': 'UAM Xochimilco',
     // 'VIF': 'Villa de las Flores'
 };
