@@ -41,40 +41,43 @@ window.MASTER_API_CONFIG = {
  */
 window.REFERENCE_STATION_MAPPING = {
     // ESTACIONES ACTIVAS
-    'TLI': 'Tultitlan',  // ← SIN ACENTO (como aparece en Mapbox)
-    
-    // AGREGAR MÁS ESTACIONES SEGÚN SE NECESITEN:
-    'CUA': 'Cuajimalpa', 
-    'SAG': 'San Agustin',
-    'PED': 'Pedregal',
-    'LAG': 'Lagunas',
-    'MER': 'Merced',
-    'TAH': 'Tlahuac',
-    'UIZ': 'UAM Iztapalapa',
-    'XAL': 'Xalostoc',
-    'AJU': 'Ajusco',
-    'ATI': 'Atizapan',
-    'BJU': 'Benito Juarez',
-    'CAM': 'Camarones',
-    'CHO': 'Chalco',
-    'COY': 'Coyoacan',
-    'CUT': 'Cuautitlan',
-    'FAC': 'FES Acatlan',
-    'HAN': 'Hangares',
-    'IMP': 'IMP',
-    'IZT': 'Iztacalco',
-    'LAP': 'La Presa',
-    'MON': 'Montecillo',
-    'NEZ': 'Nezahualcoyotl',
-    'PLA': 'Plateros',
-    'SAC': 'Santa Cruz',
-    'SFE': 'Santa Fe',
-    'SJA': 'San Juan Aragon',
-    'TAX': 'Taxqueña',
-    'TEC': 'Tecnologico',
-    'TLA': 'Tlalnepantla',
-    'UAX': 'UAM Xochimilco',
-    'VIF': 'Villa de las Flores'
+    'TLI': 'Tultitlan',  // 1
+    'CUA': 'Cuajimalpa', // 2
+    'MGH': 'Miguel Hidalgo', // 3
+    'HGM': 'Hospital General de Mexico', // 4
+    'GAM': 'Gustavo A. Madero', // 5
+    'SAG': 'San Agustin', // 6
+    'PED': 'Pedregal', // 7
+    'LAG': 'Lagunas', // 8
+    'MER': 'Merced', // 9
+    'TAH': 'Tlahuac', // 10
+    'UIZ': 'UAM Iztapalapa', // 11
+    'XAL': 'Xalostoc', // 12
+    'AJM': 'Ajusco Medio', // 13
+    'AJU': 'Ajusco', // 14
+    'ATI': 'Atizapan', // 15
+    'BJU': 'Benito Juarez', // 16
+    'CAM': 'Camarones', // 17
+    'CHO': 'Chalco', // 18
+    'COY': 'Coyoacan', // 19
+    'CUT': 'Cuautitlan', // 20
+    'FAC': 'FES Acatlan', // 21
+    'HAN': 'Hangares', // 22
+    'IMP': 'IMP', // 23
+    'IZT': 'Iztacalco', // 24
+    'LPR': 'La Presa', // 25
+    'MON': 'Montecillo', // 26
+    'NEZ': 'Nezahualcoyotl', // 27
+    'PLA': 'Plateros', // 28
+    'SAC': 'Santiago Acahualtepec', // 29
+    'SJA': 'San Juan Aragon', // 30
+    'TAX': 'Taxqueña', // 31
+    'TEC': 'Tecnologico', // 32
+    'TLA': 'Tlalnepantla', // 33
+    'UAX': 'UAM Xochimilco', // 34
+    'LLA': 'Los Laureles', // 35
+    'INN': 'Investigaciones Nucleares', // 36
+    'VIF': 'Villa de las Flores' // 37
 };
 
 /**
