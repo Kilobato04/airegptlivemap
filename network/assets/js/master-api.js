@@ -88,14 +88,14 @@ async function fetchMasterAPIData() {
         // Log reference stations con los campos que nos interesan
         console.log('🎯 Reference stations found:');
         referenceStations.forEach(station => {
-            const isMapped = window.REFERENCE_STATION_MAPPING && window.REFERENCE_STATION_MAPPING[station.station_id];
+            const isMapped = window.ALL_STATIONS_MAPPING && window.ALL_STATIONS_MAPPING[station.station_id];
             console.log(`  - ${station.station_id} (${station.station_name})`);
             console.log(`    IAS: ${station.ias_numeric_value}, Color: ${station.color_code}, Status: ${station.reading_status}`);
             console.log(`    Mapped: ${isMapped ? '✅ YES' : '⚠️ NO'}`);
         });
         
         // Check para estaciones mapeadas específicamente
-        const mappedStations = referenceStations.filter(s => window.REFERENCE_STATION_MAPPING[s.station_id]);
+        const mappedStations = referenceStations.filter(s => window.ALL_STATIONS_MAPPING[s.station_id]);
         mappedStations.forEach(station => {
             console.log(`🎯 MAPPED STATION FOUND: ${station.station_id} (${station.station_name})`);
             console.log(`  IAS Value: ${station.ias_numeric_value}`);
@@ -117,7 +117,7 @@ async function fetchMasterAPIData() {
             
             const allReferenceIds = referenceStations.map(s => s.station_id);
             console.log('📋 Available reference station IDs:', allReferenceIds);
-            console.log('📋 Configured mappings:', Object.keys(window.REFERENCE_STATION_MAPPING));
+            console.log('📋 Configured mappings:', Object.keys(window.ALL_STATIONS_MAPPING));
         }
         
         // Cache the results
@@ -170,7 +170,7 @@ async function updateReferenceStations() {
         
         // Filtrar solo estaciones mapeadas
         const mappedStations = stations.filter(station => 
-            window.REFERENCE_STATION_MAPPING[station.station_id]
+            window.ALL_STATIONS_MAPPING[station.station_id]
         );
         
         if (mappedStations.length === 0) {
@@ -247,7 +247,7 @@ function updateAllReferenceStationSquares(mappedStations) {
             console.log(`🎯 Processing station: ${station_id} (${station_name})`);
             
             // Buscar features para esta estación
-            const mappedName = window.REFERENCE_STATION_MAPPING[station_id];
+            const mappedName = window.ALL_STATIONS_MAPPING[station_id];
             const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
             
             console.log(`🔍 Looking for identifiers: [${stationIdentifiers.join(', ')}]`);
@@ -420,8 +420,8 @@ function updateReferenceStationSquare(stationData) {
         }
 
         // Si aún no encuentra, intentar con mapeo
-        if (features.length === 0 && window.REFERENCE_STATION_MAPPING[station_id]) {
-            const mappedName = window.REFERENCE_STATION_MAPPING[station_id];
+        if (features.length === 0 && window.ALL_STATIONS_MAPPING[station_id]) {
+            const mappedName = window.ALL_STATIONS_MAPPING[station_id];
             try {
                 features = window.map.querySourceFeatures(window.MAP_LAYERS.source, {
                     sourceLayer: window.MAP_LAYERS.sourceLayer,
@@ -455,8 +455,8 @@ function updateReferenceStationSquare(stationData) {
 
         // Crear identificadores para esta estación
         const stationIdentifiers = [station_id, station_name];
-        if (window.REFERENCE_STATION_MAPPING[station_id]) {
-            stationIdentifiers.push(window.REFERENCE_STATION_MAPPING[station_id]);
+        if (window.ALL_STATIONS_MAPPING[station_id]) {
+            stationIdentifiers.push(window.ALL_STATIONS_MAPPING[station_id]);
         }
 
         console.log(`🏷️ Station identifiers: [${stationIdentifiers.join(', ')}]`);
@@ -562,7 +562,7 @@ function initializeMasterAPI() {
         if (window.logSchedule) {
             window.logSchedule('Initialization started');
             window.logSchedule('Update schedule', window.MASTER_API_CONFIG.scheduleConfig.updateMinutes);
-            window.logSchedule('Active mappings', Object.keys(window.REFERENCE_STATION_MAPPING));
+            window.logSchedule('Active mappings', Object.keys(window.ALL_STATIONS_MAPPING));
         }
         
         // Primera actualización inmediata (con delay inicial)
@@ -682,8 +682,8 @@ function debugMapState() {
             console.log('Sample feature names:', sampleNames);
             
             // Buscar específicamente features mapeadas
-            Object.keys(window.REFERENCE_STATION_MAPPING).forEach(stationId => {
-                const mappedName = window.REFERENCE_STATION_MAPPING[stationId];
+            Object.keys(window.ALL_STATIONS_MAPPING).forEach(stationId => {
+                const mappedName = window.ALL_STATIONS_MAPPING[stationId];
                 const matchingFeatures = allFeatures.filter(f => 
                     f.properties.name === stationId ||
                     f.properties.name === mappedName
@@ -804,7 +804,7 @@ async function debugAPIStructure() {
                 console.log('  reading_status:', firstStation.reading_status);
                 
                 // Buscar estaciones mapeadas específicamente
-                Object.keys(window.REFERENCE_STATION_MAPPING).forEach(stationId => {
+                Object.keys(window.ALL_STATIONS_MAPPING).forEach(stationId => {
                     const station = data.stations.find(s => s.station_id === stationId);
                     if (station) {
                         console.log(`🎯 ${stationId} Station found:`, {
