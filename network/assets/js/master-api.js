@@ -242,7 +242,7 @@ function updateAllReferenceStationSquares(mappedStations) {
         let updatedCount = 0;
         const errors = [];
 
-        // Procesar cada estación mapeada - VERSIÓN SIMPLIFICADA
+        // Procesar cada estación mapeada
         const squareColorCases = [];
         const numberTextCases = [];
         let updatedCount = 0;
