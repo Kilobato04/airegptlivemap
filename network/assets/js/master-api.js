@@ -279,12 +279,12 @@ function updateAllReferenceStationSquares(mappedStations) {
             
             console.log(`✅ Found ${matchingFeatures.length} feature(s) for ${station_id}: ${matchingFeatures.map(f => f.properties.name)}`);
             
-            // Determinar qué mostrar
+            // Determinar qué mostrar - AJUSTADO para cuadrados con números
             let displayText, textColor;
             
             if (reading_status === 'current' && ias_numeric_value) {
                 displayText = Math.round(ias_numeric_value).toString();
-                textColor = getContrastColor(color_code);
+                textColor = '#000000'; // Texto negro para buena legibilidad
                 console.log(`📊 ${station_id}: IAS ${displayText}, Color ${color_code}, Text ${textColor}`);
             } else {
                 displayText = reading_status === 'stale' ? '○' : '×';
@@ -322,12 +322,12 @@ function updateAllReferenceStationSquares(mappedStations) {
             console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
             console.log(`📊 Text cases: ${textColorCases.length / 2}, Halo cases: ${haloColorCases.length / 2}`);
             
-            // Actualizar color de texto
+            // Actualizar color de texto - NEGRO para contraste
             if (textColorCases.length > 0) {
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', [
                     'case',
                     ...textColorCases,
-                    '#666666' // color por defecto
+                    '#000000' // texto negro por defecto para mejor contraste
                 ]);
                 console.log('✅ Text color updated');
             }
@@ -342,17 +342,41 @@ function updateAllReferenceStationSquares(mappedStations) {
                 console.log('✅ Text field updated');
             }
             
-            // Actualizar color del halo
+            // NUEVO: Actualizar color de fondo del cuadrado (equivalente al círculo de Smability)
             if (haloColorCases.length > 0) {
-                window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', [
+                window.map.setPaintProperty('smaa_network_squares', 'text-color', [
                     'case',
                     ...haloColorCases,
-                    'rgba(0,0,0,0)' // transparente por defecto
+                    '#000000' // texto negro
                 ]);
-                console.log('✅ Halo color updated');
+                
+                // Cambiar el símbolo del cuadrado por uno con fondo de color
+                const backgroundCases = [];
+                mappedStations.forEach(station => {
+                    const { station_id, color_code, reading_status } = station;
+                    const mappedName = window.ALL_STATIONS_MAPPING[station_id];
+                    const stationIdentifiers = [station_id, station.station_name, mappedName].filter(Boolean);
+                    
+                    stationIdentifiers.forEach(identifier => {
+                        if (reading_status === 'current' && color_code) {
+                            backgroundCases.push(['==', ['get', 'name'], identifier]);
+                            backgroundCases.push('█'); // Cuadrado sólido con fondo
+                        }
+                    });
+                });
+                
+                if (backgroundCases.length > 0) {
+                    window.map.setLayoutProperty('smaa_network_squares', 'text-field', [
+                        'case',
+                        ...backgroundCases,
+                        '■' // cuadrado por defecto
+                    ]);
+                }
+                
+                console.log('✅ Square background color updated');
             }
             
-            // Actualizar ancho del halo
+            // MANTENER: Halo width para efectos adicionales si es necesario
             if (haloWidthCases.length > 0) {
                 window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', [
                     'case',
