@@ -242,7 +242,12 @@ function updateAllReferenceStationSquares(mappedStations) {
         let updatedCount = 0;
         const errors = [];
 
-        // Procesar cada estación mapeada
+        // Procesar cada estación mapeada - VERSIÓN SIMPLIFICADA
+        const squareColorCases = [];
+        const numberTextCases = [];
+        let updatedCount = 0;
+        const errors = [];
+        
         mappedStations.forEach(station => {
             const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
             
@@ -261,125 +266,63 @@ function updateAllReferenceStationSquares(mappedStations) {
             
             if (matchingFeatures.length === 0) {
                 console.log(`❌ No features found for ${station_id} with identifiers: ${stationIdentifiers}`);
-                
-                // Debug: buscar nombres similares
-                const similarFeatures = allFeatures.filter(f => 
-                    f.properties.name && (
-                        f.properties.name.toLowerCase().includes(station_id.toLowerCase()) ||
-                        f.properties.name.toLowerCase().includes(station_name.toLowerCase().substring(0, 5))
-                    )
-                );
-                if (similarFeatures.length > 0) {
-                    console.log(`🔍 Similar features found: ${similarFeatures.map(f => f.properties.name)}`);
-                }
-                
                 errors.push(`No features for ${station_id}`);
                 return;
             }
             
-            console.log(`✅ Found ${matchingFeatures.length} feature(s) for ${station_id}: ${matchingFeatures.map(f => f.properties.name)}`);
+            console.log(`✅ Found ${matchingFeatures.length} feature(s) for ${station_id}`);
             
-            // Determinar qué mostrar - AJUSTADO para cuadrados con números
-            let displayText, textColor;
+            // Determinar qué mostrar
+            const displayText = (reading_status === 'current' && ias_numeric_value) 
+                ? Math.round(ias_numeric_value).toString() 
+                : (reading_status === 'stale' ? '○' : '×');
             
-            if (reading_status === 'current' && ias_numeric_value) {
-                displayText = Math.round(ias_numeric_value).toString();
-                textColor = '#000000'; // Texto negro para buena legibilidad
-                console.log(`📊 ${station_id}: IAS ${displayText}, Color ${color_code}, Text ${textColor}`);
-            } else {
-                displayText = reading_status === 'stale' ? '○' : '×';
-                textColor = '#ffffff';
-                console.log(`⚠️ ${station_id}: Status ${displayText} (${reading_status})`);
-            }
-            
-            // Agregar casos a las expresiones de Mapbox SOLO para features encontradas
             matchingFeatures.forEach(feature => {
                 const featureName = feature.properties.name;
                 
-                // Text color
-                textColorCases.push(['==', ['get', 'name'], featureName]);
-                textColorCases.push(textColor);
-                
-                // Text field (display text)
-                textFieldCases.push(['==', ['get', 'name'], featureName]);
-                textFieldCases.push(displayText);
-                
-                // Halo color y width para estaciones con datos actuales
+                // Color del cuadrado de fondo
                 if (reading_status === 'current' && color_code) {
-                    haloColorCases.push(['==', ['get', 'name'], featureName]);
-                    haloColorCases.push(color_code);
-                    
-                    haloWidthCases.push(['==', ['get', 'name'], featureName]);
-                    haloWidthCases.push(4);
+                    squareColorCases.push(['==', ['get', 'name'], featureName]);
+                    squareColorCases.push(color_code);
                 }
+                
+                // Texto del número IAS
+                numberTextCases.push(['==', ['get', 'name'], featureName]);
+                numberTextCases.push(displayText);
             });
             
             updatedCount++;
         });
-
-        // Aplicar todas las actualizaciones al mapa de una vez
+        
+        // Aplicar actualizaciones al mapa
         try {
             console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
             
-            // Preparar arrays simplificados para cuadrados
-            const squareColorCases = [];
-            const numberTextCases = [];
-            
-            mappedStations.forEach(station => {
-                const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
-                const mappedName = window.ALL_STATIONS_MAPPING[station_id];
-                const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
-                
-                // Encontrar features que coincidan
-                const matchingFeatures = allFeatures.filter(feature => 
-                    stationIdentifiers.includes(feature.properties.name)
-                );
-                
-                if (matchingFeatures.length > 0) {
-                    const displayText = (reading_status === 'current' && ias_numeric_value) 
-                        ? Math.round(ias_numeric_value).toString() 
-                        : (reading_status === 'stale' ? '○' : '×');
-                    
-                    matchingFeatures.forEach(feature => {
-                        const featureName = feature.properties.name;
-                        
-                        // Color del cuadrado
-                        if (reading_status === 'current' && color_code) {
-                            squareColorCases.push(['==', ['get', 'name'], featureName]);
-                            squareColorCases.push(color_code);
-                        }
-                        
-                        // Texto del número IAS
-                        numberTextCases.push(['==', ['get', 'name'], featureName]);
-                        numberTextCases.push(displayText);
-                    });
-                }
-            });
-            
-            // Aplicar color de fondo del cuadrado
+            // 1. Cuadrado de fondo con color
+            window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
             if (squareColorCases.length > 0) {
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', [
                     'case',
                     ...squareColorCases,
-                    '#666666' // color gris por defecto
+                    '#666666'
                 ]);
-                
-                // Usar símbolo más cuadrado
-                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
-                console.log('✅ Square colors updated');
+                console.log('✅ Square background colors updated');
             }
             
-            // Aplicar números IAS en layer de texto
+            // 2. Números IAS encima
             if (numberTextCases.length > 0 && window.map.getLayer('smaa_network_squares_text')) {
                 window.map.setLayoutProperty('smaa_network_squares_text', 'text-field', [
                     'case',
                     ...numberTextCases,
-                    '' // sin texto por defecto
+                    ''
                 ]);
-                console.log('✅ IAS numbers updated');
+                window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
+                console.log('✅ IAS numbers updated on overlay');
+            } else {
+                console.log('⚠️ smaa_network_squares_text layer not found');
             }
             
-            // Borde suave blanco
+            // 3. Borde suave blanco
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', '#ffffff');
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2);
             
