@@ -320,71 +320,68 @@ function updateAllReferenceStationSquares(mappedStations) {
         // Aplicar todas las actualizaciones al mapa de una vez
         try {
             console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
-            console.log(`📊 Text cases: ${textColorCases.length / 2}, Halo cases: ${haloColorCases.length / 2}`);
             
-            // Actualizar color de texto - NEGRO para contraste
-            if (textColorCases.length > 0) {
-                window.map.setPaintProperty('smaa_network_squares', 'text-color', [
-                    'case',
-                    ...textColorCases,
-                    '#000000' // texto negro por defecto para mejor contraste
-                ]);
-                console.log('✅ Text color updated');
-            }
+            // Preparar arrays simplificados para cuadrados
+            const squareColorCases = [];
+            const numberTextCases = [];
             
-            // Actualizar texto mostrado
-            if (textFieldCases.length > 0) {
-                window.map.setLayoutProperty('smaa_network_squares', 'text-field', [
-                    'case',
-                    ...textFieldCases,
-                    '■' // símbolo por defecto
-                ]);
-                console.log('✅ Text field updated');
-            }
-            
-            // NUEVO: Actualizar color de fondo del cuadrado (equivalente al círculo de Smability)
-            if (haloColorCases.length > 0) {
-                window.map.setPaintProperty('smaa_network_squares', 'text-color', [
-                    'case',
-                    ...haloColorCases,
-                    '#000000' // texto negro
-                ]);
+            mappedStations.forEach(station => {
+                const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
+                const mappedName = window.ALL_STATIONS_MAPPING[station_id];
+                const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
                 
-                // Cambiar el símbolo del cuadrado por uno con fondo de color
-                const backgroundCases = [];
-                mappedStations.forEach(station => {
-                    const { station_id, color_code, reading_status } = station;
-                    const mappedName = window.ALL_STATIONS_MAPPING[station_id];
-                    const stationIdentifiers = [station_id, station.station_name, mappedName].filter(Boolean);
+                // Encontrar features que coincidan
+                const matchingFeatures = allFeatures.filter(feature => 
+                    stationIdentifiers.includes(feature.properties.name)
+                );
+                
+                if (matchingFeatures.length > 0) {
+                    const displayText = (reading_status === 'current' && ias_numeric_value) 
+                        ? Math.round(ias_numeric_value).toString() 
+                        : (reading_status === 'stale' ? '○' : '×');
                     
-                    stationIdentifiers.forEach(identifier => {
+                    matchingFeatures.forEach(feature => {
+                        const featureName = feature.properties.name;
+                        
+                        // Color del cuadrado
                         if (reading_status === 'current' && color_code) {
-                            backgroundCases.push(['==', ['get', 'name'], identifier]);
-                            backgroundCases.push('█'); // Cuadrado sólido con fondo
+                            squareColorCases.push(['==', ['get', 'name'], featureName]);
+                            squareColorCases.push(color_code);
                         }
+                        
+                        // Texto del número IAS
+                        numberTextCases.push(['==', ['get', 'name'], featureName]);
+                        numberTextCases.push(displayText);
                     });
-                });
-                
-                if (backgroundCases.length > 0) {
-                    window.map.setLayoutProperty('smaa_network_squares', 'text-field', [
-                        'case',
-                        ...backgroundCases,
-                        '■' // cuadrado por defecto
-                    ]);
                 }
+            });
+            
+            // Aplicar color de fondo del cuadrado
+            if (squareColorCases.length > 0) {
+                window.map.setPaintProperty('smaa_network_squares', 'text-color', [
+                    'case',
+                    ...squareColorCases,
+                    '#666666' // color gris por defecto
+                ]);
                 
-                console.log('✅ Square background color updated');
+                // Usar símbolo más cuadrado
+                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
+                console.log('✅ Square colors updated');
             }
             
-            // MANTENER: Halo width para efectos adicionales si es necesario
-            if (haloWidthCases.length > 0) {
-                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', [
+            // Aplicar números IAS en layer de texto
+            if (numberTextCases.length > 0 && window.map.getLayer('smaa_network_squares_text')) {
+                window.map.setLayoutProperty('smaa_network_squares_text', 'text-field', [
                     'case',
-                    ...haloWidthCases,
-                    0 // sin halo por defecto
+                    ...numberTextCases,
+                    '' // sin texto por defecto
                 ]);
-                console.log('✅ Halo width updated');
+                console.log('✅ IAS numbers updated');
             }
+            
+            // Borde suave blanco
+            window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', '#ffffff');
+            window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2);
             
             console.log(`✅ Successfully updated ${updatedCount} stations on map`);
             
