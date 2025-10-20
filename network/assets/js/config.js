@@ -4,7 +4,7 @@ window.MAPBOX_CONFIG = {
     accessToken: 'pk.eyJ1Ijoia2lsb2JhdG8iLCJhIjoiYTU2YmIyYzZiNjUxOGI5MDQ5YWVmNmRkZDg5ZTQ0NDQifQ.U_W7cH_L3M5l4DZX3fbljA',
     style: 'mapbox://styles/kilobato/clxo1i3qd02th01qm2op9h1a1',
     center: [-99.167213, 19.414855],
-    zoom: 11.5
+    zoom: 10.5
 };
 
 window.APP_SETTINGS = {
