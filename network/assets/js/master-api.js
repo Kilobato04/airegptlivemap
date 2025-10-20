@@ -233,15 +233,6 @@ function updateAllReferenceStationSquares(mappedStations) {
             return { updated: 0, errors: ['Map query failed'] };
         }
 
-        // Preparar arrays para las expresiones de Mapbox
-        const textColorCases = [];
-        const textFieldCases = [];
-        const haloColorCases = [];
-        const haloWidthCases = [];
-        
-        let updatedCount = 0;
-        const errors = [];
-
         // Procesar cada estación mapeada
         const squareColorCases = [];
         const numberTextCases = [];
@@ -251,13 +242,11 @@ function updateAllReferenceStationSquares(mappedStations) {
         mappedStations.forEach(station => {
             const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
             
-            console.log(`🎯 Processing station: ${station_id} (${station_name})`);
+            console.log(`Processing station: ${station_id} (${station_name})`);
             
             // Buscar features para esta estación
             const mappedName = window.ALL_STATIONS_MAPPING[station_id];
             const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
-            
-            console.log(`🔍 Looking for identifiers: [${stationIdentifiers.join(', ')}]`);
             
             // Encontrar features que coincidan
             const matchingFeatures = allFeatures.filter(feature => 
@@ -265,12 +254,12 @@ function updateAllReferenceStationSquares(mappedStations) {
             );
             
             if (matchingFeatures.length === 0) {
-                console.log(`❌ No features found for ${station_id} with identifiers: ${stationIdentifiers}`);
+                console.log(`No features found for ${station_id}`);
                 errors.push(`No features for ${station_id}`);
                 return;
             }
             
-            console.log(`✅ Found ${matchingFeatures.length} feature(s) for ${station_id}`);
+            console.log(`Found ${matchingFeatures.length} feature(s) for ${station_id}`);
             
             // Determinar qué mostrar
             const displayText = (reading_status === 'current' && ias_numeric_value) 
@@ -296,7 +285,8 @@ function updateAllReferenceStationSquares(mappedStations) {
         
         // Aplicar actualizaciones al mapa
         try {
-            console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
+            console.log(`Applying map style updates for ${updatedCount} stations...`);
+            console.log(`Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
             
             // 1. Cuadrado de fondo con color
             window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
@@ -306,30 +296,33 @@ function updateAllReferenceStationSquares(mappedStations) {
                     ...squareColorCases,
                     '#666666'
                 ]);
-                console.log('✅ Square background colors updated');
+                console.log('Square background colors updated');
             }
             
             // 2. Números IAS encima
-            if (numberTextCases.length > 0 && window.map.getLayer('smaa_network_squares_text')) {
-                window.map.setLayoutProperty('smaa_network_squares_text', 'text-field', [
-                    'case',
-                    ...numberTextCases,
-                    ''
-                ]);
-                window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
-                console.log('✅ IAS numbers updated on overlay');
-            } else {
-                console.log('⚠️ smaa_network_squares_text layer not found');
+            if (numberTextCases.length > 0) {
+                // Verificar si el layer de texto existe
+                if (window.map.getLayer('smaa_network_squares_text')) {
+                    window.map.setLayoutProperty('smaa_network_squares_text', 'text-field', [
+                        'case',
+                        ...numberTextCases,
+                        ''
+                    ]);
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
+                    console.log('IAS numbers updated on overlay');
+                } else {
+                    console.warn('smaa_network_squares_text layer not found');
+                }
             }
             
             // 3. Borde suave blanco
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', '#ffffff');
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2);
             
-            console.log(`✅ Successfully updated ${updatedCount} stations on map`);
+            console.log(`Successfully updated ${updatedCount} stations on map`);
             
         } catch (mapError) {
-            console.error('❌ Error applying map updates:', mapError);
+            console.error('Error applying map updates:', mapError);
             errors.push('Map update failed: ' + mapError.message);
         }
         
