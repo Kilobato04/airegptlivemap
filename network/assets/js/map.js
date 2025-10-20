@@ -128,6 +128,8 @@ setTimeout(() => {
         setTimeout(() => {
             console.log('Initializing IAS values...');
             updateAllMarkerIAS();
+            // NUEVO: Inicializar Master API squares
+            updateMasterAPISquares();
         }, 2000);
         
         // NUEVO: Asegurar que SmabilityPanels esté inicializado
@@ -183,6 +185,10 @@ setTimeout(() => {
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
+                    // NUEVO: Mostrar layer de texto para cuadrados Master API
+                    if (map.getLayer('smaa_network_squares_text')) {
+                        map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'visible');
+                    }
                     
                     // Mostrar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
@@ -197,6 +203,10 @@ setTimeout(() => {
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'none');
+                    // NUEVO: Ocultar layer de texto para cuadrados Master API
+                    if (map.getLayer('smaa_network_squares_text')) {
+                        map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'none');
+                    }
                     
                     // Ocultar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
@@ -252,12 +262,33 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■', // Cuadrado sólido
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 24, // Más grande para ser dominante
+                'text-size': 32, // MÁS GRANDE - aumentado de 24 a 32
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#666666'
+                'text-color': '#666666',
+                'text-halo-color': '#ffffff', // BORDE SUAVE BLANCO
+                'text-halo-width': 2 // ANCHO DEL BORDE
+            }
+        });
+        
+        // NUEVO: Layer de texto para números IAS en cuadrados Master API
+        map.addLayer({
+            'id': 'smaa_network_squares_text',
+            'type': 'symbol',
+            'source': MAP_LAYERS.source,
+            'source-layer': MAP_LAYERS.sourceLayer,
+            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]],
+            'layout': {
+                'text-field': '', // Vacío por defecto, se llenará via Master API
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                'text-size': 11, // Tamaño de texto para números IAS
+                'text-allow-overlap': true,
+                'text-ignore-placement': true
+            },
+            'paint': {
+                'text-color': '#000000' // Texto negro para contraste
             }
         });
     
@@ -665,6 +696,31 @@ setTimeout(() => {
         }
     }
 
+        /**
+     * Update Master API square markers with IAS data
+     * Función específica para marcadores cuadrados de la API Master
+     */
+    async function updateMasterAPISquares() {
+        try {
+            console.log('🔄 Updating Master API square markers...');
+            
+            // Verificar que el sistema Master API esté disponible
+            if (typeof window.MasterAPI !== 'undefined' && window.MasterAPI.updateStations) {
+                console.log('✅ Master API system found, triggering update...');
+                await window.MasterAPI.updateStations();
+            } else if (typeof updateReferenceStations === 'function') {
+                console.log('✅ Legacy Master API function found, triggering update...');
+                await updateReferenceStations();
+            } else {
+                console.log('⚠️ Master API system not available yet');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error updating Master API squares:', error);
+        }
+    }
+
+
     /**
      * Update IAS values in markers
      * @param {string} location - Location name
@@ -750,33 +806,42 @@ setTimeout(() => {
         async function performRefresh() {
             console.log('Performing scheduled data refresh at:', new Date().toLocaleTimeString());
             
-            // Update marker colors and IAS values for active stations
+            // 1. Update marker colors and IAS values for active stations (Smability circular markers)
             if (typeof updateMarkerData === 'function') {
                 await updateMarkerData();
             }
             
-            // Force update of all markers
+            // 2. NUEVO: Update Master API square markers
+            await updateMasterAPISquares();
+            
+            // 3. Force update of all circular markers
             for (const location of APP_SETTINGS.activeStations) {
                 if (markers.has(location)) {
                     await updateMarkerColor(location);
                 }
             }
             
-            // Update any visible popups
+            // 4. Update any visible popups
             const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
             if (visiblePopups.length > 0) {
                 try {
                     const features = map.queryRenderedFeatures({
-                        layers: ['smaa_network']
+                        layers: ['smaa_network', 'smaa_network_squares'] // Incluir ambos layers
                     });
                     
                     for (const feature of features) {
                         if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
+                            // Smability stations - usar API BioBox
                             const sensorData = await fetchSensorData(feature.properties.name);
-                            // Update popup content if it exists
                             const popupContent = visiblePopups[0].querySelector('.mapboxgl-popup-content');
                             if (popupContent) {
                                 popupContent.innerHTML = createPopupContent(feature, sensorData);
+                            }
+                        } else {
+                            // Master API stations - crear popup básico
+                            const popupContent = visiblePopups[0].querySelector('.mapboxgl-popup-content');
+                            if (popupContent) {
+                                popupContent.innerHTML = createPopupContent(feature, null);
                             }
                         }
                     }
