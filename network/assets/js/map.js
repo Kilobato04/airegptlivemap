@@ -273,7 +273,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■',
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 60, // 4px más grande que el principal (29 + 4)
+                'text-size': 28, // 4px más grande que el principal (29 + 4)
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
@@ -292,7 +292,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■', // Símbolo ASCII compatible
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 29, // Tamaño ajustado para mejor visibilidad
+                'text-size': 24, // Tamaño ajustado para mejor visibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
@@ -313,7 +313,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '', // Vacío por defecto, se llenará via Master API
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 12, // Tamaño más grande para mejor legibilidad
+                'text-size': 10, // Tamaño más grande para mejor legibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
