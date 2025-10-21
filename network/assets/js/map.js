@@ -185,10 +185,21 @@ setTimeout(() => {
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
+
+                    if (map.getLayer('smaa_network_squares_border')) {
+                        map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'visible');
+                    }
+                    
+                    // En la sección de OCULTAR (buscar donde dice "map.setLayoutProperty('smaa_network_squares', 'visibility', 'none')"):
+                    if (map.getLayer('smaa_network_squares_border')) {
+                        map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'none');
+                    }
+                    
                     // NUEVO: Mostrar layer de texto para cuadrados Master API
                     if (map.getLayer('smaa_network_squares_text')) {
                         map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'visible');
                     }
+                    
                     
                     // Mostrar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
@@ -249,6 +260,25 @@ setTimeout(() => {
                 'circle-radius': 6,
                 'circle-stroke-width': 1.2,
                 'circle-stroke-color': '#ffffff'
+            }
+        });
+        
+        // Layer de MARCO BLANCO para cuadrados (va atrás)
+        map.addLayer({
+            'id': 'smaa_network_squares_border',
+            'type': 'symbol',
+            'source': MAP_LAYERS.source,
+            'source-layer': MAP_LAYERS.sourceLayer,
+            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]],
+            'layout': {
+                'text-field': '■',
+                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                'text-size': 33, // 4px más grande que el principal (29 + 4)
+                'text-allow-overlap': true,
+                'text-ignore-placement': true
+            },
+            'paint': {
+                'text-color': '#ffffff' // Marco blanco
             }
         });
         
