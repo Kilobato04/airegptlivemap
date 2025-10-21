@@ -262,18 +262,18 @@ setTimeout(() => {
             'layout': {
                 'text-field': '⬛', // DEBE ser este símbolo, no '■'
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 32,
+                'text-size': 28, // Tamaño ajustado para mejor visibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#666666',
-                'text-halo-color': '#ffffff',
-                'text-halo-width': 2
+                'text-color': 'rgba(0,0,0,0)', // Transparente inicialmente - el color vendrá del halo
+                'text-halo-color': '#666666',   // Gris por defecto - se actualizará dinámicamente
+                'text-halo-width': 8            // Simula el fondo del marcador cuadrado
             }
         });
         
-        // NUEVO: Layer de texto para números IAS en cuadrados Master API
+        // Layer de texto para números IAS en cuadrados Master API
         map.addLayer({
             'id': 'smaa_network_squares_text',
             'type': 'symbol',
@@ -281,14 +281,16 @@ setTimeout(() => {
             'source-layer': MAP_LAYERS.sourceLayer,
             'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]],
             'layout': {
-                'text-field': '', // Vacío por defecto, se llenará via Master API
+                'text-field', // Vacío por defecto, se llenará via Master API
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 11, // Tamaño de texto para números IAS
+                'text-size': 12, // Tamaño más grande para mejor legibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#000000' // Texto negro para contraste
+                'text-color': '#000000',        // Texto negro
+                'text-halo-color': '#f0f0f0',   // Contorno gris claro para legibilidad
+                'text-halo-width': 1.5          // Contorno sutil pero visible
             }
         });
     
