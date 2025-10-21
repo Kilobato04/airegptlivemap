@@ -151,6 +151,8 @@ async function fetchMasterAPIData() {
     }
 }
 
+
+
 /**
  * Process Master API data and update reference station squares - VERSIÓN CORREGIDA
  * Actualiza TODAS las estaciones mapeadas de una vez
@@ -159,7 +161,13 @@ async function updateReferenceStations() {
     try {
         console.log('🔄 Starting reference stations update...');
         window.logSchedule('Starting station update process');
-        
+
+         if (!window.map || !window.map.getLayer('smaa_network_squares')) {
+            console.log('⚠️ Map layers not ready for update, skipping...');
+            window.logSchedule('Map layers not ready');
+            return;
+        }
+
         const stations = await fetchMasterAPIData();
         
         if (!stations.length) {
@@ -187,7 +195,7 @@ async function updateReferenceStations() {
         });
         
         // NUEVO: Actualizar todas las estaciones de una vez
-        const updateResult = updateAllReferenceStationSquares(mappedStations);
+        const updateResult = await updateAllReferenceStationSquares(mappedStations);
         
         console.log(`✅ Reference stations update complete: ${updateResult.updated}/${mappedStations.length} mapped stations updated`);
         if (updateResult.errors.length > 0) {
