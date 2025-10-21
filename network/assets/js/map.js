@@ -190,10 +190,6 @@ setTimeout(() => {
                         map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'visible');
                     }
                     
-                    // En la sección de OCULTAR (buscar donde dice "map.setLayoutProperty('smaa_network_squares', 'visibility', 'none')"):
-                    if (map.getLayer('smaa_network_squares_border')) {
-                        map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'none');
-                    }
                     
                     // NUEVO: Mostrar layer de texto para cuadrados Master API
                     if (map.getLayer('smaa_network_squares_text')) {
@@ -214,6 +210,11 @@ setTimeout(() => {
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'none');
+
+                    if (map.getLayer('smaa_network_squares_border')) {
+                        map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'none');
+                    }
+                    
                     // NUEVO: Ocultar layer de texto para cuadrados Master API
                     if (map.getLayer('smaa_network_squares_text')) {
                         map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'none');
