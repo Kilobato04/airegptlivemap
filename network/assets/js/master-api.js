@@ -321,21 +321,6 @@ function updateAllReferenceStationSquares(mappedStations) {
             
             updatedCount++;
         });
-            
-            matchingFeatures.forEach(feature => {
-                const featureName = feature.properties.name;
-                
-                // SIEMPRE aplicar color de fondo (no solo cuando hay datos current)
-                squareColorCases.push(['==', ['get', 'name'], featureName]);
-                squareColorCases.push(backgroundColor);
-                
-                // SIEMPRE aplicar texto (número IAS o símbolo de estado)
-                numberTextCases.push(['==', ['get', 'name'], featureName]);
-                numberTextCases.push(displayText);
-            });
-            
-            updatedCount++;
-        });
 
         // Aplicar actualizaciones al mapa
         try {
