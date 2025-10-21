@@ -262,15 +262,17 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■', // Símbolo ASCII compatible
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 30, // Tamaño ajustado para mejor visibilidad
+                'text-size': 29, // Tamaño ajustado para mejor visibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': 'rgba(0,0,0,0)', // ← Transparente
-                'text-halo-color': '#666666',   // ← Color de fondo
-                'text-halo-width': 8            // ← Tamaño del fondo
-            }
+                    'text-color': 'rgba(0,0,0,0)', // Transparente
+                    'text-halo-color': '#666666',   // Color de fondo
+                    'text-halo-width': 8,           // Tamaño del fondo
+                    'text-stroke-color': '#ffffff', // ← AGREGAR: Marco blanco
+                    'text-stroke-width': 2          // ← AGREGAR: Grosor del marco
+                }
         });
         
         // Layer de texto para números IAS en cuadrados Master API
