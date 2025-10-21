@@ -260,7 +260,7 @@ setTimeout(() => {
             'source-layer': MAP_LAYERS.sourceLayer,
             'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], 
             'layout': {
-                'text-field': '⬛', // DEBE ser este símbolo, no '■'
+                'text-field': '■', // Símbolo ASCII compatible
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
                 'text-size': 28, // Tamaño ajustado para mejor visibilidad
                 'text-allow-overlap': true,
