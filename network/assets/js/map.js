@@ -281,7 +281,7 @@ setTimeout(() => {
             'source-layer': MAP_LAYERS.sourceLayer,
             'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]],
             'layout': {
-                'text-field', // Vacío por defecto, se llenará via Master API
+                'text-field': '', // Vacío por defecto, se llenará via Master API
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
                 'text-size': 12, // Tamaño más grande para mejor legibilidad
                 'text-allow-overlap': true,
