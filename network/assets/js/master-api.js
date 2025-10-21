@@ -288,15 +288,23 @@ function updateAllReferenceStationSquares(mappedStations) {
             console.log(`Applying map style updates for ${updatedCount} stations...`);
             console.log(`Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
             
-            // 1. Cuadrado de fondo con color
-            window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
+            // 1. Aplicar colores a los cuadrados de fondo
+            console.log('DEBUG - squareColorCases:', squareColorCases.slice(0, 10));
+            console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
+            
             if (squareColorCases.length > 0) {
+                // Usar el símbolo cuadrado más cuadrado
+                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
+                
+                // Aplicar colores específicos por estación
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', [
                     'case',
                     ...squareColorCases,
                     '#666666'
                 ]);
-                console.log('Square background colors updated');
+                console.log('✅ Square colors applied');
+            } else {
+                console.log('⚠️ No square color cases to apply');
             }
             
             // 2. Números IAS encima
