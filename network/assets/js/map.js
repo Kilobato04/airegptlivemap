@@ -313,14 +313,14 @@ setTimeout(() => {
             'layout': {
                 'text-field': '', // Vacío por defecto, se llenará via Master API
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 10, // Tamaño más grande para mejor legibilidad
+                'text-size': 9, // Tamaño más grande para mejor legibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#000000',        // ← Texto negro
-                'text-halo-color': '#f0f0f0',   // ← Contorno gris claro
-                'text-halo-width': 1.5          // ← Contorno sutil
+                'text-color': '#000000'        // ← Texto negro
+             //   'text-halo-color': '#f0f0f0',   // ← Contorno gris claro
+             //   'text-halo-width': 1.5          // ← Contorno sutil
             }
         });
     
