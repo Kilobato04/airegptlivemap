@@ -213,6 +213,10 @@ async function updateReferenceStations() {
  */
 function updateAllReferenceStationSquares(mappedStations) {
     try {
+        console.log('Current smaa_network_squares text-field:', 
+            window.map.getLayoutProperty('smaa_network_squares', 'text-field'));
+        console.log('Current smaa_network_squares text-color:', 
+            window.map.getPaintProperty('smaa_network_squares', 'text-color'));
         console.log('🎨 Updating all reference station squares...');
         
         // Verificar que el mapa y las capas existen
