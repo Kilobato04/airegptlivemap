@@ -273,7 +273,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■',
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 60, // 4px más grande que el principal (29 + 4)
+                'text-size': 55, // 4px más grande que el principal (29 + 4)
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
@@ -313,12 +313,12 @@ setTimeout(() => {
             'layout': {
                 'text-field': '', // Vacío por defecto, se llenará via Master API
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 9, // Tamaño más grande para mejor legibilidad
+                'text-size': 10, // Tamaño más grande para mejor legibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#000000'        // ← Texto negro
+                'text-color': '#FFFFFF'        // ← Texto negro #000000
              //   'text-halo-color': '#f0f0f0',   // ← Contorno gris claro
              //   'text-halo-width': 1.5          // ← Contorno sutil
             }
