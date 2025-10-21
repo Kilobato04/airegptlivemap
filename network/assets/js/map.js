@@ -260,16 +260,16 @@ setTimeout(() => {
             'source-layer': MAP_LAYERS.sourceLayer,
             'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], 
             'layout': {
-                'text-field': '■', // Cuadrado sólido
+                'text-field': '⬛', // CAMBIAR: usar símbolo más cuadrado desde el inicio
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 32, // MÁS GRANDE - aumentado de 24 a 32
+                'text-size': 32,
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
             'paint': {
                 'text-color': '#666666',
-                'text-halo-color': '#ffffff', // BORDE SUAVE BLANCO
-                'text-halo-width': 2 // ANCHO DEL BORDE
+                'text-halo-color': '#ffffff',
+                'text-halo-width': 2
             }
         });
         
