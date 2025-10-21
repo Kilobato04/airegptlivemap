@@ -381,9 +381,9 @@ setTimeout(() => {
             }
         });
         
-        // Click handler para markers cuadrados (SIMAT)
+        // Click handler para markers cuadrados (SIMAT) - INCLUIR AMBOS LAYERS
         map.on('click', 'smaa_network_squares', (event) => {
-            console.log('🖱️ Click detected on smaa_network_squares layer');
+            console.log('Click detected on smaa_network_squares layer');
             
             const features = map.queryRenderedFeatures(event.point, {
                 layers: ['smaa_network_squares']
@@ -392,8 +392,23 @@ setTimeout(() => {
             if (!features.length) return;
             
             const feature = features[0];
-            console.log('🔲 Clicked on SIMAT square station:', feature.properties.name);
+            console.log('Clicked on SIMAT square station:', feature.properties.name);
             
+            const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML(createPopupContent(feature, null))
+                .addTo(map);
+        });
+        
+        // NUEVO: Click handler para el layer de texto también
+        map.on('click', 'smaa_network_squares_text', (event) => {
+            const features = map.queryRenderedFeatures(event.point, {
+                layers: ['smaa_network_squares_text']
+            });
+            
+            if (!features.length) return;
+            
+            const feature = features[0];
             const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
                 .setLngLat(feature.geometry.coordinates)
                 .setHTML(createPopupContent(feature, null))
