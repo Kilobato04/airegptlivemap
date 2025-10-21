@@ -857,6 +857,7 @@ function attemptMasterAPIInit() {
         window.map,
         window.map?.isStyleLoaded,
         window.map?.getLayer,
+        window.map?.on,  // ← AGREGAR esta verificación
         window.MAP_LAYERS,
         window.MASTER_API_CONFIG,
         window.getTimeUntilNextScheduledUpdate
@@ -871,7 +872,8 @@ function attemptMasterAPIInit() {
         mapReady: mapReady,
         layerReady: !!layerReady,
         hasConfig: !!window.MASTER_API_CONFIG,
-        hasScheduling: !!window.getTimeUntilNextScheduledUpdate
+        hasScheduling: !!window.getTimeUntilNextScheduledUpdate,
+        mapOnExists: !!(window.map?.on)  // ← AGREGAR este check
     });
     
     if (allDepsReady && mapReady && layerReady) {
@@ -884,24 +886,35 @@ function attemptMasterAPIInit() {
     }
 }
 
-// Función para iniciar el sistema de inicialización
+/**
+ * Función para iniciar el sistema de inicialización
+ */
 function startMasterAPIInitialization() {
     console.log('🚀 Starting Master API initialization system...');
     
     // Primer intento después de un delay
     setTimeout(attemptMasterAPIInit, 3000);
     
-    // También intentar cuando se detecte que el mapa está listo
-    if (window.map) {
-        window.map.on('sourcedata', (e) => {
-            if (e.sourceId === window.MAP_LAYERS?.source && 
-                e.isSourceLoaded && 
-                !initializationCompleted) {
-                console.log('📡 Map source loaded, attempting Master API init...');
-                setTimeout(attemptMasterAPIInit, 1000);
-            }
-        });
+    // CORREGIR: Verificar que map.on existe antes de usarlo
+    function setupMapListener() {
+        if (window.map && typeof window.map.on === 'function') {
+            console.log('📡 Setting up map sourcedata listener...');
+            window.map.on('sourcedata', (e) => {
+                if (e.sourceId === window.MAP_LAYERS?.source && 
+                    e.isSourceLoaded && 
+                    !initializationCompleted) {
+                    console.log('📡 Map source loaded, attempting Master API init...');
+                    setTimeout(attemptMasterAPIInit, 1000);
+                }
+            });
+        } else {
+            console.log('⏳ Map.on not ready, will retry...');
+            setTimeout(setupMapListener, 2000);
+        }
     }
+    
+    // Intentar configurar el listener del mapa
+    setupMapListener();
     
     // Fallback: intentar después de 10 segundos sin importar el estado
     setTimeout(() => {
