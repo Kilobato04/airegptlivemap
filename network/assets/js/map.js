@@ -267,9 +267,9 @@ setTimeout(() => {
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': 'rgba(0,0,0,0)', // Transparente inicialmente - el color vendrá del halo
-                'text-halo-color': '#666666',   // Gris por defecto - se actualizará dinámicamente
-                'text-halo-width': 8            // Simula el fondo del marcador cuadrado
+                'text-color': 'rgba(0,0,0,0)', // ← Transparente
+                'text-halo-color': '#666666',   // ← Color de fondo
+                'text-halo-width': 8            // ← Tamaño del fondo
             }
         });
         
@@ -288,9 +288,9 @@ setTimeout(() => {
                 'text-ignore-placement': true
             },
             'paint': {
-                'text-color': '#000000',        // Texto negro
-                'text-halo-color': '#f0f0f0',   // Contorno gris claro para legibilidad
-                'text-halo-width': 1.5          // Contorno sutil pero visible
+                'text-color': '#000000',        // ← Texto negro
+                'text-halo-color': '#f0f0f0',   // ← Contorno gris claro
+                'text-halo-width': 1.5          // ← Contorno sutil
             }
         });
     
