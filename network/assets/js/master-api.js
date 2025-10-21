@@ -302,7 +302,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                     ...squareColorCases,
                     '#666666'
                 ]);
-                console.log('✅ Square colors applied');
+                console.log('Square colors applied');
             } else {
                 console.log('⚠️ No square color cases to apply');
             }
