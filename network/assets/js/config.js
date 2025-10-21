@@ -181,3 +181,171 @@ window.formatDateForAPI = function(date) {
 };
 
 console.log('Config loaded successfully');
+
+// AGREGAR al final de config.js - Funciones faltantes requeridas por map.js
+
+/**
+ * Create HTML for the map legend
+ * @returns {string} HTML content for legend
+ */
+window.createLegendHTML = function() {
+    return `
+        <div class="legend-header">
+            <button class="legend-toggle">−</button>
+            <h4>Air Quality Index</h4>
+        </div>
+        <div class="legend-content">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${AQI_THRESHOLDS.good.color}"></div>
+                <span>Good (0-50)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${AQI_THRESHOLDS.acceptable.color}"></div>
+                <span>Acceptable (51-100)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${AQI_THRESHOLDS.bad.color}"></div>
+                <span>Bad (101-150)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${AQI_THRESHOLDS.veryBad.color}"></div>
+                <span>Very Bad (151-200)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: ${AQI_THRESHOLDS.extremelyBad.color}"></div>
+                <span>Extremely Bad (201+)</span>
+            </div>
+            <div class="legend-controls">
+                <button id="toggleAQNetwork" class="toggle-button">AQ Network</button>
+            </div>
+        </div>
+    `;
+};
+
+/**
+ * Create popup content for map markers
+ * @param {Object} feature - Map feature
+ * @param {Object} sensorData - Sensor data (optional)
+ * @returns {string} HTML content for popup
+ */
+window.createPopupContent = function(feature, sensorData = null) {
+    const stationName = feature.properties.name;
+    const isActiveStation = APP_SETTINGS.activeStations.includes(stationName);
+    
+    if (isActiveStation && sensorData) {
+        // Smability station with data
+        const iasValue = sensorData.displayIAS || sensorData.dataIAS || 'N/A';
+        const { color, status, risk } = getIndicatorColor(iasValue);
+        const lastUpdate = sensorData.displayConfig?.label || 'Unknown';
+        
+        return `
+            <div class="popup-header">
+                <h3>${stationName}</h3>
+                <span class="station-type">Smability Station</span>
+            </div>
+            <div class="popup-content">
+                <div class="ias-display">
+                    <div class="ias-value" style="background-color: ${color}">
+                        ${iasValue !== 'N/A' ? Math.round(iasValue) : 'N/A'}
+                    </div>
+                    <div class="ias-info">
+                        <div class="ias-status">${status}</div>
+                        <div class="ias-risk">Risk: ${risk}</div>
+                    </div>
+                </div>
+                <div class="popup-data">
+                    <div class="data-item">
+                        <span>Temperature:</span>
+                        <span>${sensorData.dataTemperature || 'N/A'}°C</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Humidity:</span>
+                        <span>${sensorData.dataHumidity || 'N/A'}%</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Last Update:</span>
+                        <span>${lastUpdate}</span>
+                    </div>
+                </div>
+                <div class="popup-actions">
+                    <button onclick="SmabilityPanels?.showPanel('${stationName}')" class="popup-btn">
+                        📊 View Details
+                    </button>
+                </div>
+            </div>
+        `;
+    } else {
+        // SIMAT/Master API station or no data
+        return `
+            <div class="popup-header">
+                <h3>${stationName}</h3>
+                <span class="station-type">SIMAT Station</span>
+            </div>
+            <div class="popup-content">
+                <div class="popup-info">
+                    <p>Government air quality monitoring station</p>
+                    <div class="data-item">
+                        <span>Network:</span>
+                        <span>SIMAT (Mexico City)</span>
+                    </div>
+                    <div class="data-item">
+                        <span>Status:</span>
+                        <span>Reference Station</span>
+                    </div>
+                </div>
+                <div class="popup-links">
+                    <a href="http://www.aire.cdmx.gob.mx/" target="_blank" class="popup-link">
+                        🌐 Official SIMAT Portal
+                    </a>
+                </div>
+            </div>
+        `;
+    }
+};
+
+/**
+ * Get indicator color based on IAS value
+ * @param {number|string} iasValue - IAS value
+ * @returns {Object} Color, status and risk information
+ */
+window.getIndicatorColor = function(iasValue) {
+    if (iasValue === 'N/A' || iasValue === null || iasValue === undefined) {
+        return { color: '#cccccc', status: 'No Data', risk: 'Unknown' };
+    }
+    
+    const ias = Number(iasValue);
+    
+    if (ias <= AQI_THRESHOLDS.good.max) {
+        return { 
+            color: AQI_THRESHOLDS.good.color, 
+            status: AQI_THRESHOLDS.good.status,
+            risk: AQI_THRESHOLDS.good.risk
+        };
+    } else if (ias <= AQI_THRESHOLDS.acceptable.max) {
+        return { 
+            color: AQI_THRESHOLDS.acceptable.color, 
+            status: AQI_THRESHOLDS.acceptable.status,
+            risk: AQI_THRESHOLDS.acceptable.risk
+        };
+    } else if (ias <= AQI_THRESHOLDS.bad.max) {
+        return { 
+            color: AQI_THRESHOLDS.bad.color, 
+            status: AQI_THRESHOLDS.bad.status,
+            risk: AQI_THRESHOLDS.bad.risk
+        };
+    } else if (ias <= AQI_THRESHOLDS.veryBad.max) {
+        return { 
+            color: AQI_THRESHOLDS.veryBad.color, 
+            status: AQI_THRESHOLDS.veryBad.status,
+            risk: AQI_THRESHOLDS.veryBad.risk
+        };
+    } else {
+        return { 
+            color: AQI_THRESHOLDS.extremelyBad.color, 
+            status: AQI_THRESHOLDS.extremelyBad.status,
+            risk: AQI_THRESHOLDS.extremelyBad.risk
+        };
+    }
+};
+
+console.log('✅ Config functions loaded: createLegendHTML, createPopupContent, getIndicatorColor');
