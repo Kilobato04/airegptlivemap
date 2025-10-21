@@ -292,7 +292,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■', // Símbolo ASCII compatible
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 24, // Tamaño ajustado para mejor visibilidad
+                'text-size': 26, // Tamaño ajustado para mejor visibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
