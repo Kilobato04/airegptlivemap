@@ -213,12 +213,8 @@ async function updateReferenceStations() {
  */
 function updateAllReferenceStationSquares(mappedStations) {
     try {
-        console.log('Current smaa_network_squares text-field:', 
-            window.map.getLayoutProperty('smaa_network_squares', 'text-field'));
-        console.log('Current smaa_network_squares text-color:', 
-            window.map.getPaintProperty('smaa_network_squares', 'text-color'));
         console.log('🎨 Updating all reference station squares...');
-        
+
         // Verificar que el mapa y las capas existen
         if (!window.map || !window.map.getLayer || !window.map.getLayer('smaa_network_squares')) {
             console.log('⚠️ Map or smaa_network_squares layer not ready');
@@ -242,74 +238,79 @@ function updateAllReferenceStationSquares(mappedStations) {
         const numberTextCases = [];
         let updatedCount = 0;
         const errors = [];
-        
+
         mappedStations.forEach(station => {
             const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
-            
+
             console.log(`Processing station: ${station_id} (${station_name})`);
-            
+
             // Buscar features para esta estación
             const mappedName = window.ALL_STATIONS_MAPPING[station_id];
             const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
-            
+
             // Encontrar features que coincidan
             const matchingFeatures = allFeatures.filter(feature => 
                 stationIdentifiers.includes(feature.properties.name)
             );
-            
+
             if (matchingFeatures.length === 0) {
                 console.log(`No features found for ${station_id}`);
                 errors.push(`No features for ${station_id}`);
                 return;
             }
-            
+
             console.log(`Found ${matchingFeatures.length} feature(s) for ${station_id}`);
-            
+
             // Determinar qué mostrar
             const displayText = (reading_status === 'current' && ias_numeric_value) 
                 ? Math.round(ias_numeric_value).toString() 
                 : (reading_status === 'stale' ? '○' : '×');
-            
+
             matchingFeatures.forEach(feature => {
                 const featureName = feature.properties.name;
-                
+
                 // Color del cuadrado de fondo
                 if (reading_status === 'current' && color_code) {
                     squareColorCases.push(['==', ['get', 'name'], featureName]);
                     squareColorCases.push(color_code);
                 }
-                
+
                 // Texto del número IAS
                 numberTextCases.push(['==', ['get', 'name'], featureName]);
                 numberTextCases.push(displayText);
             });
-            
+
             updatedCount++;
         });
-        
+
         // Aplicar actualizaciones al mapa
         try {
-            console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
-            console.log(`📊 Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
-            
-            // Debug arrays
+            console.log(`Applying map style updates for ${updatedCount} stations...`);
+            console.log(`Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
+
+            // 1. Aplicar colores a los cuadrados de fondo
             console.log('DEBUG - squareColorCases:', squareColorCases.slice(0, 10));
             console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
-            
-            // 1. SOLO cambiar colores de cuadrados, MANTENER el símbolo ⬛
+
             if (squareColorCases.length > 0) {
+                // Usar el símbolo cuadrado más cuadrado
+                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
+
+                // Aplicar colores específicos por estación
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', [
                     'case',
                     ...squareColorCases,
                     '#666666'
                 ]);
                 console.log('✅ Square colors applied');
+                console.log('Square colors applied');
             } else {
                 console.log('⚠️ No square color cases to apply');
             }
-            
-            // 2. Números IAS en layer separado (encima)
+
+            // 2. Números IAS encima
             if (numberTextCases.length > 0) {
+                // Verificar si el layer de texto existe
                 if (window.map.getLayer('smaa_network_squares_text')) {
                     window.map.setLayoutProperty('smaa_network_squares_text', 'text-field', [
                         'case',
@@ -317,23 +318,30 @@ function updateAllReferenceStationSquares(mappedStations) {
                         ''
                     ]);
                     window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
-                    console.log('✅ IAS numbers updated on overlay');
+                    console.log('IAS numbers updated on overlay');
                 } else {
-                    console.warn('⚠️ smaa_network_squares_text layer not found');
+                    console.warn('smaa_network_squares_text layer not found');
                 }
             }
-            
-            // 3. Mantener borde suave blanco
+
+            // 3. Borde suave blanco
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', '#ffffff');
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2);
-            
-            console.log(`✅ Successfully updated ${updatedCount} stations on map`);
-            
+
+            console.log(`Successfully updated ${updatedCount} stations on map`);
+
         } catch (mapError) {
-            console.error('❌ Error applying map updates:', mapError);
+            console.error('Error applying map updates:', mapError);
             errors.push('Map update failed: ' + mapError.message);
         }
+
+        return { updated: updatedCount, errors };
+
+    } catch (error) {
+        console.error('❌ Error in updateAllReferenceStationSquares:', error);
+        return { updated: 0, errors: [error.message] };
     }
+}
 
 
 
