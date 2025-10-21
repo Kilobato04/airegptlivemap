@@ -318,7 +318,7 @@ function updateAllReferenceStationSquares(mappedStations) {
             
             if (squareColorCases.length > 0) {
                 // Mantener el símbolo cuadrado base
-                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
+                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '■');
                 
                 // Aplicar color de FONDO usando halo (equivalente al backgroundColor en markers circulares)
                 window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', [
