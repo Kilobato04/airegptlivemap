@@ -306,6 +306,8 @@ function updateAllReferenceStationSquares(mappedStations) {
             console.log('DEBUG - squareColorCases:', squareColorCases.slice(0, 10));
             console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
 
+            // REEMPLAZAR SECCIÓN DE APLICACIÓN DE COLORES en updateAllReferenceStationSquares()
+            
             if (squareColorCases.length > 0) {
                 // Mantener el símbolo cuadrado base
                 window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
