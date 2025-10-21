@@ -60,11 +60,14 @@
         <span>AIre</span>
     </a>
 
-    <script src="assets/js/config.js"></script>
+    <!-- DEPENDENCIAS BASE - PRIMERO -->
+    <script src="assets/js/config.js"></script>                    <!-- ← CON funciones agregadas -->
+    <script src="assets/js/master-api-config.js"></script>        <!-- ← ANTES del mapa -->
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/sensors.js"></script>
     <script src="assets/js/chart.js"></script>
-    <script src="assets/js/map.js"></script>
+    <!-- MAPA - ANTES DE MASTER API -->
+    <script src="assets/js/map.js"></script>                      <!-- ← MAPA PRIMERO -->
 <!-- ==============================================
      ARCHIVO: smability-panels.html - VERSIÓN COMPLETA
      DESCRIPCIÓN: Panel único expandible con gráfico inline
@@ -224,7 +227,9 @@
         </div>
     </div>
 </div>
+
 <script src="assets/js/smability-panels.js"></script>
+
 <script>
     
 let smabilityInitAttempts = 0;
@@ -269,7 +274,6 @@ document.addEventListener('click', (e) => {
 });
 </script>
 <!-- Master API Integration - Separated files -->
-<script src="assets/js/master-api-config.js"></script>
 <script src="assets/js/master-api.js"></script>
 
 </body>
