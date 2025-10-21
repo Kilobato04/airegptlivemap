@@ -285,31 +285,27 @@ function updateAllReferenceStationSquares(mappedStations) {
         
         // Aplicar actualizaciones al mapa
         try {
-            console.log(`Applying map style updates for ${updatedCount} stations...`);
-            console.log(`Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
+            console.log(`🎨 Applying map style updates for ${updatedCount} stations...`);
+            console.log(`📊 Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
             
-            // 1. Aplicar colores a los cuadrados de fondo
+            // Debug arrays
             console.log('DEBUG - squareColorCases:', squareColorCases.slice(0, 10));
             console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
             
+            // 1. SOLO cambiar colores de cuadrados, MANTENER el símbolo ⬛
             if (squareColorCases.length > 0) {
-                // Usar el símbolo cuadrado más cuadrado
-                window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
-                
-                // Aplicar colores específicos por estación
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', [
                     'case',
                     ...squareColorCases,
                     '#666666'
                 ]);
-                console.log('Square colors applied');
+                console.log('✅ Square colors applied');
             } else {
                 console.log('⚠️ No square color cases to apply');
             }
             
-            // 2. Números IAS encima
+            // 2. Números IAS en layer separado (encima)
             if (numberTextCases.length > 0) {
-                // Verificar si el layer de texto existe
                 if (window.map.getLayer('smaa_network_squares_text')) {
                     window.map.setLayoutProperty('smaa_network_squares_text', 'text-field', [
                         'case',
@@ -317,20 +313,20 @@ function updateAllReferenceStationSquares(mappedStations) {
                         ''
                     ]);
                     window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
-                    console.log('IAS numbers updated on overlay');
+                    console.log('✅ IAS numbers updated on overlay');
                 } else {
-                    console.warn('smaa_network_squares_text layer not found');
+                    console.warn('⚠️ smaa_network_squares_text layer not found');
                 }
             }
             
-            // 3. Borde suave blanco
+            // 3. Mantener borde suave blanco
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', '#ffffff');
             window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2);
             
-            console.log(`Successfully updated ${updatedCount} stations on map`);
+            console.log(`✅ Successfully updated ${updatedCount} stations on map`);
             
         } catch (mapError) {
-            console.error('Error applying map updates:', mapError);
+            console.error('❌ Error applying map updates:', mapError);
             errors.push('Map update failed: ' + mapError.message);
         }
         
