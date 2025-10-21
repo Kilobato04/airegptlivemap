@@ -334,7 +334,7 @@ function updateAllReferenceStationSquares(mappedStations) {
             errors.push('Map update failed: ' + mapError.message);
         }
     }
-}
+
 
 
 /**
