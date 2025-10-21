@@ -269,9 +269,7 @@ setTimeout(() => {
             'paint': {
                     'text-color': 'rgba(0,0,0,0)', // Transparente
                     'text-halo-color': '#666666',   // Color de fondo
-                    'text-halo-width': 8,           // Tamaño del fondo
-                    'text-stroke-color': '#ffffff', // ← AGREGAR: Marco blanco
-                    'text-stroke-width': 2          // ← AGREGAR: Grosor del marco
+                    'text-halo-width': 8           // Tamaño del fondo
                 }
         });
         
