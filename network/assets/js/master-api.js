@@ -241,45 +241,59 @@ function updateAllReferenceStationSquares(mappedStations) {
 
         mappedStations.forEach(station => {
             const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
-
+            
             console.log(`Processing station: ${station_id} (${station_name})`);
-
+            
             // Buscar features para esta estación
             const mappedName = window.ALL_STATIONS_MAPPING[station_id];
             const stationIdentifiers = [station_id, station_name, mappedName].filter(Boolean);
-
+            
             // Encontrar features que coincidan
             const matchingFeatures = allFeatures.filter(feature => 
                 stationIdentifiers.includes(feature.properties.name)
             );
-
+            
             if (matchingFeatures.length === 0) {
                 console.log(`No features found for ${station_id}`);
                 errors.push(`No features for ${station_id}`);
                 return;
             }
-
+            
             console.log(`Found ${matchingFeatures.length} feature(s) for ${station_id}`);
-
-            // Determinar qué mostrar
-            const displayText = (reading_status === 'current' && ias_numeric_value) 
-                ? Math.round(ias_numeric_value).toString() 
-                : (reading_status === 'stale' ? '○' : '×');
-
+            
+            // Determinar color de fondo del cuadrado y contenido
+            let backgroundColor = '#666666'; // gris por defecto
+            let displayText = '';
+            
+            if (reading_status === 'current' && ias_numeric_value && color_code) {
+                // Datos LIVE: usar color IAS + mostrar número
+                backgroundColor = color_code;
+                displayText = Math.round(ias_numeric_value).toString();
+                console.log(`  → LIVE data: IAS ${displayText}, color ${backgroundColor}`);
+            } else if (reading_status === 'stale') {
+                // Datos antiguos: gris + símbolo stale
+                backgroundColor = '#888888';
+                displayText = '○';
+                console.log(`  → STALE data: showing stale indicator`);
+            } else {
+                // Sin datos válidos: gris + símbolo error
+                backgroundColor = '#666666';
+                displayText = '×';
+                console.log(`  → NO VALID data: showing error indicator`);
+            }
+            
             matchingFeatures.forEach(feature => {
                 const featureName = feature.properties.name;
-
-                // Color del cuadrado de fondo
-                if (reading_status === 'current' && color_code) {
-                    squareColorCases.push(['==', ['get', 'name'], featureName]);
-                    squareColorCases.push(color_code);
-                }
-
-                // Texto del número IAS
+                
+                // SIEMPRE aplicar color de fondo (no solo cuando hay datos current)
+                squareColorCases.push(['==', ['get', 'name'], featureName]);
+                squareColorCases.push(backgroundColor);
+                
+                // SIEMPRE aplicar texto (número IAS o símbolo de estado)
                 numberTextCases.push(['==', ['get', 'name'], featureName]);
                 numberTextCases.push(displayText);
             });
-
+            
             updatedCount++;
         });
 
@@ -293,22 +307,28 @@ function updateAllReferenceStationSquares(mappedStations) {
             console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
 
             if (squareColorCases.length > 0) {
-                // Usar el símbolo cuadrado más cuadrado
+                // Mantener el símbolo cuadrado base
                 window.map.setLayoutProperty('smaa_network_squares', 'text-field', '⬛');
-
-                // Aplicar colores específicos por estación
-                window.map.setPaintProperty('smaa_network_squares', 'text-color', [
+                
+                // Aplicar color de FONDO usando halo (equivalente al backgroundColor en markers circulares)
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', [
                     'case',
                     ...squareColorCases,
-                    '#666666'
+                    '#666666' // gris por defecto para sin datos
                 ]);
-                console.log('✅ Square colors applied');
-                console.log('Square colors applied');
+                
+                // Halo más grande para simular el fondo del marcador
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 8);
+                
+                // El texto del cuadrado debe ser transparente para que se vea el color de fondo
+                window.map.setPaintProperty('smaa_network_squares', 'text-color', 'rgba(0,0,0,0)');
+                
+                console.log('✅ Square background colors applied via halo');
             } else {
                 console.log('⚠️ No square color cases to apply');
             }
-
-            // 2. Números IAS encima
+            
+            // Para los números IAS encima del cuadrado coloreado
             if (numberTextCases.length > 0) {
                 // Verificar si el layer de texto existe
                 if (window.map.getLayer('smaa_network_squares_text')) {
@@ -317,18 +337,21 @@ function updateAllReferenceStationSquares(mappedStations) {
                         ...numberTextCases,
                         ''
                     ]);
+                    
+                    // Texto negro sobre el cuadrado coloreado
                     window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
-                    console.log('IAS numbers updated on overlay');
+                    
+                    // Contorno gris claro para legibilidad
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-color', '#f0f0f0');
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-width', 1);
+                    
+                    console.log('✅ IAS numbers updated on overlay with light gray outline');
                 } else {
                     console.warn('smaa_network_squares_text layer not found');
                 }
             }
-
-            // 3. Borde suave blanco
-            window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', '#ffffff');
-            window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2);
-
-            console.log(`Successfully updated ${updatedCount} stations on map`);
+            
+            console.log(`✅ Successfully updated ${updatedCount} stations on map`);
 
         } catch (mapError) {
             console.error('Error applying map updates:', mapError);
