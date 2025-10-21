@@ -332,6 +332,10 @@ function updateAllReferenceStationSquares(mappedStations) {
                 
                 // El texto del cuadrado debe ser transparente para que se vea el color de fondo
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', 'rgba(0,0,0,0)');
+
+                // AGREGAR: Marco blanco alrededor del cuadrado (igual que markers circulares)
+                window.map.setPaintProperty('smaa_network_squares', 'text-stroke-color', '#ffffff');
+                window.map.setPaintProperty('smaa_network_squares', 'text-stroke-width', 2);
                 
                 console.log('✅ Square background colors applied via halo');
             } else {
