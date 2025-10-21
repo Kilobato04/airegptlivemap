@@ -244,6 +244,8 @@ function updateAllReferenceStationSquares(mappedStations) {
         // Procesar cada estación mapeada
         const squareColorCases = [];
         const numberTextCases = [];
+        const markerSizeCases = [];    // ← AGREGAR
+        const borderSizeCases = [];    // ← AGREGAR
         let updatedCount = 0;
         const errors = [];
 
@@ -269,26 +271,56 @@ function updateAllReferenceStationSquares(mappedStations) {
             
             console.log(`Found ${matchingFeatures.length} feature(s) for ${station_id}`);
             
-            // Determinar color de fondo del cuadrado y contenido
-            let backgroundColor = '#666666'; // gris por defecto
+            // Determinar color, tamaño y contenido según el estado
+            let backgroundColor = '#666666';
             let displayText = '';
+            let markerSize = 24; // Tamaño base
+            let borderSize = 28; // Tamaño base del marco
             
             if (reading_status === 'current' && ias_numeric_value && color_code) {
-                // Datos LIVE: usar color IAS + mostrar número
+                // ESTACIONES FUNCIONALES: Datos LIVE - tamaño NORMAL
                 backgroundColor = color_code;
                 displayText = Math.round(ias_numeric_value).toString();
-                console.log(`  → LIVE data: IAS ${displayText}, color ${backgroundColor}`);
+                markerSize = 24;  // Tamaño normal
+                borderSize = 28;  // Marco normal
+                console.log(`  → FUNCTIONAL station: IAS ${displayText}, color ${backgroundColor}, normal size`);
             } else if (reading_status === 'stale') {
-                // Datos antiguos: gris + símbolo stale
+                // Datos antiguos: gris + símbolo stale - tamaño REDUCIDO
                 backgroundColor = '#888888';
                 displayText = '○';
-                console.log(`  → STALE data: showing stale indicator`);
+                markerSize = 12;  // 50% más chico
+                borderSize = 16;  // Marco más chico
+                console.log(`  → STALE station: reduced size`);
             } else {
-                // Sin datos válidos: gris + símbolo error
+                // ESTACIONES NO FUNCIONALES: Sin datos - tamaño REDUCIDO
                 backgroundColor = '#666666';
                 displayText = '×';
-                console.log(`  → NO VALID data: showing error indicator`);
+                markerSize = 12;  // 50% más chico
+                borderSize = 16;  // Marco más chico
+                console.log(`  → NON-FUNCTIONAL station: reduced size`);
             }
+            
+            matchingFeatures.forEach(feature => {
+                const featureName = feature.properties.name;
+                
+                // Aplicar color de fondo
+                squareColorCases.push(['==', ['get', 'name'], featureName]);
+                squareColorCases.push(backgroundColor);
+                
+                // Aplicar texto
+                numberTextCases.push(['==', ['get', 'name'], featureName]);
+                numberTextCases.push(displayText);
+                
+                // NUEVO: Aplicar tamaños dinámicos
+                markerSizeCases.push(['==', ['get', 'name'], featureName]);
+                markerSizeCases.push(markerSize);
+                
+                borderSizeCases.push(['==', ['get', 'name'], featureName]);
+                borderSizeCases.push(borderSize);
+            });
+            
+            updatedCount++;
+        });
             
             matchingFeatures.forEach(feature => {
                 const featureName = feature.properties.name;
@@ -359,6 +391,23 @@ function updateAllReferenceStationSquares(mappedStations) {
                 } else {
                     console.warn('smaa_network_squares_text layer not found');
                 }
+            }
+
+            // 3. Aplicar tamaños dinámicos
+            if (markerSizeCases.length > 0) {
+                window.map.setLayoutProperty('smaa_network_squares', 'text-size', [
+                    'case',
+                    ...markerSizeCases,
+                    24 // tamaño por defecto
+                ]);
+                
+                window.map.setLayoutProperty('smaa_network_squares_border', 'text-size', [
+                    'case',
+                    ...borderSizeCases,
+                    28 // tamaño por defecto del marco
+                ]);
+                
+                console.log('✅ Dynamic sizes applied');
             }
             
             console.log(`✅ Successfully updated ${updatedCount} stations on map`);
