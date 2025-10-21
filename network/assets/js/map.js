@@ -190,7 +190,6 @@ setTimeout(() => {
                         map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'visible');
                     }
                     
-                    
                     // NUEVO: Mostrar layer de texto para cuadrados Master API
                     if (map.getLayer('smaa_network_squares_text')) {
                         map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'visible');
@@ -274,7 +273,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■',
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 33, // 4px más grande que el principal (29 + 4)
+                'text-size': 60, // 4px más grande que el principal (29 + 4)
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
