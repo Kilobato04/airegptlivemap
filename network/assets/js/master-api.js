@@ -275,14 +275,14 @@ function updateAllReferenceStationSquares(mappedStations) {
             let backgroundColor = '#666666';
             let displayText = '';
             let markerSize = 20; // Tamaño base
-            let borderSize = 40; // Tamaño base del marco
+            let borderSize = 45; // Tamaño base del marco
             
             if (reading_status === 'current' && ias_numeric_value && color_code) {
                 // ESTACIONES FUNCIONALES: Datos LIVE - tamaño NORMAL
                 backgroundColor = color_code;
                 displayText = Math.round(ias_numeric_value).toString();
                 markerSize = 20;  // Tamaño normal
-                borderSize = 40;  // Marco normal
+                borderSize = 45;  // Marco normal
                 console.log(`  → FUNCTIONAL station: IAS ${displayText}, color ${backgroundColor}, normal size`);
             } else if (reading_status === 'stale') {
                 // Datos antiguos: gris + símbolo stale - tamaño REDUCIDO
