@@ -382,7 +382,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                 window.map.setLayoutProperty('smaa_network_squares', 'text-size', [
                     'case',
                     ...markerSizeCases,
-                    26 // tamaño por defecto
+                    12 // tamaño por defecto
                 ]);
                 
                 // Asegurar que el marco siempre sea más grande que el cuadrado
@@ -395,7 +395,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                 window.map.setLayoutProperty('smaa_network_squares_border', 'text-size', [
                     'case',
                     ...adjustedBorderCases,
-                    28 // tamaño por defecto del marco (26 + 2)
+                    16 // tamaño por defecto del marco (26 + 2)
                 ]);
                 
                 console.log('✅ Dynamic sizes applied (border always 2px larger than main square)');
