@@ -368,8 +368,8 @@ function updateAllReferenceStationSquares(mappedStations) {
                     window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
                     
                     // Contorno blanco para legibilidad
-                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-color', '#ffffff');
-                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-width', 1.5);
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-width', 0);
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-color', 'rgba(0,0,0,0)');
                     
                     console.log('✅ IAS numbers updated on overlay with white outline');
                 } else {
