@@ -344,7 +344,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                 ]);
                 
                 // Halo más pequeño para dejar espacio al marco blanco
-                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 0); // Reducido de 8 a 6
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 2); // Reducido de 8 a 6
                 
                 // El texto del cuadrado debe ser transparente para que se vea el color de fondo
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', 'rgba(0,0,0,0)');
