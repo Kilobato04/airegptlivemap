@@ -366,6 +366,64 @@ setTimeout(() => {
         console.log('✅ All map layers added successfully');
     }
 
+        // AGREGAR AQUÍ LA VERIFICACIÓN:
+    /**
+     * Verificar y corregir el orden de layers para mantener el marco blanco visible
+     */
+    function ensureProperLayerOrder() {
+        setTimeout(() => {
+            console.log('🔍 Verifying layer order for proper border display...');
+            
+            const borderLayer = map.getLayer('smaa_network_squares_border');
+            const mainLayer = map.getLayer('smaa_network_squares');
+            const textLayer = map.getLayer('smaa_network_squares_text');
+            
+            if (!borderLayer || !mainLayer) {
+                console.log('⚠️ Required layers not found for ordering');
+                return;
+            }
+            
+            try {
+                // Obtener la posición actual de los layers
+                const allLayers = map.getStyle().layers;
+                const borderIndex = allLayers.findIndex(l => l.id === 'smaa_network_squares_border');
+                const mainIndex = allLayers.findIndex(l => l.id === 'smaa_network_squares');
+                const textIndex = textLayer ? allLayers.findIndex(l => l.id === 'smaa_network_squares_text') : -1;
+                
+                console.log('📊 Current layer positions:', {
+                    border: borderIndex,
+                    main: mainIndex,
+                    text: textIndex
+                });
+                
+                // El marco debe estar ANTES (índice menor) que el cuadrado principal
+                if (borderIndex > mainIndex) {
+                    console.log('🔄 Correcting layer order: moving border behind main square');
+                    map.moveLayer('smaa_network_squares_border', 'smaa_network_squares');
+                }
+                
+                // El texto debe estar DESPUÉS (índice mayor) que ambos
+                if (textLayer && textIndex < mainIndex) {
+                    console.log('🔄 Correcting layer order: moving text in front of squares');
+                    // Mover el texto al final, después de todos los otros layers de squares
+                    map.moveLayer('smaa_network_squares_text');
+                }
+                
+                console.log('✅ Layer order verified and corrected if needed');
+                
+            } catch (error) {
+                console.error('❌ Error adjusting layer order:', error);
+                // Si falla el ajuste automático, mostrar el orden actual para debug manual
+                console.log('📋 Current layers order (for manual debugging):');
+                map.getStyle().layers.forEach((layer, index) => {
+                    if (layer.id.includes('smaa_network_squares')) {
+                        console.log(`  ${index}: ${layer.id}`);
+                    }
+                });
+            }
+        }, 1000); // Esperar 1 segundo después de crear los layers
+    }
+
     /**
      * Set up map click handlers
      */
