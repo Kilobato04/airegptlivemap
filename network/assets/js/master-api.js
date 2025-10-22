@@ -331,26 +331,41 @@ function updateAllReferenceStationSquares(mappedStations) {
             console.log('DEBUG - squareColorCases:', squareColorCases.slice(0, 10));
             console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
 
-            // REEMPLAZAR SECCIÓN DE APLICACIÓN DE COLORES en updateAllReferenceStationSquares()
-            
+            // SOLUCIÓN: Aplicar colores SIN afectar el layer del marco blanco
             if (squareColorCases.length > 0) {
                 // Mantener el símbolo cuadrado base
                 window.map.setLayoutProperty('smaa_network_squares', 'text-field', '■');
                 
-                // Aplicar color de FONDO usando halo (equivalente al backgroundColor en markers circulares)
+                // CORREGIDO: Aplicar color de fondo usando halo, pero con tamaño que respete el marco
                 window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', [
                     'case',
                     ...squareColorCases,
                     '#666666' // gris por defecto para sin datos
                 ]);
                 
-                // Halo más grande para simular el fondo del marcador
-                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 8);
+                // CORREGIDO: Halo más pequeño para dejar espacio al marco blanco
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 6); // Reducido de 8 a 6
                 
                 // El texto del cuadrado debe ser transparente para que se vea el color de fondo
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', 'rgba(0,0,0,0)');
                 
-                console.log('✅ Square background colors applied via halo');
+                // NUEVO: Asegurar que el layer del marco blanco mantenga su configuración
+                if (window.map.getLayer('smaa_network_squares_border')) {
+                    // Mantener el marco blanco con tamaño correcto
+                    window.map.setLayoutProperty('smaa_network_squares_border', 'text-size', [
+                        'case',
+                        ...borderSizeCases,
+                        28 // tamaño por defecto del marco (más grande que el cuadrado principal)
+                    ]);
+                    
+                    // Asegurar que el color del marco se mantenga blanco
+                    window.map.setPaintProperty('smaa_network_squares_border', 'text-color', '#ffffff');
+                    
+                    console.log('✅ White border maintained during color update');
+                }
+                
+                console.log('✅ Square background colors applied via halo (preserving white border)');
+            }
             } else {
                 console.log('⚠️ No square color cases to apply');
             }
@@ -378,7 +393,8 @@ function updateAllReferenceStationSquares(mappedStations) {
                 }
             }
 
-            // 3. Aplicar tamaños dinámicos
+
+            // 3. Aplicar tamaños dinámicos - CORREGIDO para mantener la relación marco/cuadrado
             if (markerSizeCases.length > 0) {
                 window.map.setLayoutProperty('smaa_network_squares', 'text-size', [
                     'case',
@@ -386,13 +402,20 @@ function updateAllReferenceStationSquares(mappedStations) {
                     26 // tamaño por defecto
                 ]);
                 
+                // CORREGIDO: Asegurar que el marco siempre sea más grande que el cuadrado
+                const adjustedBorderCases = [];
+                for (let i = 0; i < borderSizeCases.length; i += 2) {
+                    adjustedBorderCases.push(borderSizeCases[i]); // condición
+                    adjustedBorderCases.push(borderSizeCases[i + 1] + 2); // tamaño + 2px para el marco
+                }
+                
                 window.map.setLayoutProperty('smaa_network_squares_border', 'text-size', [
                     'case',
-                    ...borderSizeCases,
-                    28 // tamaño por defecto del marco
+                    ...adjustedBorderCases,
+                    28 // tamaño por defecto del marco (26 + 2)
                 ]);
                 
-                console.log('✅ Dynamic sizes applied');
+                console.log('✅ Dynamic sizes applied (border always 2px larger than main square)');
             }
             
             console.log(`✅ Successfully updated ${updatedCount} stations on map`);
