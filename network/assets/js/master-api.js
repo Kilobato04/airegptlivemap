@@ -281,7 +281,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                 // ESTACIONES FUNCIONALES: Datos LIVE - tamaño NORMAL
                 backgroundColor = color_code;
                 displayText = Math.round(ias_numeric_value).toString();
-                markerSize = 20;  // Tamaño normal
+                markerSize = 22;  // Tamaño normal
                 borderSize = 45;  // Marco normal
                 console.log(`  → FUNCTIONAL station: IAS ${displayText}, color ${backgroundColor}, normal size`);
             } else if (reading_status === 'stale') {
@@ -344,7 +344,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                 ]);
                 
                 // Halo más pequeño para dejar espacio al marco blanco
-                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 6); // Reducido de 8 a 6
+                window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 0); // Reducido de 8 a 6
                 
                 // El texto del cuadrado debe ser transparente para que se vea el color de fondo
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', 'rgba(0,0,0,0)');
