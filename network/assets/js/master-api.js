@@ -275,7 +275,7 @@ function updateAllReferenceStationSquares(mappedStations) {
             let backgroundColor = '#666666';
             let displayText = '';
             let markerSize = 26; // Tamaño base
-            let borderSize = 28; // Tamaño base del marco
+            let borderSize = 55; // Tamaño base del marco
             
             if (reading_status === 'current' && ias_numeric_value && color_code) {
                 // ESTACIONES FUNCIONALES: Datos LIVE - tamaño NORMAL
