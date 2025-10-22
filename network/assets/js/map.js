@@ -273,7 +273,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■',
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 38, // 4px más grande que el principal (29 + 4)
+                'text-size': 30, // 4px más grande que el principal (29 + 4)
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
