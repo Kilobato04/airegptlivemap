@@ -273,7 +273,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■',
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 20, // 4px más grande que el principal (29 + 4)
+                'text-size': 40, // 4px más grande que el principal (29 + 4)
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
@@ -292,7 +292,7 @@ setTimeout(() => {
             'layout': {
                 'text-field': '■', // Símbolo ASCII compatible
                 'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 12, // Tamaño ajustado para mejor visibilidad
+                'text-size': 22, // Tamaño ajustado para mejor visibilidad
                 'text-allow-overlap': true,
                 'text-ignore-placement': true
             },
