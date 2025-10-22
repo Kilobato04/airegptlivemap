@@ -323,54 +323,38 @@ function updateAllReferenceStationSquares(mappedStations) {
         });
 
         // Aplicar actualizaciones al mapa
+        // CORRECTO: try con catch
         try {
             console.log(`Applying map style updates for ${updatedCount} stations...`);
             console.log(`Square cases: ${squareColorCases.length / 2}, Number cases: ${numberTextCases.length / 2}`);
-
+        
             // 1. Aplicar colores a los cuadrados de fondo
             console.log('DEBUG - squareColorCases:', squareColorCases.slice(0, 10));
             console.log('DEBUG - numberTextCases:', numberTextCases.slice(0, 10));
-
-            // SOLUCIÓN: Aplicar colores SIN afectar el layer del marco blanco
+        
             if (squareColorCases.length > 0) {
                 // Mantener el símbolo cuadrado base
                 window.map.setLayoutProperty('smaa_network_squares', 'text-field', '■');
                 
-                // CORREGIDO: Aplicar color de fondo usando halo, pero con tamaño que respete el marco
+                // Aplicar color de FONDO usando halo (equivalente al backgroundColor en markers circulares)
                 window.map.setPaintProperty('smaa_network_squares', 'text-halo-color', [
                     'case',
                     ...squareColorCases,
                     '#666666' // gris por defecto para sin datos
                 ]);
                 
-                // CORREGIDO: Halo más pequeño para dejar espacio al marco blanco
+                // Halo más pequeño para dejar espacio al marco blanco
                 window.map.setPaintProperty('smaa_network_squares', 'text-halo-width', 6); // Reducido de 8 a 6
                 
                 // El texto del cuadrado debe ser transparente para que se vea el color de fondo
                 window.map.setPaintProperty('smaa_network_squares', 'text-color', 'rgba(0,0,0,0)');
                 
-                // NUEVO: Asegurar que el layer del marco blanco mantenga su configuración
-                if (window.map.getLayer('smaa_network_squares_border')) {
-                    // Mantener el marco blanco con tamaño correcto
-                    window.map.setLayoutProperty('smaa_network_squares_border', 'text-size', [
-                        'case',
-                        ...borderSizeCases,
-                        28 // tamaño por defecto del marco (más grande que el cuadrado principal)
-                    ]);
-                    
-                    // Asegurar que el color del marco se mantenga blanco
-                    window.map.setPaintProperty('smaa_network_squares_border', 'text-color', '#ffffff');
-                    
-                    console.log('✅ White border maintained during color update');
-                }
-                
                 console.log('✅ Square background colors applied via halo (preserving white border)');
-            }
             } else {
                 console.log('⚠️ No square color cases to apply');
             }
             
-            // Para los números IAS encima del cuadrado coloreado
+            // 2. Para los números IAS encima del cuadrado coloreado
             if (numberTextCases.length > 0) {
                 // Verificar si el layer de texto existe
                 if (window.map.getLayer('smaa_network_squares_text')) {
@@ -383,18 +367,17 @@ function updateAllReferenceStationSquares(mappedStations) {
                     // Texto negro sobre el cuadrado coloreado
                     window.map.setPaintProperty('smaa_network_squares_text', 'text-color', '#000000');
                     
-                    // Contorno gris claro para legibilidad
-                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-color', '#f0f0f0');
-                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-width', 1);
+                    // Contorno blanco para legibilidad
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-color', '#ffffff');
+                    window.map.setPaintProperty('smaa_network_squares_text', 'text-halo-width', 1.5);
                     
-                    console.log('✅ IAS numbers updated on overlay with light gray outline');
+                    console.log('✅ IAS numbers updated on overlay with white outline');
                 } else {
                     console.warn('smaa_network_squares_text layer not found');
                 }
             }
-
-
-            // 3. Aplicar tamaños dinámicos - CORREGIDO para mantener la relación marco/cuadrado
+        
+            // 3. Aplicar tamaños dinámicos
             if (markerSizeCases.length > 0) {
                 window.map.setLayoutProperty('smaa_network_squares', 'text-size', [
                     'case',
@@ -402,7 +385,7 @@ function updateAllReferenceStationSquares(mappedStations) {
                     26 // tamaño por defecto
                 ]);
                 
-                // CORREGIDO: Asegurar que el marco siempre sea más grande que el cuadrado
+                // Asegurar que el marco siempre sea más grande que el cuadrado
                 const adjustedBorderCases = [];
                 for (let i = 0; i < borderSizeCases.length; i += 2) {
                     adjustedBorderCases.push(borderSizeCases[i]); // condición
@@ -419,7 +402,7 @@ function updateAllReferenceStationSquares(mappedStations) {
             }
             
             console.log(`✅ Successfully updated ${updatedCount} stations on map`);
-
+        
         } catch (mapError) {
             console.error('Error applying map updates:', mapError);
             errors.push('Map update failed: ' + mapError.message);
