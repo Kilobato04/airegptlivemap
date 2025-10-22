@@ -281,8 +281,8 @@ function updateAllReferenceStationSquares(mappedStations) {
                 // ESTACIONES FUNCIONALES: Datos LIVE - tamaño NORMAL
                 backgroundColor = color_code;
                 displayText = Math.round(ias_numeric_value).toString();
-                markerSize = 22;  // Tamaño normal
-                borderSize = 48;  // Marco normal
+                markerSize = 20;  // Tamaño normal
+                borderSize = 45;  // Marco normal
                 console.log(`  → FUNCTIONAL station: IAS ${displayText}, color ${backgroundColor}, normal size`);
             } else if (reading_status === 'stale') {
                 // Datos antiguos: gris + símbolo stale - tamaño REDUCIDO
