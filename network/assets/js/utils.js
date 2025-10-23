@@ -207,7 +207,7 @@ function createPopupContent(feature, sensorData) {
 }
 
 function createLegendHTML() {
-    let html = '<div class="legend-header">';
+    let html = '<div class="legend-header collapsed">';
     html += '<button class="legend-toggle">+</button>';
     html += '<div class="legend-title">Air Quality Index (IAS)</div>';
     html += '</div>';
