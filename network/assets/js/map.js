@@ -171,30 +171,63 @@ setTimeout(() => {
         }
     
         // AQ Network toggle consolidado - FILTROS ACTUALIZADOS
-        const toggleButton = document.getElementById('toggleAQNetwork');
-        if (toggleButton) {
-            let aqNetworkVisible = true;
+        // Toggle para AQ Network AWS (Master API - cuadrados)
+        const toggleAWSButton = document.getElementById('toggleAWSNetwork');
+        if (toggleAWSButton) {
+            let awsNetworkVisible = true;
             
-            toggleButton.addEventListener('click', () => {
-                aqNetworkVisible = !aqNetworkVisible;
+            toggleAWSButton.addEventListener('click', () => {
+                awsNetworkVisible = !awsNetworkVisible;
                 
-                if (aqNetworkVisible) {
-                    // Mostrar toda la red AQ (SIMAT + Smability)
-                    map.setFilter('smaa_network', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]); 
+                if (awsNetworkVisible) {
+                    // Mostrar layers de Master API (cuadrados)
                     map.setFilter('smaa_network_squares', ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]]);
-                    map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
-                    map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
-
+                    
                     if (map.getLayer('smaa_network_squares_border')) {
                         map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'visible');
                     }
                     
-                    // NUEVO: Mostrar layer de texto para cuadrados Master API
                     if (map.getLayer('smaa_network_squares_text')) {
                         map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'visible');
                     }
                     
+                    console.log('✅ AWS Network (Master API squares) shown');
+                } else {
+                    // Ocultar layers de Master API
+                    map.setFilter('smaa_network_squares', ['==', ['get', 'name'], '___NONE___']);
+                    map.setLayoutProperty('smaa_network_squares', 'visibility', 'none');
+                    
+                    if (map.getLayer('smaa_network_squares_border')) {
+                        map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'none');
+                    }
+                    
+                    if (map.getLayer('smaa_network_squares_text')) {
+                        map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'none');
+                    }
+                    
+                    console.log('❌ AWS Network (Master API squares) hidden');
+                }
+                
+                // Actualizar estilo del botón
+                updateButtonStyle(toggleAWSButton, awsNetworkVisible);
+            });
+        }
+        
+        // Toggle para AQ Network SMAA (Smability API - círculos)
+        const toggleSMAAButton = document.getElementById('toggleSMAANetwork');
+        if (toggleSMAAButton) {
+            let smaaNetworkVisible = true;
+            
+            toggleSMAAButton.addEventListener('click', () => {
+                smaaNetworkVisible = !smaaNetworkVisible;
+                
+                if (smaaNetworkVisible) {
+                    // Mostrar layers de Smability (círculos)
+                    map.setFilter('smaa_network', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]);
+                    map.setLayoutProperty('smaa_network', 'visibility', 'visible');
+                    map.setLayoutProperty('smaa_network_ias', 'visibility', 'visible');
+                    map.setLayoutProperty('smaa_network_labels', 'visibility', 'visible');
                     
                     // Mostrar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
@@ -202,22 +235,14 @@ setTimeout(() => {
                             markers.get(location).getElement().style.display = 'flex';
                         }
                     });
+                    
+                    console.log('✅ SMAA Network (Smability circles) shown');
                 } else {
-                    // Ocultar toda la red AQ
+                    // Ocultar layers de Smability
                     map.setFilter('smaa_network', ['==', ['get', 'name'], '___NONE___']);
-                    map.setFilter('smaa_network_squares', ['==', ['get', 'name'], '___NONE___']);
+                    map.setLayoutProperty('smaa_network', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_ias', 'visibility', 'none');
                     map.setLayoutProperty('smaa_network_labels', 'visibility', 'none');
-                    map.setLayoutProperty('smaa_network_squares', 'visibility', 'none');
-
-                    if (map.getLayer('smaa_network_squares_border')) {
-                        map.setLayoutProperty('smaa_network_squares_border', 'visibility', 'none');
-                    }
-                    
-                    // NUEVO: Ocultar layer de texto para cuadrados Master API
-                    if (map.getLayer('smaa_network_squares_text')) {
-                        map.setLayoutProperty('smaa_network_squares_text', 'visibility', 'none');
-                    }
                     
                     // Ocultar markers independientes de Smability
                     APP_SETTINGS.activeStations.forEach(location => {
@@ -225,19 +250,28 @@ setTimeout(() => {
                             markers.get(location).getElement().style.display = 'none';
                         }
                     });
+                    
+                    console.log('❌ SMAA Network (Smability circles) hidden');
                 }
                 
-                // Update button style
-                if (aqNetworkVisible) {
-                    toggleButton.style.backgroundColor = '#4264fb';
-                    toggleButton.style.color = '#ffffff';
-                    toggleButton.style.borderColor = '#4264fb';
-                } else {
-                    toggleButton.style.backgroundColor = '#e2e2e2';
-                    toggleButton.style.color = '#333';
-                    toggleButton.style.borderColor = '#ccc';
-                }
+                // Actualizar estilo del botón
+                updateButtonStyle(toggleSMAAButton, smaaNetworkVisible);
             });
+        }
+        
+        // Función helper para actualizar estilos de botones
+        function updateButtonStyle(button, isActive) {
+            if (isActive) {
+                button.style.backgroundColor = '#4264fb';
+                button.style.color = '#ffffff';
+                button.style.borderColor = '#4264fb';
+                button.classList.add('active');
+            } else {
+                button.style.backgroundColor = '#e2e2e2';
+                button.style.color = '#333';
+                button.style.borderColor = '#ccc';
+                button.classList.remove('active');
+            }
         }
     }
 
