@@ -17,7 +17,7 @@ window.APP_SETTINGS = {
         'UNAM',
         // 'CENTRUS 8',         // EN REPARACIÓN
         // 'CENTRUS 7',         // EN REPARACIÓN
-        'Del Valle',
+        'D.Valle',
         'CENTRUS 5', 
         'Huerto INIAT',
         'INIAT',
@@ -65,7 +65,7 @@ window.API_CONFIG = {
         'UNAM': '349b1230277f1c67577e4f5bee6ba486',
         // 'CENTRUS 8': 'a2a9a62b622014c64426c6484334e577',         // EN REPARACIÓN
         // 'CENTRUS 7': '510a41e183a90482275b1bc8a79dfc14',         // EN REPARACIÓN
-        'Del Valle': '1ae5a53b7b315c48206ffa95fdef32d8',
+        'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8',
         'CENTRUS 5': 'c7dd6160528b3335d4f366e28a04ac80',
         'Huerto INIAT': 'b8c1bac206b358bde62cb25c374339c3',
         'INIAT': '211b4d2dd56a0ba2eb269f2eeb0945ea',
@@ -94,7 +94,7 @@ window.DEVICE_COORDINATES = {
     'UNAM': [-99.176186, 19.326172],
     // 'CENTRUS 8': [-99.173172, 19.392838],         // EN REPARACIÓN
     // 'CENTRUS 7': [-99.172752, 19.392725],         // EN REPARACIÓN
-    'Del Valle': [-99.167000, 19.388391],
+    'D.Valle': [-99.167000, 19.388391],
     'CENTRUS 5': [-99.200109, 19.365869],
     'Huerto INIAT': [-99.263649, 19.372347],
     'INIAT': [-99.263580, 19.368851],
@@ -122,7 +122,7 @@ window.DEVICE_MODELS = {
     'UNAM': 'SMAA',
     'CENTRUS 8': 'SMAA',
     'CENTRUS 7': 'SMAA',
-    'Del Valle': 'SMAA',
+    'D.Valle': 'SMAA',
     'CENTRUS 5': 'SMAA',
     'Huerto INIAT': 'SMAA',
     'INIAT': 'SMAA',
