@@ -164,23 +164,20 @@ setTimeout(() => {
         // Legend toggle functionality
         const legendToggle = legendContainer.querySelector('.legend-toggle');
         if (legendToggle) {
+            // Inicializar como colapsada
+            legendContainer.classList.add('collapsed');
+            legendToggle.textContent = '+';
+            
             legendToggle.addEventListener('click', () => {
-                const content = legendContainer.querySelector('.legend-content');
-                const title = legendContainer.querySelector('.legend-title');
-                const header = legendContainer.querySelector('.legend-header');
-                const isCollapsed = content.style.display === 'none';
+                const isCollapsed = legendContainer.classList.contains('collapsed');
                 
                 if (isCollapsed) {
                     // Expandir
-                    content.style.display = 'block';
-                    title.style.display = 'block';
-                    header.classList.remove('collapsed');
+                    legendContainer.classList.remove('collapsed');
                     legendToggle.textContent = '−';
                 } else {
-                    // Colapsar
-                    content.style.display = 'none';
-                    title.style.display = 'none';
-                    header.classList.add('collapsed');
+                    // Colapsar  
+                    legendContainer.classList.add('collapsed');
                     legendToggle.textContent = '+';
                 }
             });
