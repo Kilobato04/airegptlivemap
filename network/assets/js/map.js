@@ -165,8 +165,16 @@ setTimeout(() => {
         const legendToggle = legendContainer.querySelector('.legend-toggle');
         if (legendToggle) {
             legendToggle.addEventListener('click', () => {
-                legendContainer.classList.toggle('collapsed');
-                legendToggle.textContent = legendContainer.classList.contains('collapsed') ? '+' : '−';
+                const content = legendContainer.querySelector('.legend-content');
+                const isCollapsed = content.style.display === 'none';
+                
+                if (isCollapsed) {
+                    content.style.display = 'block';
+                    legendToggle.textContent = '−';
+                } else {
+                    content.style.display = 'none';
+                    legendToggle.textContent = '+';
+                }
             });
         }
     
