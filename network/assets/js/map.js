@@ -166,13 +166,21 @@ setTimeout(() => {
         if (legendToggle) {
             legendToggle.addEventListener('click', () => {
                 const content = legendContainer.querySelector('.legend-content');
+                const title = legendContainer.querySelector('.legend-title');
+                const header = legendContainer.querySelector('.legend-header');
                 const isCollapsed = content.style.display === 'none';
                 
                 if (isCollapsed) {
+                    // Expandir
                     content.style.display = 'block';
+                    title.style.display = 'block';
+                    header.classList.remove('collapsed');
                     legendToggle.textContent = '−';
                 } else {
+                    // Colapsar
                     content.style.display = 'none';
+                    title.style.display = 'none';
+                    header.classList.add('collapsed');
                     legendToggle.textContent = '+';
                 }
             });
