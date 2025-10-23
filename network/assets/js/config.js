@@ -14,7 +14,7 @@ window.APP_SETTINGS = {
         // 'MicroSensor-01',    // EN REPARACIÓN
         // 'MicroSensor-02',    // EN REPARACIÓN 
         // 'MicroSensor-03',    // EN REPARACIÓN
-        'UNAM',
+        'UNAM-CCA',
         // 'CENTRUS 8',         // EN REPARACIÓN
         // 'CENTRUS 7',         // EN REPARACIÓN
         'D.Valle',
@@ -62,7 +62,7 @@ window.API_CONFIG = {
         // 'MicroSensor-01': 'b9f56c2a86c59c27e23b93126c508abe',    // EN REPARACIÓN
         // 'MicroSensor-02': '941952e3aaee033b7d4a126ef7194a45',    // EN REPARACIÓN
         // 'MicroSensor-03': 'e25b9d53259785daf60e520834d3f39f',    // EN REPARACIÓN
-        'UNAM': '349b1230277f1c67577e4f5bee6ba486',
+        'UNAM-CCA': '349b1230277f1c67577e4f5bee6ba486',
         // 'CENTRUS 8': 'a2a9a62b622014c64426c6484334e577',         // EN REPARACIÓN
         // 'CENTRUS 7': '510a41e183a90482275b1bc8a79dfc14',         // EN REPARACIÓN
         'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8',
@@ -91,7 +91,7 @@ window.DEVICE_COORDINATES = {
     // 'MicroSensor-01': [-99.262583, 19.370218],    // EN REPARACIÓN
     // 'MicroSensor-02': [-99.262952, 19.370842],    // EN REPARACIÓN
     // 'MicroSensor-03': [-99.263291, 19.371326],    // EN REPARACIÓN
-    'UNAM': [-99.176186, 19.326172],
+    'UNAM-CCA': [-99.176186, 19.326172],
     // 'CENTRUS 8': [-99.173172, 19.392838],         // EN REPARACIÓN
     // 'CENTRUS 7': [-99.172752, 19.392725],         // EN REPARACIÓN
     'D.Valle': [-99.167000, 19.388391],
@@ -119,7 +119,7 @@ window.DEVICE_MODELS = {
     'MicroSensor-01': 'SMAAmicro',
     'MicroSensor-02': 'SMAAmicro', 
     'MicroSensor-03': 'SMAAmicro',
-    'UNAM': 'SMAA',
+    'UNAM-CCA': 'SMAA',
     'CENTRUS 8': 'SMAA',
     'CENTRUS 7': 'SMAA',
     'D.Valle': 'SMAA',
