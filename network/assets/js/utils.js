@@ -207,11 +207,11 @@ function createPopupContent(feature, sensorData) {
 }
 
 function createLegendHTML() {
-    let html = '<div class="legend-header collapsed">';
-    html += '<button class="legend-toggle">+</button>';
+    let html = '<div class="legend-header">';
+    html += '<button class="legend-toggle">+</button>'; // Inicia con +
     html += '<div class="legend-title">Air Quality Index (IAS)</div>';
     html += '</div>';
-    html += '<div class="legend-content" style="display: none;">';
+    html += '<div class="legend-content">';
     
     // AQI Colors
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #00ff00"></div><span>Good (0-50)</span></div>';
