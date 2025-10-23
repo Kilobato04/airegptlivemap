@@ -219,23 +219,26 @@ function createLegendHTML() {
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff8000"></div><span>Bad (101-150)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #ff0000"></div><span>Very Bad (151-200)</span></div>';
     html += '<div class="legend-item"><div class="legend-color" style="background-color: #800080"></div><span>Extremely Bad (>201)</span></div>';
-
+    
     // ESPACIO DIVISORIO entre secciones
     html += '<div class="legend-divider"></div>';
     
     // NUEVOS: Iconos de referencia y Smability - ambos negro
     html += '<div class="legend-item"><div class="legend-icon legend-square" style="background-color: #000000"></div><span>Reference</span></div>';
     html += '<div class="legend-item"><div class="legend-icon legend-circle" style="background-color: #000000"></div><span>Smability</span></div>';
-
-    // LAYERS section - UN SOLO BOTÓN
+    
+    // LAYERS section - DOS BOTONES SEPARADOS
     html += '<div style="margin: 15px 0; border-top: 1px solid #ddd; padding-top: 10px;">';
     html += '<div style="font-weight: bold; margin-bottom: 8px; font-size: 10px;">LAYERS</div>';
     
-    // UN SOLO BOTÓN: AQ Network
-    html += '<div style="margin: 8px 0;"><button id="toggleAQNetwork" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">AQ Network</button></div>';
+    // PRIMER BOTÓN: AQ Network AWS (Master API)
+    html += '<div style="margin: 4px 0;"><button id="toggleAWSNetwork" class="toggle-button active" style="width: 100%; padding: 5px; border: 1px solid #4264fb; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">AQ Network AWS</button></div>';
+    
+    // SEGUNDO BOTÓN: AQ Network SMAA (Smability API)
+    html += '<div style="margin: 4px 0;"><button id="toggleSMAANetwork" class="toggle-button active" style="width: 100%; padding: 5px; border: 1px solid #4264fb; border-radius: 4px; background: #4264fb; color: white; cursor: pointer; font-size: 11px;">AQ Network SMAA</button></div>';
     
     html += '</div>';
-
+    
     // Branding
     html += '<div class="legend-branding"><a href="' + APP_SETTINGS.brandUrl + '" target="_blank" class="brand-text">smability.io</a></div>';
     html += '</div>';
