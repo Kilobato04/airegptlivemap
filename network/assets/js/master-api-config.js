@@ -89,6 +89,10 @@ window.SMAA_STATION_MAPPING = {
     'HRT': 'Huerto IBERO', // 41 - Smability
     'CN2': 'CENTRUS 2', // 42 - Smability
     'CN4': 'CENTRUS 4' // 43 - Smability
+    'INI': 'INIAT' // 44 - Smability
+    'CN5': 'CENTRUS 5' // 45 - Smability
+    'ITD': 'ITD' // 46 - Smability
+    'ANC': 'Anahuac Cancun' // 47 - Smability
 };
 
 /**
