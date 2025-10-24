@@ -74,13 +74,15 @@ async function fetchMasterAPIData() {
             console.log(`  ${index + 1}. ID: ${station.station_id}, Name: ${station.station_name}, Type: ${station.device_type}, IAS: ${station.ias_numeric_value}`);
         });
 
-        // Filtrar estaciones reference Y smaa
+        // Filtrar estaciones reference, SMAA y SMAAso2
         const filteredStations = stationsArray.filter(station => {
             if (!station || typeof station !== 'object') {
                 console.warn('⚠️ Invalid station object:', station);
                 return false;
             }
-            return station.device_type === 'reference' || station.device_type === 'smability-SMAA';
+            return station.device_type === 'reference' || 
+                   station.device_type === 'smability-SMAA' || 
+                   station.device_type === 'smability-SMAAso2';
         });
 
         console.log(`✅ Filtered ${filteredStations.length} reference+smaa stations from ${stationsArray.length} total`);
