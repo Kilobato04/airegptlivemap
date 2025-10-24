@@ -18,7 +18,7 @@ window.APP_SETTINGS = {
         // 'CENTRUS 8',         // EN REPARACIÓN
         // 'CENTRUS 7',         // EN REPARACIÓN
         'D.Valle',
-        'CENTRUS 5', 
+        'CEN 5', 
         'Huerto INIAT',
         'INIAT',
         // 'IBERO A',           // EN REPARACIÓN
@@ -26,7 +26,7 @@ window.APP_SETTINGS = {
         'Zacatlan 2',         // MINA
         'La Diana',
         // 'CENTRUS 4',         // EN REPARACIÓN
-        'Hipódromo',
+        'Popocatépetl',
         'UAM',
         'INSYC',
         // 'UNAM-II-SMAA',      // EN REPARACIÓN
@@ -66,7 +66,7 @@ window.API_CONFIG = {
         // 'CENTRUS 8': 'a2a9a62b622014c64426c6484334e577',         // EN REPARACIÓN
         // 'CENTRUS 7': '510a41e183a90482275b1bc8a79dfc14',         // EN REPARACIÓN
         'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8',
-        'CENTRUS 5': 'c7dd6160528b3335d4f366e28a04ac80',
+        'CEN 5': 'c7dd6160528b3335d4f366e28a04ac80',
         'Huerto INIAT': 'b8c1bac206b358bde62cb25c374339c3',
         'INIAT': '211b4d2dd56a0ba2eb269f2eeb0945ea',
         // 'IBERO A': '1ce05f7c4d1e7a2f048bf5256285a276',           // EN REPARACIÓN
@@ -74,7 +74,7 @@ window.API_CONFIG = {
         'Zacatlan 1': '993a85c50d07d8a3c367f32d1a3d12af',         // MINA
         'La Diana': '3843693a0dc1e3aca614cf3e71976527',
         'Zacatlan 2': 'c0ac14b4df16d24f3e403928412fdc31',         // MINA
-        'Hipódromo': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
+        'Popocatépetl': '1c5e12e8f00c9f2cbb4c7c8f07c9d398',
         'UAM': 'b031aca25a4746368da8e718631e06e7',
         'INSYC': '3d820ec8b5149f835f6c5cc338d247e2',
         // 'UNAM-II-SMAA': '03e85a1e71f0b9ffaf041862303b250b',       // EN REPARACIÓN
@@ -95,7 +95,7 @@ window.DEVICE_COORDINATES = {
     // 'CENTRUS 8': [-99.173172, 19.392838],         // EN REPARACIÓN
     // 'CENTRUS 7': [-99.172752, 19.392725],         // EN REPARACIÓN
     'D.Valle': [-99.167000, 19.388391],
-    'CENTRUS 5': [-99.200109, 19.365869],
+    'CEN 5': [-99.200109, 19.365869],
     'Huerto INIAT': [-99.263649, 19.372347],
     'INIAT': [-99.263580, 19.368851],
     // 'IBERO A': [-99.263649, 19.372355],           // EN REPARACIÓN
@@ -103,7 +103,7 @@ window.DEVICE_COORDINATES = {
     'Zacatlan 1': [-98.058182, 19.984287],         // MINA
     'La Diana': [-99.171021, 19.425217],
     'Zacatlan 2': [-98.058884, 19.963730],         // MINA 
-    'Hipódromo': [-99.167183, 19.414782],
+    'Popocatépetl': [-99.167183, 19.414782],
     'UAM': [-99.209564, 19.388735],
     'INSYC': [-99.169975, 19.406158],
     // 'UNAM-II-SMAA': [-99.176163, 19.326214],      // EN REPARACIÓN
@@ -123,7 +123,7 @@ window.DEVICE_MODELS = {
     'CENTRUS 8': 'SMAA',
     'CENTRUS 7': 'SMAA',
     'D.Valle': 'SMAA',
-    'CENTRUS 5': 'SMAA',
+    'CEN 5': 'SMAA',
     'Huerto INIAT': 'SMAA',
     'INIAT': 'SMAA',
     'IBERO A': 'SMAA',
@@ -131,7 +131,7 @@ window.DEVICE_MODELS = {
     'Zacatlan 2': 'SMAA',
     'La Diana': 'SMAA',
     'CENTRUS 4': 'SMAA',
-    'Hipódromo': 'SMAA',
+    'Popocatépetl': 'SMAA',
     'UAM': 'SMAA',
     'INSYC': 'SMAA',
     'UNAM-II-SMAA': 'SMAA',
