@@ -30,8 +30,8 @@ window.APP_SETTINGS = {
         'UAM',
         'INSYC',
         // 'UNAM-II-SMAA',      // EN REPARACIÓN
-        'Anahuac Cancun',       // NUEVO
-        'ITD',                  // NUEVO
+        'Anahuac-Cancun',       // NUEVO
+        'ITD-Durango',                  // NUEVO
         'Tepeji',               // NUEVO
         'AlisBio',              // NUEVO
         'AlisBio2'              // NUEVO - ACTIVO
@@ -78,8 +78,8 @@ window.API_CONFIG = {
         'UAM': 'b031aca25a4746368da8e718631e06e7',
         'INSYC': '3d820ec8b5149f835f6c5cc338d247e2',
         // 'UNAM-II-SMAA': '03e85a1e71f0b9ffaf041862303b250b',       // EN REPARACIÓN
-        'Anahuac Cancun': 'b1a3d78281c7e0cd6cd56dad7d83353c',       // NUEVO
-        'ITD': '005cdaeb7b1392ad59a4335f4a832043',                   // NUEVO
+        'Anahuac-Cancun': 'b1a3d78281c7e0cd6cd56dad7d83353c',       // NUEVO
+        'ITD-Durango': '005cdaeb7b1392ad59a4335f4a832043',                   // NUEVO
         'Tepeji': 'b44eebc1879479e4534abddccef2d0fc',               // NUEVO
         'AlisBio': '2a53e9174dcf7ee42b9c8bbda7990571',              // NUEVO
         'AlisBio2': '3f3b878fdb02f61d5ed43168c075cec8'              // NUEVO - ACTIVO
@@ -107,8 +107,8 @@ window.DEVICE_COORDINATES = {
     'UAM': [-99.209564, 19.388735],
     'INSYC': [-99.169975, 19.406158],
     // 'UNAM-II-SMAA': [-99.176163, 19.326214],      // EN REPARACIÓN
-    'Anahuac Cancun': [-86.84543905576808, 21.067920239176036],
-    'ITD': [-104.645030, 24.034481],                  // NUEVO
+    'Anahuac-Cancun': [-86.84543905576808, 21.067920239176036],
+    'ITD-Durango': [-104.645030, 24.034481],                  // NUEVO
     'Tepeji': [-99.341911, 19.905193],               // NUEVO
     'AlisBio': [-100.290960, 25.675648],             // NUEVO
     'AlisBio2': [-99.995773, 25.382708]             // NUEVO - ACTIVO (coordenadas del JSON) 
@@ -135,8 +135,8 @@ window.DEVICE_MODELS = {
     'UAM': 'SMAA',
     'INSYC': 'SMAA',
     'UNAM-II-SMAA': 'SMAA',
-    'Anahuac Cancun': 'SMAA',
-    'ITD': 'SMAA',
+    'Anahuac-Cancun': 'SMAA',
+    'ITD-Durango': 'SMAA',
     'Tepeji': 'SMAA',
     'ALISBio': 'SMAAso2',
     'ALISBio-02': 'SMAAso2'
