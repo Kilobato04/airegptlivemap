@@ -97,7 +97,7 @@ window.SMAA_STATION_MAPPING = {
 
 window.SMAA_SO2_STATION_MAPPING = {
     'AL2': 'ALISBio-02', // 48 - Smability
-    'ALB': 'ALISBio', // 49 - Smability
+    'ALB': 'ALISBio' // 49 - Smability
 };
 
 /**
