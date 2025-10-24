@@ -20,7 +20,7 @@ window.APP_SETTINGS = {
         'D.Valle',
         'CEN 5', 
         'Huerto INIAT',
-        'INIAT',
+        'INIAT IBERO',
         // 'IBERO A',           // EN REPARACIÓN
         'Zacatlan 1',         // MINA
         'Zacatlan 2',         // MINA
@@ -68,7 +68,7 @@ window.API_CONFIG = {
         'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8',
         'CEN 5': 'c7dd6160528b3335d4f366e28a04ac80',
         'Huerto INIAT': 'b8c1bac206b358bde62cb25c374339c3',
-        'INIAT': '211b4d2dd56a0ba2eb269f2eeb0945ea',
+        'INIAT IBERO': '211b4d2dd56a0ba2eb269f2eeb0945ea',
         // 'IBERO A': '1ce05f7c4d1e7a2f048bf5256285a276',           // EN REPARACIÓN
         // 'CENTRUS 1': '60374b0d5f818b9f7703cc1a27aeab48',         // EN REPARACIÓN
         'Zacatlan 1': '993a85c50d07d8a3c367f32d1a3d12af',         // MINA
@@ -97,7 +97,7 @@ window.DEVICE_COORDINATES = {
     'D.Valle': [-99.167000, 19.388391],
     'CEN 5': [-99.200109, 19.365869],
     'Huerto INIAT': [-99.263649, 19.372347],
-    'INIAT': [-99.263580, 19.368851],
+    'INIAT IBERO': [-99.263580, 19.368851],
     // 'IBERO A': [-99.263649, 19.372355],           // EN REPARACIÓN
     // 'CENTRUS 1': [-99.263489, 19.368654],         // EN REPARACIÓN
     'Zacatlan 1': [-98.058182, 19.984287],         // MINA
@@ -125,7 +125,7 @@ window.DEVICE_MODELS = {
     'D.Valle': 'SMAA',
     'CEN 5': 'SMAA',
     'Huerto INIAT': 'SMAA',
-    'INIAT': 'SMAA',
+    'INIAT IBERO': 'SMAA',
     'IBERO A': 'SMAA',
     'Zacatlan 1': 'SMAA',
     'Zacatlan 2': 'SMAA',
