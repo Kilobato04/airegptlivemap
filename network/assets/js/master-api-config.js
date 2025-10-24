@@ -8,9 +8,7 @@
  */
 window.MASTER_API_CONFIG = {
     baseUrl: 'https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/current',
-    params: {
-        type: 'reference,smaa,smaa-so2'  // Obtener ambos tipos pero filtraremos solo reference
-    },
+    params: {},
     
     // Cache para evitar requests múltiples
     cache: new Map(),
