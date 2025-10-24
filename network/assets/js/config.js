@@ -33,8 +33,8 @@ window.APP_SETTINGS = {
         'Anahuac-Cancun',       // NUEVO
         'ITD-Durango',                  // NUEVO
         'Tepeji',               // NUEVO
-        'AlisBio',              // NUEVO
-        'AlisBio2'              // NUEVO - ACTIVO
+        'Alis-Bio',              // NUEVO
+        'Alis-Bio2'              // NUEVO - ACTIVO
     ],
     whatsappNumber: '525519566483',
     brandUrl: 'http://www.smability.io'
@@ -81,8 +81,8 @@ window.API_CONFIG = {
         'Anahuac-Cancun': 'b1a3d78281c7e0cd6cd56dad7d83353c',       // NUEVO
         'ITD-Durango': '005cdaeb7b1392ad59a4335f4a832043',                   // NUEVO
         'Tepeji': 'b44eebc1879479e4534abddccef2d0fc',               // NUEVO
-        'AlisBio': '2a53e9174dcf7ee42b9c8bbda7990571',              // NUEVO
-        'AlisBio2': '3f3b878fdb02f61d5ed43168c075cec8'              // NUEVO - ACTIVO
+        'Alis-Bio': '2a53e9174dcf7ee42b9c8bbda7990571',              // NUEVO
+        'Alis-Bio2': '3f3b878fdb02f61d5ed43168c075cec8'              // NUEVO - ACTIVO
     }
 };
 
@@ -110,8 +110,8 @@ window.DEVICE_COORDINATES = {
     'Anahuac-Cancun': [-86.84543905576808, 21.067920239176036],
     'ITD-Durango': [-104.645030, 24.034481],                  // NUEVO
     'Tepeji': [-99.341911, 19.905193],               // NUEVO
-    'AlisBio': [-100.290960, 25.675648],             // NUEVO
-    'AlisBio2': [-99.995773, 25.382708]             // NUEVO - ACTIVO (coordenadas del JSON) 
+    'Alis-Bio': [-100.290960, 25.675648],             // NUEVO
+    'Alis-Bio2': [-99.995773, 25.382708]             // NUEVO - ACTIVO (coordenadas del JSON) 
 };
 
 // AGREGADO: Mapeo de modelos de dispositivos
@@ -138,8 +138,8 @@ window.DEVICE_MODELS = {
     'Anahuac-Cancun': 'SMAA',
     'ITD-Durango': 'SMAA',
     'Tepeji': 'SMAA',
-    'ALISBio': 'SMAAso2',
-    'ALISBio-02': 'SMAAso2'
+    'Alis-Bio': 'SMAAso2',
+    'Alis-Bio2': 'SMAAso2'
 };
 
 // AGREGADO: Configuración de sensores para charts
