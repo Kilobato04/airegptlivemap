@@ -412,6 +412,10 @@ setTimeout(() => {
         
         console.log('✅ All map layers added successfully');
     }
+    // AGREGAR ESTA LÍNEA:
+    ensureProperLayerOrder();
+    // Hacer la función disponible globalmente para uso en master-api.js
+    window.ensureProperLayerOrder = ensureProperLayerOrder;
 
         // AGREGAR AQUÍ LA VERIFICACIÓN:
     /**
