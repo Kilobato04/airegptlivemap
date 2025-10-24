@@ -88,11 +88,16 @@ window.SMAA_STATION_MAPPING = {
     'DVL': 'Del Valle', // 40 - Smability
     'HRT': 'Huerto IBERO', // 41 - Smability
     'CN2': 'CENTRUS 2', // 42 - Smability
-    'CN4': 'CENTRUS 4' // 43 - Smability
-    'INI': 'INIAT' // 44 - Smability
-    'CN5': 'CENTRUS 5' // 45 - Smability
-    'ITD': 'ITD' // 46 - Smability
+    'CN4': 'CENTRUS 4', // 43 - Smability
+    'INI': 'INIAT', // 44 - Smability
+    'CN5': 'CENTRUS 5', // 45 - Smability
+    'ITD': 'ITD', // 46 - Smability
     'ANC': 'Anahuac Cancun' // 47 - Smability
+};
+
+window.SMAA_SO2_STATION_MAPPING = {
+    'AL2': 'ALISBio-02', // 48 - Smability
+    'ALB': 'ALISBio', // 49 - Smability
 };
 
 /**
@@ -100,7 +105,8 @@ window.SMAA_STATION_MAPPING = {
  */
 window.ALL_STATIONS_MAPPING = {
     ...window.REFERENCE_STATION_MAPPING,
-    ...window.SMAA_STATION_MAPPING
+    ...window.SMAA_STATION_MAPPING,
+    ...window.SMAA_SO2_STATION_MAPPING
 };
 
 /**
