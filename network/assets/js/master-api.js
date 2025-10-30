@@ -74,7 +74,7 @@ async function fetchMasterAPIData() {
             console.log(`  ${index + 1}. ID: ${station.station_id}, Name: ${station.station_name}, Type: ${station.device_type}, IAS: ${station.ias_numeric_value}`);
         });
 
-        // Filtrar estaciones reference, SMAA y SMAAso2
+        // Filtrar estaciones reference, SMAA, SMAAso2 y SMAAmicro
         const filteredStations = stationsArray.filter(station => {
             if (!station || typeof station !== 'object') {
                 console.warn('⚠️ Invalid station object:', station);
@@ -82,13 +82,14 @@ async function fetchMasterAPIData() {
             }
             return station.device_type === 'reference' || 
                    station.device_type === 'smability-SMAA' || 
-                   station.device_type === 'smability-SMAAso2';
+                   station.device_type === 'smability-SMAAso2' ||
+                   station.device_type === 'smability-SMAAmicro';
         });
 
-        console.log(`✅ Filtered ${filteredStations.length} reference+smaa stations from ${stationsArray.length} total`);
+        console.log(`✅ Filtered ${filteredStations.length} reference+smaa+smaa-so2+smaa-micro stations from ${stationsArray.length} total`);
         
-        // Log reference+smaa stations con los campos que nos interesan
-        console.log('🎯 Reference+SMAA stations found:');
+        // Log reference+smaa+smaa-so2+smaa-micro stations
+        console.log('🎯 Reference+SMAA+SMAAso2+SMAAmicro stations found:');
         filteredStations.forEach(station => {
             const isMapped = window.ALL_STATIONS_MAPPING && window.ALL_STATIONS_MAPPING[station.station_id];
             console.log(`  - ${station.station_id} (${station.station_name}) - Type: ${station.device_type}`);
