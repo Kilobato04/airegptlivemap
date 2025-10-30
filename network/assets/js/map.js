@@ -288,130 +288,159 @@ setTimeout(() => {
         }
     }
 
-    function addMapLayers() {
-        // Add vector tile source
-        map.addSource(MAP_LAYERS.source, {
-            'type': 'vector',
-            'url': MAP_LAYERS.vectorTileUrl
-        });
+function addMapLayers() {
+    // Add vector tile source
+    map.addSource(MAP_LAYERS.source, {
+        'type': 'vector',
+        'url': MAP_LAYERS.vectorTileUrl
+    });
+
+    // NUEVO: Crear listas de estaciones por tipo
+    const smabilityStations = [
+        ...Object.values(window.SMAA_STATION_MAPPING || {}),
+        ...Object.values(window.SMAA_SO2_STATION_MAPPING || {}),
+        ...Object.values(window.SMAA_MICRO_STATION_MAPPING || {})
+    ];
     
-        // Add circle layer SOLO para estaciones activas (Smability)
-        map.addLayer({
-            'id': 'smaa_network',
-            'type': 'circle',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]], // SOLO activas
-            'paint': {
-                'circle-color': '#4264fb', // Solo azul para Smability
-                'circle-radius': 6,
-                'circle-stroke-width': 1.2,
-                'circle-stroke-color': '#ffffff'
-            }
-        });
-        
-        // Layer de MARCO BLANCO para cuadrados (va atrás)
-        map.addLayer({
-            'id': 'smaa_network_squares_border',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]],
-            'layout': {
-                'text-field': '■',
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 30, // 4px más grande que el principal (29 + 4)
-                'text-allow-overlap': true,
-                'text-ignore-placement': true
-            },
-            'paint': {
-                'text-color': '#ffffff' // Marco blanco
-            }
-        });
-        
-        // Layer para markers cuadrados de SIMAT - FORMA DOMINANTE
-        map.addLayer({
-            'id': 'smaa_network_squares',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]], 
-            'layout': {
-                'text-field': '■', // Símbolo ASCII compatible
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 12, // Tamaño ajustado para mejor visibilidad
-                'text-allow-overlap': true,
-                'text-ignore-placement': true
-            },
-            'paint': {
-                    'text-color': 'rgba(0,0,0,0)', // Transparente
-                    'text-halo-color': '#666666',   // Color de fondo
-                    'text-halo-width': 8           // Tamaño del fondo
-                }
-        });
-        
-        // Layer de texto para números IAS en cuadrados Master API
-        map.addLayer({
-            'id': 'smaa_network_squares_text',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['!', ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]]],
-            'layout': {
-                'text-field': '', // Vacío por defecto, se llenará via Master API
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 10, // Tamaño más grande para mejor legibilidad
-                'text-allow-overlap': true,
-                'text-ignore-placement': true
-            },
-            'paint': {
-                'text-color': '#FFFFFF'        // ← Texto negro #000000
-             //   'text-halo-color': '#f0f0f0',   // ← Contorno gris claro
-             //   'text-halo-width': 1.5          // ← Contorno sutil
-            }
-        });
+    const referenceStations = Object.values(window.REFERENCE_STATION_MAPPING || {});
     
-        // Add IAS values - solo para estaciones activas
-        map.addLayer({
-            'id': 'smaa_network_ias',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-            'layout': {
-                'text-field': '...', 
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 10,
-                'text-allow-overlap': true,
-                'text-ignore-placement': true
-            },
-            'paint': {
-                'text-color': '#FFFFFF'
-            }
-        });
+    console.log('🔵 Smability stations (circles):', smabilityStations);
+    console.log('🟦 Reference stations (squares):', referenceStations);
+
+    // ========== LAYERS PARA CÍRCULOS SMABILITY ==========
     
-        // Add station labels - solo para estaciones activas
-        map.addLayer({
-            'id': 'smaa_network_labels',
-            'type': 'symbol',
-            'source': MAP_LAYERS.source,
-            'source-layer': MAP_LAYERS.sourceLayer,
-            'filter': ['in', ['get', 'name'], ['literal', APP_SETTINGS.activeStations]],
-            'layout': {
-                'text-field': 'ON',
-                'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-                'text-size': 6,
-                'text-allow-overlap': true,
-                'text-ignore-placement': true,
-                'text-offset': [0, 1.5]
-            },
-            'paint': {
-                'text-color': '#4264fb'
-            }
-        });
-        
-        console.log('✅ All map layers added successfully');
-    }
+    // Layer de BORDE BLANCO para círculos (va atrás)
+    map.addLayer({
+        'id': 'smaa_network_border',
+        'type': 'circle',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
+        'paint': {
+            'circle-color': '#ffffff', // Borde blanco
+            'circle-radius': 9,        // Más grande que el principal
+            'circle-stroke-width': 0
+        }
+    });
+
+    // Layer para círculos principales - TODAS las estaciones Smability
+    map.addLayer({
+        'id': 'smaa_network',
+        'type': 'circle',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
+        'paint': {
+            'circle-color': '#666666', // Color por defecto, será actualizado por Master API
+            'circle-radius': 6,        // Más pequeño que el borde
+            'circle-stroke-width': 0   // Sin stroke adicional
+        }
+    });
+
+    // ========== LAYERS PARA CUADRADOS REFERENCE ==========
+    
+    // Layer de MARCO BLANCO para cuadrados (va atrás)
+    map.addLayer({
+        'id': 'smaa_network_squares_border',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', referenceStations]],
+        'layout': {
+            'text-field': '■',
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+            'text-size': 30,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true
+        },
+        'paint': {
+            'text-color': '#ffffff'
+        }
+    });
+    
+    // Layer para markers cuadrados (solo Reference)
+    map.addLayer({
+        'id': 'smaa_network_squares',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', referenceStations]],
+        'layout': {
+            'text-field': '■',
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+            'text-size': 12,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true
+        },
+        'paint': {
+            'text-color': 'rgba(0,0,0,0)', // Será actualizado por Master API
+            'text-halo-color': '#666666',   // Color por defecto, será actualizado por Master API
+            'text-halo-width': 8
+        }
+    });
+    
+    // Layer de texto para números IAS en cuadrados (solo Reference)
+    map.addLayer({
+        'id': 'smaa_network_squares_text',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', referenceStations]],
+        'layout': {
+            'text-field': '', // Será llenado por Master API
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+            'text-size': 10,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true
+        },
+        'paint': {
+            'text-color': '#FFFFFF'
+        }
+    });
+
+    // ========== LAYERS DE TEXTO PARA CÍRCULOS SMABILITY ==========
+
+    // Add IAS values - TODAS las estaciones Smability (círculos)
+    map.addLayer({
+        'id': 'smaa_network_ias',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
+        'layout': {
+            'text-field': '...', // Será actualizado por Master API
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+            'text-size': 10,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true
+        },
+        'paint': {
+            'text-color': '#FFFFFF'
+        }
+    });
+
+    // Add station labels - TODAS las estaciones Smability (círculos)
+    map.addLayer({
+        'id': 'smaa_network_labels',
+        'type': 'symbol',
+        'source': MAP_LAYERS.source,
+        'source-layer': MAP_LAYERS.sourceLayer,
+        'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
+        'layout': {
+            'text-field': 'ON', // Será actualizado por Master API
+            'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+            'text-size': 6,
+            'text-allow-overlap': true,
+            'text-ignore-placement': true,
+            'text-offset': [0, 1.5]
+        },
+        'paint': {
+            'text-color': '#4264fb'
+        }
+    });
+    
+    console.log('✅ All map layers added successfully');
+}
     // AGREGAR ESTA LÍNEA:
     ensureProperLayerOrder();
     // Hacer la función disponible globalmente para uso en master-api.js
