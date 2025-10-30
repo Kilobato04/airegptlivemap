@@ -99,12 +99,21 @@ window.SMAA_SO2_STATION_MAPPING = {
 };
 
 /**
+ * Mapeo de estaciones SMAA Micro (Smability)
+ */
+window.SMAA_MICRO_STATION_MAPPING = {
+    'MS3': 'MicroSensor-03', // 50 - Smability
+    'MS2': 'MicroSensor-02' // 51 - Smability
+};
+
+/**
  * Mapeo combinado de todas las estaciones
  */
 window.ALL_STATIONS_MAPPING = {
     ...window.REFERENCE_STATION_MAPPING,
     ...window.SMAA_STATION_MAPPING,
-    ...window.SMAA_SO2_STATION_MAPPING
+    ...window.SMAA_SO2_STATION_MAPPING,
+    ...window.SMAA_MICRO_STATION_MAPPING
 };
 
 /**
