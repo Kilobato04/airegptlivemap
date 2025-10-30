@@ -420,7 +420,7 @@ function addMapLayers() {
         'source-layer': MAP_LAYERS.sourceLayer,
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'layout': {
-            'text-field': 'ON',
+            'text-field': '',
             'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
             'text-size': 6,
             'text-allow-overlap': true,
