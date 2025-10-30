@@ -18,7 +18,7 @@ window.APP_SETTINGS = {
         // 'CENTRUS 8',         // EN REPARACIÓN
         // 'CENTRUS 7',         // EN REPARACIÓN
         'D.Valle',
-        'CEN 5', 
+        'CEN 5' 
         // 'Huerto INIAT',
         // 'INIAT IBERO',
         // 'IBERO A',           // EN REPARACIÓN
@@ -66,7 +66,7 @@ window.API_CONFIG = {
         // 'CENTRUS 8': 'a2a9a62b622014c64426c6484334e577',         // EN REPARACIÓN
         // 'CENTRUS 7': '510a41e183a90482275b1bc8a79dfc14',         // EN REPARACIÓN
         'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8',
-        'CEN 5': 'c7dd6160528b3335d4f366e28a04ac80',
+        'CEN 5': 'c7dd6160528b3335d4f366e28a04ac80'
         // 'Huerto INIAT': 'b8c1bac206b358bde62cb25c374339c3',
         // 'INIAT IBERO': '211b4d2dd56a0ba2eb269f2eeb0945ea',
         // 'IBERO A': '1ce05f7c4d1e7a2f048bf5256285a276',           // EN REPARACIÓN
@@ -95,7 +95,7 @@ window.DEVICE_COORDINATES = {
     // 'CENTRUS 8': [-99.173172, 19.392838],         // EN REPARACIÓN
     // 'CENTRUS 7': [-99.172752, 19.392725],         // EN REPARACIÓN
     'D.Valle': [-99.167000, 19.388391],
-    'CEN 5': [-99.200109, 19.365869],
+    'CEN 5': [-99.200109, 19.365869]
     // 'Huerto INIAT': [-99.263649, 19.372347],
     // 'INIAT IBERO': [-99.263580, 19.368851],
     // 'IBERO A': [-99.263649, 19.372355],           // EN REPARACIÓN
