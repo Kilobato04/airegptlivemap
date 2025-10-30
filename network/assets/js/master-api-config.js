@@ -83,27 +83,27 @@ window.REFERENCE_STATION_MAPPING = {
  * Mapeo de estaciones SMAA (Smability)
  */
 window.SMAA_STATION_MAPPING = {
-    'DVL': 'Del Valle', // 40 - Smability
-    'HRT': 'Huerto IBERO', // 41 - Smability
-    'CN2': 'CENTRUS 2', // 42 - Smability
-    'CN4': 'CENTRUS 4', // 43 - Smability
-    'INI': 'INIAT', // 44 - Smability
-    'CN5': 'CENTRUS 5', // 45 - Smability
-    'ITD': 'ITD', // 46 - Smability
-    'ANC': 'Anahuac Cancun' // 47 - Smability
+    'DVL': 'Del Valle', // 40 - Smability - 32d8/OK
+    'HRT': 'Huerto IBERO', // 41 - Smability - 39c3/OK
+    'CN2': 'CENTRUS 2', // 42 - Smability - Zacatlán 1
+    'CN4': 'CENTRUS 4', // 43 - Smability - Zacatlán 2
+    'INI': 'INIAT', // 44 - Smability - 45ea/OK
+    'CN5': 'CENTRUS 5', // 45 - Smability - ac80/OK Nuevo Nombre CEX
+    'ITD': 'ITD', // 46 - Smability - 2043/OK
+    'ANC': 'Anahuac Cancun' // 47 - Smability/353c
 };
 
 window.SMAA_SO2_STATION_MAPPING = {
-    'AL2': 'ALISBio-02', // 48 - Smability
-    'ALB': 'ALISBio' // 49 - Smability
+    'AL2': 'ALISBio-02', // 48 - Smability - 0571/OK
+    'ALB': 'ALISBio' // 49 - Smability - cec8/OK
 };
 
 /**
  * Mapeo de estaciones SMAA Micro (Smability)
  */
 window.SMAA_MICRO_STATION_MAPPING = {
-    'MS3': 'MicroSensor-03', // 50 - Smability
-    'MS2': 'MicroSensor-02' // 51 - Smability
+    'MS3': 'MicroSensor-03', // 50 - Smability - 8abe/OK
+    'MS2': 'MicroSensor-02' // 51 - Smability - 4a45/OK
 };
 
 /**
