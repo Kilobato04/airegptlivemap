@@ -197,12 +197,13 @@ async function updateReferenceStations() {
             console.log(`  - ${station.station_id} (${station.station_name}) - IAS: ${station.ias_numeric_value}`);
         });
         
-        // NUEVO: Actualizar todas las estaciones de una vez
-        const updateResult = await updateAllReferenceStationSquares(mappedStations);
+        // Actualizar cuadrados (Reference) y círculos (Smability)
+        const squareResult = await updateAllReferenceStationSquares(mappedStations);
+        const circleResult = await updateAllSmabilityCircles(mappedStations);
         
-        console.log(`✅ Reference stations update complete: ${updateResult.updated}/${mappedStations.length} mapped stations updated`);
-        if (updateResult.errors.length > 0) {
-            console.log('⚠️ Update errors:', updateResult.errors);
+        console.log(`✅ Master API update complete: ${squareResult.updated} squares, ${circleResult.updated} circles updated`);
+        if (squareResult.errors.length > 0 || circleResult.errors.length > 0) {
+            console.log('⚠️ Update errors:', [...squareResult.errors, ...circleResult.errors]);
         }
         
         window.logSchedule('Update complete', {
@@ -415,6 +416,150 @@ function updateAllReferenceStationSquares(mappedStations) {
 
     } catch (error) {
         console.error('❌ Error in updateAllReferenceStationSquares:', error);
+        return { updated: 0, errors: [error.message] };
+    }
+}
+
+/**
+ * Actualizar círculos Smability con la misma lógica de colores que cuadrados
+ * @param {Array} mappedStations - Array de estaciones mapeadas
+ * @returns {Object} - Resultado de la actualización
+ */
+function updateAllSmabilityCircles(mappedStations) {
+    try {
+        console.log('🔵 Updating all Smability circle markers...');
+
+        const smabilityStations = mappedStations.filter(station => 
+            station.device_type === 'smability-SMAA' ||
+            station.device_type === 'smability-SMAAso2' ||
+            station.device_type === 'smability-SMAAmicro'
+        );
+
+        if (smabilityStations.length === 0) {
+            console.log('⚠️ No Smability stations to update');
+            return { updated: 0, errors: [] };
+        }
+
+        console.log(`🎯 Found ${smabilityStations.length} Smability stations to update`);
+
+        // Verificar que los layers existan
+        if (!window.map.getLayer('smaa_network') || !window.map.getLayer('smaa_network_border')) {
+            console.log('⚠️ Smability circle layers not ready');
+            return { updated: 0, errors: ['Circle layers not found'] };
+        }
+
+        // Crear arrays para las actualizaciones dinámicas
+        const circleColorCases = [];
+        const borderSizeCases = [];
+        const circleSizeCases = [];
+        const iasTextCases = [];
+        let updatedCount = 0;
+        const errors = [];
+
+        smabilityStations.forEach(station => {
+            const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
+            
+            console.log(`Processing Smability station: ${station_id} (${station_name})`);
+            
+            const mappedName = window.ALL_STATIONS_MAPPING[station_id];
+            if (!mappedName) {
+                console.log(`❌ No mapping found for ${station_id}`);
+                errors.push(`No mapping for ${station_id}`);
+                return;
+            }
+
+            // Determinar color y tamaño según el estado (MISMA LÓGICA que cuadrados)
+            let circleColor = '#666666';
+            let displayText = '';
+            let circleRadius = 6;
+            let borderRadius = 9;
+            
+            if (reading_status === 'current' && ias_numeric_value && color_code) {
+                // ESTACIONES FUNCIONALES: Datos LIVE
+                circleColor = color_code;
+                displayText = Math.round(ias_numeric_value).toString();
+                circleRadius = 6;  // Tamaño normal
+                borderRadius = 9;  // Borde normal
+                console.log(`  → FUNCTIONAL: IAS ${displayText}, color ${circleColor}, normal size`);
+            } else if (reading_status === 'stale') {
+                // Datos antiguos: gris + símbolo stale - tamaño REDUCIDO
+                circleColor = '#888888';
+                displayText = '○';
+                circleRadius = 3;  // 50% más chico
+                borderRadius = 5;  // Borde más chico
+                console.log(`  → STALE: reduced size`);
+            } else {
+                // ESTACIONES NO FUNCIONALES: Sin datos - tamaño REDUCIDO
+                circleColor = '#666666';
+                displayText = '×';
+                circleRadius = 3;  // 50% más chico
+                borderRadius = 5;  // Borde más chico
+                console.log(`  → NON-FUNCTIONAL: reduced size`);
+            }
+
+            // Agregar casos para círculos
+            circleColorCases.push(['==', ['get', 'name'], mappedName]);
+            circleColorCases.push(circleColor);
+
+            circleSizeCases.push(['==', ['get', 'name'], mappedName]);
+            circleSizeCases.push(circleRadius);
+
+            borderSizeCases.push(['==', ['get', 'name'], mappedName]);
+            borderSizeCases.push(borderRadius);
+
+            iasTextCases.push(['==', ['get', 'name'], mappedName]);
+            iasTextCases.push(displayText);
+
+            updatedCount++;
+        });
+
+        // Aplicar actualizaciones a círculos
+        try {
+            if (circleColorCases.length > 0) {
+                // 1. Color del círculo principal
+                window.map.setPaintProperty('smaa_network', 'circle-color', [
+                    'case',
+                    ...circleColorCases,
+                    '#666666' // color por defecto
+                ]);
+
+                // 2. Tamaño del círculo principal
+                window.map.setPaintProperty('smaa_network', 'circle-radius', [
+                    'case',
+                    ...circleSizeCases,
+                    6 // radio por defecto
+                ]);
+
+                // 3. Tamaño del borde blanco
+                window.map.setPaintProperty('smaa_network_border', 'circle-radius', [
+                    'case',
+                    ...borderSizeCases,
+                    9 // radio por defecto del borde
+                ]);
+
+                // 4. Texto IAS sobre los círculos
+                if (window.map.getLayer('smaa_network_ias')) {
+                    window.map.setLayoutProperty('smaa_network_ias', 'text-field', [
+                        'case',
+                        ...iasTextCases,
+                        '...' // texto por defecto
+                    ]);
+                }
+
+                console.log('✅ Smability circles updated with IAS colors and values');
+            }
+
+            console.log(`✅ Successfully updated ${updatedCount} Smability circles`);
+
+        } catch (mapError) {
+            console.error('Error applying circle updates:', mapError);
+            errors.push('Circle update failed: ' + mapError.message);
+        }
+
+        return { updated: updatedCount, errors };
+
+    } catch (error) {
+        console.error('❌ Error in updateAllSmabilityCircles:', error);
         return { updated: 0, errors: [error.message] };
     }
 }
