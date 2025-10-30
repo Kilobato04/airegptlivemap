@@ -471,29 +471,29 @@ function updateAllSmabilityCircles(mappedStations) {
             // Determinar color y tamaño según el estado (MISMA LÓGICA que cuadrados)
             let circleColor = '#666666';
             let displayText = '';
-            let circleRadius = 6;
-            let borderRadius = 9;
+            let circleRadius = 16;
+            let borderRadius = 20;
             
             if (reading_status === 'current' && ias_numeric_value && color_code) {
                 // ESTACIONES FUNCIONALES: Datos LIVE
                 circleColor = color_code;
                 displayText = Math.round(ias_numeric_value).toString();
-                circleRadius = 6;  // Tamaño normal
-                borderRadius = 9;  // Borde normal
+                circleRadius = 16;  // Tamaño normal
+                borderRadius = 20;  // Borde normal
                 console.log(`  → FUNCTIONAL: IAS ${displayText}, color ${circleColor}, normal size`);
             } else if (reading_status === 'stale') {
                 // Datos antiguos: gris + símbolo stale - tamaño REDUCIDO
                 circleColor = '#888888';
                 displayText = '○';
-                circleRadius = 3;  // 50% más chico
-                borderRadius = 5;  // Borde más chico
+                circleRadius = 10;  // 50% más chico
+                borderRadius = 14;  // Borde más chico
                 console.log(`  → STALE: reduced size`);
             } else {
                 // ESTACIONES NO FUNCIONALES: Sin datos - tamaño REDUCIDO
                 circleColor = '#666666';
                 displayText = '×';
-                circleRadius = 3;  // 50% más chico
-                borderRadius = 5;  // Borde más chico
+                circleRadius = 10;  // 50% más chico
+                borderRadius = 14;  // Borde más chico
                 console.log(`  → NON-FUNCTIONAL: reduced size`);
             }
 
@@ -527,14 +527,14 @@ function updateAllSmabilityCircles(mappedStations) {
                 window.map.setPaintProperty('smaa_network', 'circle-radius', [
                     'case',
                     ...circleSizeCases,
-                    6 // radio por defecto
+                    16 // radio por defecto
                 ]);
 
                 // 3. Tamaño del borde blanco
                 window.map.setPaintProperty('smaa_network_border', 'circle-radius', [
                     'case',
                     ...borderSizeCases,
-                    9 // radio por defecto del borde
+                    20 // radio por defecto del borde
                 ]);
 
                 // 4. Texto IAS sobre los círculos
