@@ -311,13 +311,12 @@ function addMapLayers() {
         'source-layer': MAP_LAYERS.sourceLayer,
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'paint': {
-            'circle-color': '#ffffff', // Borde blanco
-            'circle-radius': 9,        // Más grande que el principal
-            'circle-stroke-width': 0
+            'circle-color': '#ffffff',
+            'circle-radius': 20  // ← CAMBIAR a 20
         }
     });
 
-    // Layer para círculos principales - TODAS las estaciones Smability
+    // Layer para círculos principales
     map.addLayer({
         'id': 'smaa_network',
         'type': 'circle',
@@ -325,9 +324,9 @@ function addMapLayers() {
         'source-layer': MAP_LAYERS.sourceLayer,
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'paint': {
-            'circle-color': '#666666', // Color por defecto, será actualizado por Master API
-            'circle-radius': 6,        // Más pequeño que el borde
-            'circle-stroke-width': 0   // Sin stroke adicional
+            'circle-color': '#666666',
+            'circle-radius': 16,  // ← CAMBIAR a 16
+            'circle-stroke-width': 0
         }
     });
 
@@ -402,14 +401,14 @@ function addMapLayers() {
         'source-layer': MAP_LAYERS.sourceLayer,
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'layout': {
-            'text-field': '...', // Será actualizado por Master API
+            'text-field': '...',
             'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
             'text-size': 10,
             'text-allow-overlap': true,
             'text-ignore-placement': true
         },
         'paint': {
-            'text-color': '#FFFFFF'
+            'text-color': '#000000'  // ← CAMBIAR de '#FFFFFF' a '#000000'
         }
     });
 
@@ -421,12 +420,13 @@ function addMapLayers() {
         'source-layer': MAP_LAYERS.sourceLayer,
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'layout': {
-            'text-field': 'ON', // Será actualizado por Master API
+            'text-field': 'ON',
             'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
             'text-size': 6,
             'text-allow-overlap': true,
             'text-ignore-placement': true,
-            'text-offset': [0, 1.5]
+            'text-offset': [0, 1.5],
+            'visibility': 'none'  // ← AGREGAR para ocultar
         },
         'paint': {
             'text-color': '#4264fb'
