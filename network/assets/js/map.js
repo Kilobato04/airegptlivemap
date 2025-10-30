@@ -403,7 +403,7 @@ function addMapLayers() {
         'layout': {
             'text-field': '...',
             'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
-            'text-size': 12,
+            'text-size': 10,
             'text-allow-overlap': true,
             'text-ignore-placement': true
         },
