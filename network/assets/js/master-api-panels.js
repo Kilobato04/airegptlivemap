@@ -124,7 +124,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * Crear HTML del panel con datos de Master API
+     * Crear HTML del panel con datos de Master API - ESTRUCTURA IDÉNTICA
      */
     function createPanelHTML(stationData) {
         const panelData = mapMasterAPIData(stationData);
@@ -133,28 +133,35 @@ window.MasterAPIPanels = (function() {
             <div class="master-api-panel">
                 <!-- Header -->
                 <div class="master-api-header">
-                    <div>
+                    <div class="master-api-header-left">
                         <h3 class="master-api-panel-title">${stationData.station_name}</h3>
                         <p class="master-api-panel-subtitle">${getDeviceTypeLabel(stationData.device_type)} • ${stationData.city}</p>
                     </div>
-                    <button class="master-api-close-btn" onclick="MasterAPIPanels.closePanel()">×</button>
-                </div>
-    
-                <!-- IAS Principal -->
-                <div class="master-api-ias-section">
-                    <div class="master-api-ias-display">
-                        <span class="master-api-ias-emoji">${panelData.emoji}</span>
-                        <div class="master-api-ias-circle" style="background-color: ${panelData.color};">${panelData.iasValue}</div>
-                        <div class="master-api-ias-info">
-                            <div class="master-api-ias-label">Air Quality:</div>
-                            <div class="master-api-ias-category">${panelData.category}</div>
-                            <div class="master-api-ias-risk">Risk: ${panelData.risk}</div>
-                        </div>
+                    <div class="master-api-header-right">
+                        <button class="master-api-close-btn" onclick="MasterAPIPanels.closePanel()">×</button>
                     </div>
                 </div>
     
-                <!-- Datos principales -->
-                <div class="master-api-data-section">
+                <!-- Contenido del panel -->
+                <div class="master-api-panel-content">
+                    <!-- IAS Principal - ESTRUCTURA IDÉNTICA -->
+                    <div class="master-api-ias-section">
+                        <span class="master-api-ias-emoji">${panelData.emoji}</span>
+                        <div class="master-api-ias-indicator"></div>
+                        <div class="master-api-ias-value">${panelData.iasValue}</div>
+                        <div class="master-api-ias-status">
+                            <div class="master-api-status-row">
+                                <span class="master-api-status-label">Status:</span>
+                                <span class="master-api-status-value">${panelData.category}</span>
+                            </div>
+                            <div class="master-api-status-row">
+                                <span class="master-api-status-label">Risk:</span>
+                                <span class="master-api-status-value">${panelData.risk}</span>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Datos principales -->
                     <div class="master-api-data-grid">
                         <div class="master-api-data-item">
                             <div class="master-api-data-label">Dominant Pollutant</div>
@@ -164,27 +171,42 @@ window.MasterAPIPanels = (function() {
                             <div class="master-api-data-label">Status</div>
                             <div class="master-api-data-value">${getStatusLabel(stationData.reading_status)}</div>
                         </div>
-                    </div>
-    
-                    <!-- Pollutants Grid -->
-                    <div class="master-api-data-grid four-cols">
-                        ${createPollutantItem('O3 1hr', panelData.o3, 'ppb')}
-                        ${createPollutantItem('CO 8hr', panelData.co8h, 'ppb')}
-                        ${createPollutantItem('PM2.5 12hr', panelData.pm25, 'μg/m³')}
-                        ${createPollutantItem('PM10 12hr', panelData.pm10, 'μg/m³')}
-                    </div>
-    
-                    <!-- Environmental Data -->
-                    <div class="master-api-data-grid three-cols">
-                        ${createEnvironmentalItem('Temperature', panelData.temperature, '°C')}
-                        ${createEnvironmentalItem('Humidity', panelData.humidity, '%')}
-                        ${createEnvironmentalItem('Battery', panelData.battery, '%')}
-                    </div>
-    
-                    <!-- Placement Info -->
-                    <div class="master-api-data-grid">
-                        ${createInfoItem('Location', panelData.placement)}
-                        ${createInfoItem('Device Mode', panelData.deviceMode)}
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">O3 1hr</div>
+                            <div class="master-api-data-value">${formatValue(panelData.o3, 'ppb')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">CO 8hr</div>
+                            <div class="master-api-data-value">${formatValue(panelData.co8h, 'ppb')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">PM2.5 12hr</div>
+                            <div class="master-api-data-value">${formatValue(panelData.pm25, 'μg/m³')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">PM10 12hr</div>
+                            <div class="master-api-data-value">${formatValue(panelData.pm10, 'μg/m³')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Temperature</div>
+                            <div class="master-api-data-value">${formatValue(panelData.temperature, '°C')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Humidity</div>
+                            <div class="master-api-data-value">${formatValue(panelData.humidity, '%')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Battery</div>
+                            <div class="master-api-data-value">${formatValue(panelData.battery, '%')}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Location</div>
+                            <div class="master-api-data-value">${panelData.placement}</div>
+                        </div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Device Mode</div>
+                            <div class="master-api-data-value">${panelData.deviceMode}</div>
+                        </div>
                     </div>
                 </div>
     
@@ -197,34 +219,9 @@ window.MasterAPIPanels = (function() {
         `;
     }
     
-    // Actualizar funciones helper para usar clases CSS
-    function createPollutantItem(label, value, unit) {
-        const displayValue = value !== 'N/A' ? `${Math.round(value)} ${unit}` : 'N/A';
-        return `
-            <div class="master-api-data-item small">
-                <div class="master-api-data-label small">${label}</div>
-                <div class="master-api-data-value small">${displayValue}</div>
-            </div>
-        `;
-    }
-    
-    function createEnvironmentalItem(label, value, unit) {
-        const displayValue = value !== 'N/A' ? `${Math.round(value)}${unit}` : 'N/A';
-        return `
-            <div class="master-api-data-item small">
-                <div class="master-api-data-label small">${label}</div>
-                <div class="master-api-data-value small">${displayValue}</div>
-            </div>
-        `;
-    }
-    
-    function createInfoItem(label, value) {
-        return `
-            <div class="master-api-data-item small">
-                <div class="master-api-data-label small">${label}</div>
-                <div class="master-api-data-value small">${value}</div>
-            </div>
-        `;
+    // NUEVA: Función helper para formatear valores
+    function formatValue(value, unit) {
+        return value !== 'N/A' ? `${Math.round(value)} ${unit}` : 'N/A';
     }
 
     /**
@@ -255,6 +252,59 @@ window.MasterAPIPanels = (function() {
             deviceMode: translateDeviceMode(stationData.device_mode?.mode),
             lastUpdate: formatLastUpdate(stationData.reading_time_UTC6)
         };
+    }
+
+        /**
+     * Actualizar colores dinámicos del panel según IAS - IDÉNTICO A SMABILITY
+     */
+    function updatePanelColors(panelData) {
+        const color = panelData.color;
+        const iasValue = panelData.iasValue;
+        
+        // Convertir hex a RGB
+        const colorRgb = hexToRgb(color);
+        if (colorRgb) {
+            // Actualizar variables CSS dinámicas
+            const panel = document.querySelector('.master-api-panel');
+            if (panel) {
+                panel.style.setProperty('--master-api-ias-bg', `rgba(240, 240, 240, 0.65)`);
+                panel.style.setProperty('--master-api-header-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.35)`);
+                panel.style.setProperty('--master-api-ias-bg-hover', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.40)`);
+                panel.style.setProperty('--master-api-footer-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.15)`);
+                panel.style.setProperty('--master-api-data-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.08)`);
+                panel.style.setProperty('--master-api-data-bg-hover', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.15)`);
+                panel.style.setProperty('--master-api-ias-color', color);
+                panel.style.borderColor = color;
+            }
+            
+            // Actualizar indicador circular
+            const indicator = panel.querySelector('.master-api-ias-indicator');
+            if (indicator) {
+                indicator.style.backgroundColor = color;
+            }
+        }
+    }
+    
+    // Función helper para convertir hex a rgb
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+    
+    // Llamar updatePanelColors en createAndShowPanel después de crear el panel
+    function createAndShowPanel(stationData) {
+        const panelHTML = createPanelHTML(stationData);
+        // ... código existente ...
+        
+        // AGREGAR después de mostrar el panel:
+        const panelData = mapMasterAPIData(stationData);
+        updatePanelColors(panelData);
+        
+        setState(2);
     }
 
     // Helper functions
