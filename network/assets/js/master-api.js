@@ -454,7 +454,8 @@ function updateAllSmabilityCircles(mappedStations) {
         const smabilityInMap = [
             'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
             'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
-            'MicroSensor-03', 'Anahuac Cancun','La Diana','MicroSensor-02'
+            'MicroSensor-03', 'Anahuac Cancun','La Diana','Hipódromo',
+            'INSYC-Smability', 'UAM SF IMSS','UNAM - ICAYCC', 'Tepeji HGO','MicroSensor-02'
         ];
 
         // Procesar TODAS las estaciones mapeadas (no solo las que reportan)
