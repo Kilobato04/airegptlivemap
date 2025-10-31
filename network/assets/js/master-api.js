@@ -528,14 +528,14 @@ function updateAllSmabilityCircles(mappedStations) {
                 window.map.setPaintProperty('smaa_network', 'circle-radius', [
                     'case',
                     ...circleSizeCases,
-                    4 // radio por defecto - antes 10
+                    6 // radio por defecto - antes 4
                 ]);
 
                 // 3. Tamaño del borde blanco
                 window.map.setPaintProperty('smaa_network_border', 'circle-radius', [
                     'case',
                     ...borderSizeCases,
-                    6 // radio por defecto del borde - antes 12
+                    8 // radio por defecto del borde - antes 6
                 ]);
 
                 // 4. Texto IAS sobre los círculos
