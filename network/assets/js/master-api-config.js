@@ -91,20 +91,25 @@ window.SMAA_STATION_MAPPING = {
     'CN5': 'CENTRUS 5', // 45 - Smability - ac80/OK Nuevo Nombre CEX
     'ITD': 'ITD', // 46 - Smability - 2043/OK
     'ANC': 'Anahuac Cancun', // 47 - Smability/353c
-    'DIA': 'La Diana' // Test on Map
+    'DIA': 'La Diana', // 48 Test on Map
+    'SMAA': 'Hipódromo', // 49 Test on Map
+    'INSMAA': 'INSYC-Smability', // 50 Test on Map
+    'UAM': 'UAM SF IMSS', // 51 Test on Map
+    'ICAYCC': 'UNAM - ICAYCC', // 52 Test on Map
+    'TPJ': 'Tepeji HGO' // 53 Test on Map
 };
 
 window.SMAA_SO2_STATION_MAPPING = {
-    'AL2': 'ALISBio-02', // 48 - Smability - 0571/OK
-    'ALB': 'ALISBio' // 49 - Smability - cec8/OK
+    'AL2': 'ALISBio-02', // 54 48 - Smability - 0571/OK
+    'ALB': 'ALISBio' // 55 - Smability - cec8/OK
 };
 
 /**
  * Mapeo de estaciones SMAA Micro (Smability)
  */
 window.SMAA_MICRO_STATION_MAPPING = {
-    'MS3': 'MicroSensor-03', // 50 - Smability - 8abe/OK
-    'MS2': 'MicroSensor-02' // 51 - Smability - 4a45/OK
+    'MS3': 'MicroSensor-03', // 56 - Smability - 8abe/OK
+    'MS2': 'MicroSensor-02' // 57 - Smability - 4a45/OK
 };
 
 /**
