@@ -127,150 +127,102 @@ window.MasterAPIPanels = (function() {
      * Crear HTML del panel con datos de Master API
      */
     function createPanelHTML(stationData) {
-        // Mapear datos de Master API a formato del panel
         const panelData = mapMasterAPIData(stationData);
         
         return `
-            <div class="master-api-panel" style="
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                width: 360px;
-                max-height: 80vh;
-                background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
-                border-radius: 16px;
-                border: 2px solid ${panelData.color};
-                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-                pointer-events: all;
-                transform: translateX(100%);
-                opacity: 0;
-                transition: all 0.3s ease;
-                overflow: hidden;
-                backdrop-filter: blur(10px);
-            ">
+            <div class="master-api-panel">
                 <!-- Header -->
-                <div class="master-api-header" style="
-                    background: linear-gradient(135deg, ${panelData.color}20 0%, ${panelData.color}10 100%);
-                    border-bottom: 1px solid ${panelData.color}30;
-                    padding: 16px;
-                    position: relative;
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <h3 style="margin: 0; font-size: 18px; font-weight: bold; color: #1a1a1a;">
-                                ${stationData.station_name}
-                            </h3>
-                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">
-                                ${getDeviceTypeLabel(stationData.device_type)} • ${stationData.city}
-                            </p>
-                        </div>
-                        <button onclick="MasterAPIPanels.closePanel()" style="
-                            background: none;
-                            border: none;
-                            font-size: 24px;
-                            color: #666;
-                            cursor: pointer;
-                            padding: 0;
-                            width: 30px;
-                            height: 30px;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            border-radius: 50%;
-                            transition: all 0.2s ease;
-                        " onmouseover="this.style.backgroundColor='rgba(0,0,0,0.1)'" onmouseout="this.style.backgroundColor='transparent'">×</button>
+                <div class="master-api-header">
+                    <div>
+                        <h3 class="master-api-panel-title">${stationData.station_name}</h3>
+                        <p class="master-api-panel-subtitle">${getDeviceTypeLabel(stationData.device_type)} • ${stationData.city}</p>
                     </div>
+                    <button class="master-api-close-btn" onclick="MasterAPIPanels.closePanel()">×</button>
                 </div>
-
+    
                 <!-- IAS Principal -->
-                <div class="master-api-ias-section" style="
-                    padding: 20px 16px;
-                    text-align: center;
-                    border-bottom: 1px solid rgba(0,0,0,0.1);
-                ">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 16px;">
-                        <span style="font-size: 36px;">${panelData.emoji}</span>
-                        <div style="
-                            width: 60px;
-                            height: 60px;
-                            border-radius: 50%;
-                            background: ${panelData.color};
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-size: 24px;
-                            font-weight: bold;
-                            color: #000;
-                            border: 3px solid white;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                        ">${panelData.iasValue}</div>
-                        <div style="text-align: left;">
-                            <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Air Quality:</div>
-                            <div style="font-size: 16px; font-weight: bold; color: #1a1a1a;">${panelData.category}</div>
-                            <div style="font-size: 14px; color: #666; margin-top: 2px;">Risk: ${panelData.risk}</div>
+                <div class="master-api-ias-section">
+                    <div class="master-api-ias-display">
+                        <span class="master-api-ias-emoji">${panelData.emoji}</span>
+                        <div class="master-api-ias-circle" style="background-color: ${panelData.color};">${panelData.iasValue}</div>
+                        <div class="master-api-ias-info">
+                            <div class="master-api-ias-label">Air Quality:</div>
+                            <div class="master-api-ias-category">${panelData.category}</div>
+                            <div class="master-api-ias-risk">Risk: ${panelData.risk}</div>
                         </div>
                     </div>
                 </div>
-
+    
                 <!-- Datos principales -->
-                <div style="padding: 16px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                        <div class="data-item" style="
-                            background: rgba(0,0,0,0.03);
-                            padding: 12px;
-                            border-radius: 8px;
-                            text-align: center;
-                        ">
-                            <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Dominant Pollutant</div>
-                            <div style="font-size: 16px; font-weight: bold; color: #1a1a1a;">${panelData.dominantPollutant}</div>
+                <div class="master-api-data-section">
+                    <div class="master-api-data-grid">
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Dominant Pollutant</div>
+                            <div class="master-api-data-value">${panelData.dominantPollutant}</div>
                         </div>
-                        <div class="data-item" style="
-                            background: rgba(0,0,0,0.03);
-                            padding: 12px;
-                            border-radius: 8px;
-                            text-align: center;
-                        ">
-                            <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Status</div>
-                            <div style="font-size: 16px; font-weight: bold; color: #1a1a1a;">${getStatusLabel(stationData.reading_status)}</div>
+                        <div class="master-api-data-item">
+                            <div class="master-api-data-label">Status</div>
+                            <div class="master-api-data-value">${getStatusLabel(stationData.reading_status)}</div>
                         </div>
                     </div>
-
+    
                     <!-- Pollutants Grid -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                    <div class="master-api-data-grid four-cols">
                         ${createPollutantItem('O3 1hr', panelData.o3, 'ppb')}
                         ${createPollutantItem('CO 8hr', panelData.co8h, 'ppb')}
                         ${createPollutantItem('PM2.5 12hr', panelData.pm25, 'μg/m³')}
                         ${createPollutantItem('PM10 12hr', panelData.pm10, 'μg/m³')}
                     </div>
-
+    
                     <!-- Environmental Data -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+                    <div class="master-api-data-grid three-cols">
                         ${createEnvironmentalItem('Temperature', panelData.temperature, '°C')}
                         ${createEnvironmentalItem('Humidity', panelData.humidity, '%')}
                         ${createEnvironmentalItem('Battery', panelData.battery, '%')}
                     </div>
-
+    
                     <!-- Placement Info -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="master-api-data-grid">
                         ${createInfoItem('Location', panelData.placement)}
                         ${createInfoItem('Device Mode', panelData.deviceMode)}
                     </div>
                 </div>
-
+    
                 <!-- Footer -->
-                <div style="
-                    padding: 12px 16px;
-                    border-top: 1px solid rgba(0,0,0,0.1);
-                    background: rgba(0,0,0,0.02);
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    font-size: 11px;
-                    color: #666;
-                ">
-                    <span>Last update: ${panelData.lastUpdate}</span>
-                    <a href="https://smability.io/en/" target="_blank" style="color: #4264fb; text-decoration: none;">Master API</a>
+                <div class="master-api-footer">
+                    <span class="master-api-last-update">Last update: ${panelData.lastUpdate}</span>
+                    <a href="https://smability.io/en/" target="_blank" class="master-api-branding">Master API</a>
                 </div>
+            </div>
+        `;
+    }
+    
+    // Actualizar funciones helper para usar clases CSS
+    function createPollutantItem(label, value, unit) {
+        const displayValue = value !== 'N/A' ? `${Math.round(value)} ${unit}` : 'N/A';
+        return `
+            <div class="master-api-data-item small">
+                <div class="master-api-data-label small">${label}</div>
+                <div class="master-api-data-value small">${displayValue}</div>
+            </div>
+        `;
+    }
+    
+    function createEnvironmentalItem(label, value, unit) {
+        const displayValue = value !== 'N/A' ? `${Math.round(value)}${unit}` : 'N/A';
+        return `
+            <div class="master-api-data-item small">
+                <div class="master-api-data-label small">${label}</div>
+                <div class="master-api-data-value small">${displayValue}</div>
+            </div>
+        `;
+    }
+    
+    function createInfoItem(label, value) {
+        return `
+            <div class="master-api-data-item small">
+                <div class="master-api-data-label small">${label}</div>
+                <div class="master-api-data-value small">${value}</div>
             </div>
         `;
     }
