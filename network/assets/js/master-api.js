@@ -209,7 +209,8 @@ async function updateReferenceStations() {
         window.logSchedule('Update complete', {
             total: stations.length,
             mapped: mappedStations.length,
-            updated: updateResult.updated
+            squares: squareResult.updated,
+            circles: circleResult.updated
         });
 
     } catch (error) {
@@ -268,9 +269,8 @@ function updateAllReferenceStationSquares(mappedStations) {
             );
             
             if (matchingFeatures.length === 0) {
-                console.log(`No features found for ${station_id}`);
-                errors.push(`No features for ${station_id}`);
-                return;
+                console.log(`⚠️ Station ${station_id} not in vector tile (normal for some stations)`);
+                return; // Continuar sin agregar error
             }
             
             console.log(`Found ${matchingFeatures.length} feature(s) for ${station_id}`);
@@ -317,10 +317,10 @@ function updateAllReferenceStationSquares(mappedStations) {
                 
                 // NUEVO: Aplicar tamaños dinámicos
                 markerSizeCases.push(['==', ['get', 'name'], featureName]);
-                markerSizeCases.push(markerSize);
+                markerSizeCases.push(markerSize || 12); // ← Fallback si es null
                 
                 borderSizeCases.push(['==', ['get', 'name'], featureName]);
-                borderSizeCases.push(borderSize);
+                borderSizeCases.push(borderSize || 16); // ← Fallback si es null
             });
             
             updatedCount++;
@@ -492,10 +492,10 @@ function updateAllSmabilityCircles(mappedStations) {
             circleColorCases.push(circleColor);
             
             circleSizeCases.push(['==', ['get', 'name'], mappedName]);
-            circleSizeCases.push(circleRadius);
+            circleSizeCases.push(circleRadius || 10); // ← Fallback
             
             borderSizeCases.push(['==', ['get', 'name'], mappedName]);
-            borderSizeCases.push(borderRadius);
+            borderSizeCases.push(borderRadius || 12); // ← Fallback
         
             // Para texto IAS
             let displayText = '';
