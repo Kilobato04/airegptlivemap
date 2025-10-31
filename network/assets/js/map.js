@@ -312,7 +312,7 @@ function addMapLayers() {
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'paint': {
             'circle-color': '#ffffff',
-            'circle-radius': 6  // ← Antes 12
+            'circle-radius': 8  // ← Antes 6
         }
     });
 
@@ -325,7 +325,7 @@ function addMapLayers() {
         'filter': ['in', ['get', 'name'], ['literal', smabilityStations]],
         'paint': {
             'circle-color': '#666666',
-            'circle-radius': 4,  // ← Antes 10
+            'circle-radius': 6,  // ← Antes 4
             'circle-stroke-width': 0
         }
     });
