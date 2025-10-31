@@ -462,8 +462,13 @@ function updateAllSmabilityCircles(mappedStations) {
             const mappedName = window.ALL_STATIONS_MAPPING[station_id];
             if (!mappedName) return;
         
-            // IMPORTANTE: Verificar que la estación esté en el mapa
-            const smabilityInMap = ['INIAT', 'MicroSensor-03', 'Huerto IBERO', 'MicroSensor-02', 'CENTRUS 5', 'Del Valle'];
+            // CORRECTO: Usar todas las estaciones que están en el vector tile
+            const smabilityInMap = [
+                'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
+                'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
+                'MicroSensor-03', 'Anahuac Cancun','MicroSensor-02'
+            ];
+            
             if (!smabilityInMap.includes(mappedName)) return;
         
             let circleColor = '#666666';
