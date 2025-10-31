@@ -1,18 +1,7 @@
 /* ==============================================
    ARCHIVO: master-api-panels.css - MASTER API PANELS
-   DESCRIPCIÓN: Estilos para paneles de estaciones Master API
+   DESCRIPCIÓN: Estilos idénticos a smability-panels.css
    ============================================== */
-
-/* === VARIABLES CSS PARA MASTER API === */
-:root {
-    --master-api-bg: rgba(240, 240, 240, 0.65);
-    --master-api-header-bg: rgba(66, 100, 251, 0.35);
-    --master-api-bg-hover: rgba(66, 100, 251, 0.40);
-    --master-api-footer-bg: rgba(66, 100, 251, 0.15);
-    --master-api-data-bg: rgba(66, 100, 251, 0.08);
-    --master-api-data-bg-hover: rgba(66, 100, 251, 0.15);
-    --master-api-color: #4264fb;
-}
 
 /* === CONTENEDOR PRINCIPAL === */
 #masterAPIPanelContainer {
@@ -25,20 +14,20 @@
     z-index: 3000; /* Mayor z-index que smability panels */
 }
 
-/* === PANEL PRINCIPAL MASTER API === */
+/* === PANEL PRINCIPAL MASTER API - IDÉNTICO A SMABILITY === */
 .master-api-panel {
     position: fixed;
-    top: 20px;
+    bottom: 20px; /* ← CAMBIO: Igual que smability (bottom, no top) */
     right: 20px;
-    width: 380px; /* Mismo ancho base que smability panels */
-    background: var(--master-api-bg);
+    width: 650px; /* ← CAMBIO: Igual que smability (650px, no 380px) */
+    background: var(--master-api-ias-bg);
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-    border: 2px solid var(--master-api-color);
+    border: 2px solid var(--master-api-ias-color);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     z-index: 3001;
-    max-height: 80vh;
+    max-height: 55vh; /* ← CAMBIO: Igual que smability */
     overflow-y: auto;
     transition: all 0.3s ease;
     pointer-events: all;
@@ -52,7 +41,7 @@
     opacity: 1;
 }
 
-/* === HEADER DEL PANEL === */
+/* === HEADER DEL PANEL - IDÉNTICO === */
 .master-api-header {
     background: var(--master-api-header-bg);
     padding: 16px;
@@ -60,18 +49,28 @@
     border-bottom: 1px solid rgba(0,0,0,0.08);
     position: relative;
     display: flex;
-    align-items: flex-start;
+    align-items: center; /* ← CAMBIO: center, no flex-start */
     justify-content: space-between;
     transition: background-color 0.3s ease;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
+.master-api-header-left {
+    flex: 1;
+}
+
+.master-api-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .master-api-panel-title {
     font-size: 18px;
     font-weight: bold;
-    color: #1a1a1a;
-    margin: 0;
+    color: #000; /* ← CAMBIO: #000, no #1a1a1a */
+    margin: 0 0 4px 0; /* ← CAMBIO: Agregar margen inferior */
     font-family: 'DIN Pro', Arial, sans-serif;
     line-height: 1.2;
 }
@@ -79,16 +78,14 @@
 .master-api-panel-subtitle {
     font-size: 12px;
     color: #666;
-    margin: 4px 0 0 0;
+    margin: 0; /* ← CAMBIO: Sin margen superior */
     font-family: 'DIN Pro', Arial, sans-serif;
     font-weight: normal;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .master-api-close-btn {
-    width: 30px;
-    height: 30px;
+    width: 24px; /* ← CAMBIO: 24px, no 30px */
+    height: 24px; /* ← CAMBIO: 24px, no 30px */
     border-radius: 50%;
     border: none;
     background: rgba(0,0,0,0.1);
@@ -96,7 +93,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 16px; /* ← CAMBIO: 16px, no 24px */
     color: #666;
     font-family: 'DIN Pro', Arial, sans-serif;
     transition: all 0.2s ease;
@@ -107,94 +104,86 @@
     transform: scale(1.1);
 }
 
-/* === SECCIÓN IAS PRINCIPAL === */
-.master-api-ias-section {
-    padding: 20px 16px;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    background: var(--master-api-bg);
-}
-
-.master-api-ias-display {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 12px;
-}
-
-.master-api-ias-emoji {
-    font-size: 36px;
-}
-
-.master-api-ias-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    color: #000;
-    border: 3px solid white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    font-family: 'DIN Pro', Arial, sans-serif;
-}
-
-.master-api-ias-info {
-    text-align: left;
-    flex: 1;
-}
-
-.master-api-ias-label {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 4px;
-    font-family: 'DIN Pro', Arial, sans-serif;
-}
-
-.master-api-ias-category {
-    font-size: 16px;
-    font-weight: bold;
-    color: #1a1a1a;
-    margin-bottom: 2px;
-    font-family: 'DIN Pro', Arial, sans-serif;
-}
-
-.master-api-ias-risk {
-    font-size: 14px;
-    color: #666;
-    font-family: 'DIN Pro', Arial, sans-serif;
-}
-
-/* === GRID DE DATOS === */
-.master-api-data-section {
+/* === CONTENIDO DEL PANEL === */
+.master-api-panel-content {
     padding: 16px;
 }
 
+/* === SECCIÓN IAS PRINCIPAL - IDÉNTICA === */
+.master-api-ias-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 14px;
+    background: var(--master-api-ias-bg);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    border: 1px solid var(--master-api-ias-color);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.master-api-ias-emoji {
+    font-size: 24px; /* ← CAMBIO: 24px, no 36px */
+}
+
+.master-api-ias-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ffff00;
+}
+
+.master-api-ias-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+    font-family: 'DIN Pro', Arial, sans-serif;
+}
+
+.master-api-ias-status {
+    margin-left: auto;
+    text-align: right;
+}
+
+/* NUEVO: Estructura de etiquetas Status/Risk - IDÉNTICA */
+.master-api-status-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 2px 0;
+}
+
+.master-api-status-label {
+    font-size: 12px;
+    color: #000;
+    font-family: 'DIN Pro', Arial, sans-serif;
+    font-weight: bold;
+}
+
+.master-api-status-value {
+    font-size: 12px;
+    font-weight: bold;
+    color: #000;
+    font-family: 'DIN Pro', Arial, sans-serif;
+}
+
+/* === GRID DE DATOS - IDÉNTICO === */
 .master-api-data-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 16px;
-}
-
-.master-api-data-grid.three-cols {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-}
-
-.master-api-data-grid.four-cols {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
 }
 
 .master-api-data-item {
     background: var(--master-api-data-bg);
-    padding: 12px;
+    padding: 10px;
     border-radius: 8px;
-    text-align: center;
-    border: 1px solid rgba(66, 100, 251, 0.1);
+    font-size: 12px;
+    border: 1px solid var(--master-api-ias-color);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: all 0.2s ease;
@@ -203,42 +192,26 @@
 .master-api-data-item:hover {
     background: var(--master-api-data-bg-hover);
     transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(66, 100, 251, 0.2);
-}
-
-.master-api-data-item.small {
-    padding: 8px;
+    box-shadow: 0 2px 6px var(--master-api-ias-color);
 }
 
 .master-api-data-label {
-    font-size: 11px;
     color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-    font-family: 'DIN Pro', Arial, sans-serif;
-}
-
-.master-api-data-label.small {
-    font-size: 9px;
+    font-size: 10px;
     margin-bottom: 2px;
+    font-family: 'DIN Pro', Arial, sans-serif;
 }
 
 .master-api-data-value {
-    font-size: 16px;
     font-weight: bold;
-    color: #1a1a1a;
+    color: #000;
     font-family: 'DIN Pro', Arial, sans-serif;
 }
 
-.master-api-data-value.small {
-    font-size: 12px;
-}
-
-/* === FOOTER DEL PANEL === */
+/* === FOOTER DEL PANEL - IDÉNTICO === */
 .master-api-footer {
     padding: 12px 16px;
-    border-top: 1px solid rgba(0,0,0,0.1);
+    border-top: 1px solid rgba(0,0,0,0.06);
     background: var(--master-api-footer-bg);
     border-radius: 0 0 12px 12px;
     display: flex;
@@ -265,41 +238,22 @@
     color: #3251d8;
 }
 
-/* === RESPONSIVE === */
+/* === RESPONSIVE - IDÉNTICO === */
 @media (max-width: 768px) {
     .master-api-panel {
         left: 10px;
-        right: 10px;
-        top: 10px;
+        right: auto;
         width: calc(100vw - 20px);
         max-width: none;
-        max-height: 85vh;
+        max-height: 70vh;
     }
     
     .master-api-data-grid {
         grid-template-columns: 1fr;
-        gap: 8px;
-    }
-    
-    .master-api-data-grid.three-cols {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .master-api-data-grid.four-cols {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .master-api-ias-display {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .master-api-ias-info {
-        text-align: center;
     }
 }
 
-/* === SCROLLBAR STYLING === */
+/* === SCROLLBAR STYLING - IDÉNTICO === */
 .master-api-panel::-webkit-scrollbar {
     width: 6px;
 }
@@ -318,38 +272,7 @@
     background: rgba(0,0,0,0.5);
 }
 
-/* === ANIMACIONES === */
-@keyframes slideInFromRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutToRight {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-
-.master-api-panel.entering {
-    animation: slideInFromRight 0.3s ease forwards;
-}
-
-.master-api-panel.exiting {
-    animation: slideOutToRight 0.3s ease forwards;
-}
-
-/* === TIPOGRAFÍA === */
+/* === TIPOGRAFÍA GLOBAL - IDÉNTICA === */
 .master-api-panel *,
 .master-api-panel *::before,
 .master-api-panel *::after {
@@ -357,38 +280,7 @@
     box-sizing: border-box;
 }
 
-/* === ESTADOS DE ERROR === */
-.master-api-error {
-    background: rgba(220, 53, 69, 0.1);
-    border-color: #dc3545;
-    color: #721c24;
-}
-
-.master-api-error .master-api-header {
-    background: rgba(220, 53, 69, 0.2);
-}
-
-.master-api-loading {
-    background: rgba(255, 193, 7, 0.1);
-    border-color: #ffc107;
-}
-
-.master-api-loading .master-api-header {
-    background: rgba(255, 193, 7, 0.2);
-}
-
-/* === MEJORAS PARA ALTA DENSIDAD === */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .master-api-panel-title,
-    .master-api-ias-circle,
-    .master-api-data-value {
-        text-rendering: optimizeLegibility;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-}
-
-/* === COMPATIBILIDAD === */
+/* === COMPATIBILIDAD - IDÉNTICA === */
 .master-api-panel button {
     font-family: 'DIN Pro', Arial, sans-serif;
     border: none;
@@ -407,4 +299,20 @@
 
 .master-api-panel {
     z-index: 3001;
+}
+
+/* === MEJORAS PARA ALTA DENSIDAD - IDÉNTICAS === */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .master-api-panel-title,
+    .master-api-ias-value,
+    .master-api-data-value {
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* === TRANSICIONES SUAVES === */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
