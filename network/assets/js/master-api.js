@@ -429,18 +429,14 @@ function updateAllSmabilityCircles(mappedStations) {
     try {
         console.log('🔵 Updating all Smability circle markers...');
 
-        const smabilityStations = mappedStations.filter(station => 
-            station.device_type === 'smability-SMAA' ||
-            station.device_type === 'smability-SMAAso2' ||
-            station.device_type === 'smability-SMAAmicro'
-        );
+        // NUEVO: Obtener TODAS las estaciones Smability mapeadas
+        const allSmabilityMapped = [
+            ...Object.entries(window.SMAA_STATION_MAPPING || {}),
+            ...Object.entries(window.SMAA_SO2_STATION_MAPPING || {}),
+            ...Object.entries(window.SMAA_MICRO_STATION_MAPPING || {})
+        ];
 
-        if (smabilityStations.length === 0) {
-            console.log('⚠️ No Smability stations to update');
-            return { updated: 0, errors: [] };
-        }
-
-        console.log(`🎯 Found ${smabilityStations.length} Smability stations to update`);
+        console.log(`🎯 Processing ${allSmabilityMapped.length} total mapped Smability stations`);
 
         // Verificar que los layers existan
         if (!window.map.getLayer('smaa_network') || !window.map.getLayer('smaa_network_border')) {
@@ -448,7 +444,6 @@ function updateAllSmabilityCircles(mappedStations) {
             return { updated: 0, errors: ['Circle layers not found'] };
         }
 
-        // Crear arrays para las actualizaciones dinámicas
         const circleColorCases = [];
         const borderSizeCases = [];
         const circleSizeCases = [];
@@ -456,65 +451,65 @@ function updateAllSmabilityCircles(mappedStations) {
         let updatedCount = 0;
         const errors = [];
 
-        smabilityStations.forEach(station => {
-            const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
-            
-            const mappedName = window.ALL_STATIONS_MAPPING[station_id];
-            if (!mappedName) return;
-        
-            // CORRECTO: Usar todas las estaciones que están en el vector tile
-            const smabilityInMap = [
-                'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
-                'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
-                'MicroSensor-03', 'Anahuac Cancun','MicroSensor-02'
-            ];
-            
+        const smabilityInMap = [
+            'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
+            'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
+            'MicroSensor-03', 'Anahuac Cancun','MicroSensor-02'
+        ];
+
+        // Procesar TODAS las estaciones mapeadas (no solo las que reportan)
+        allSmabilityMapped.forEach(([station_id, mappedName]) => {
             if (!smabilityInMap.includes(mappedName)) return;
-        
-            let circleColor = '#666666';
-            let circleRadius = 10;
-            let borderRadius = 12;
-            
-            if (reading_status === 'current' && ias_numeric_value && color_code) {
-                // Datos LIVE
-                circleColor = color_code;
-                circleRadius = 10;
-                borderRadius = 12;
-            } else if (reading_status === 'stale') {
-                // Datos antiguos
-                circleColor = '#888888';
-                circleRadius = 4;  // Más pequeño
-                borderRadius = 6;  // Más pequeño
+
+            // Buscar si esta estación tiene datos en Master API
+            const stationWithData = mappedStations.find(s => s.station_id === station_id);
+
+            let circleColor = '#666666';  // Gris por defecto (apagada)
+            let circleRadius = 4;         // Pequeño por defecto
+            let borderRadius = 6;         // Pequeño por defecto
+            let displayText = '×';        // X por defecto
+
+            if (stationWithData) {
+                // Estación CON datos en Master API
+                const { ias_numeric_value, color_code, reading_status } = stationWithData;
+                
+                if (reading_status === 'current' && ias_numeric_value && color_code) {
+                    circleColor = color_code;
+                    displayText = Math.round(ias_numeric_value).toString();
+                    circleRadius = 10;
+                    borderRadius = 12;
+                    console.log(`  ✅ ${mappedName}: LIVE - ${displayText} (${color_code})`);
+                } else if (reading_status === 'stale') {
+                    circleColor = '#888888';
+                    displayText = '○';
+                    circleRadius = 4;
+                    borderRadius = 6;
+                    console.log(`  ⚠️ ${mappedName}: STALE`);
+                } else {
+                    circleColor = '#666666';
+                    displayText = '×';
+                    circleRadius = 4;
+                    borderRadius = 6;
+                    console.log(`  ❌ ${mappedName}: Invalid data`);
+                }
             } else {
-                // CORREGIR: Estaciones sin datos deben seguir siendo visibles
-                circleColor = '#666666';  // Gris
-                circleRadius = 4;         // Más pequeño
-                borderRadius = 6;         // Más pequeño
+                // Estación SIN datos (apagada/reparación) - usar valores por defecto
+                console.log(`  ⭕ ${mappedName}: OFFLINE (no data from Master API)`);
             }
-        
-            // CRÍTICO: Agregar casos SIEMPRE, incluso para estaciones sin datos
+
+            // Agregar casos para TODAS las estaciones
             circleColorCases.push(['==', ['get', 'name'], mappedName]);
             circleColorCases.push(circleColor);
             
             circleSizeCases.push(['==', ['get', 'name'], mappedName]);
-            circleSizeCases.push(circleRadius || 10); // ← Fallback
+            circleSizeCases.push(circleRadius);
             
             borderSizeCases.push(['==', ['get', 'name'], mappedName]);
-            borderSizeCases.push(borderRadius || 12); // ← Fallback
-        
-            // Para texto IAS
-            let displayText = '';
-            if (reading_status === 'current' && ias_numeric_value) {
-                displayText = Math.round(ias_numeric_value).toString();
-            } else if (reading_status === 'stale') {
-                displayText = '○';
-            } else {
-                displayText = '×';  // ← Mostrar X para estaciones sin datos
-            }
-            
+            borderSizeCases.push(borderRadius);
+
             iasTextCases.push(['==', ['get', 'name'], mappedName]);
             iasTextCases.push(displayText);
-        
+
             updatedCount++;
         });
 
