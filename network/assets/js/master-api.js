@@ -459,57 +459,57 @@ function updateAllSmabilityCircles(mappedStations) {
         smabilityStations.forEach(station => {
             const { station_id, station_name, ias_numeric_value, color_code, reading_status } = station;
             
-            console.log(`Processing Smability station: ${station_id} (${station_name})`);
-            
             const mappedName = window.ALL_STATIONS_MAPPING[station_id];
-            if (!mappedName) {
-                console.log(`❌ No mapping found for ${station_id}`);
-                errors.push(`No mapping for ${station_id}`);
-                return;
-            }
-
-            // Determinar color y tamaño según el estado (MISMA LÓGICA que cuadrados)
+            if (!mappedName) return;
+        
+            // IMPORTANTE: Verificar que la estación esté en el mapa
+            const smabilityInMap = ['INIAT', 'MicroSensor-03', 'Huerto IBERO', 'MicroSensor-02', 'CENTRUS 5', 'Del Valle'];
+            if (!smabilityInMap.includes(mappedName)) return;
+        
             let circleColor = '#666666';
-            let displayText = '';
             let circleRadius = 10;
             let borderRadius = 12;
             
             if (reading_status === 'current' && ias_numeric_value && color_code) {
-                // ESTACIONES FUNCIONALES: Datos LIVE
+                // Datos LIVE
                 circleColor = color_code;
-                displayText = Math.round(ias_numeric_value).toString();
-                circleRadius = 10;  // Tamaño normal
-                borderRadius = 12;  // Borde normal
-                console.log(`  → FUNCTIONAL: IAS ${displayText}, color ${circleColor}, normal size`);
+                circleRadius = 10;
+                borderRadius = 12;
             } else if (reading_status === 'stale') {
-                // Datos antiguos: gris + símbolo stale - tamaño REDUCIDO
+                // Datos antiguos
                 circleColor = '#888888';
-                displayText = '○';
-                circleRadius = 4;  // 50% más chico
-                borderRadius = 6;  // Borde más chico
-                console.log(`  → STALE: reduced size`);
+                circleRadius = 4;  // Más pequeño
+                borderRadius = 6;  // Más pequeño
             } else {
-                // ESTACIONES NO FUNCIONALES: Sin datos - tamaño REDUCIDO
-                circleColor = '#666666';
-                displayText = '×';
-                circleRadius = 4;  // 50% más chico
-                borderRadius = 6;  // Borde más chico
-                console.log(`  → NON-FUNCTIONAL: reduced size`);
+                // CORREGIR: Estaciones sin datos deben seguir siendo visibles
+                circleColor = '#666666';  // Gris
+                circleRadius = 4;         // Más pequeño
+                borderRadius = 6;         // Más pequeño
             }
-
-            // Agregar casos para círculos
+        
+            // CRÍTICO: Agregar casos SIEMPRE, incluso para estaciones sin datos
             circleColorCases.push(['==', ['get', 'name'], mappedName]);
             circleColorCases.push(circleColor);
-
+            
             circleSizeCases.push(['==', ['get', 'name'], mappedName]);
             circleSizeCases.push(circleRadius);
-
+            
             borderSizeCases.push(['==', ['get', 'name'], mappedName]);
             borderSizeCases.push(borderRadius);
-
+        
+            // Para texto IAS
+            let displayText = '';
+            if (reading_status === 'current' && ias_numeric_value) {
+                displayText = Math.round(ias_numeric_value).toString();
+            } else if (reading_status === 'stale') {
+                displayText = '○';
+            } else {
+                displayText = '×';  // ← Mostrar X para estaciones sin datos
+            }
+            
             iasTextCases.push(['==', ['get', 'name'], mappedName]);
             iasTextCases.push(displayText);
-
+        
             updatedCount++;
         });
 
