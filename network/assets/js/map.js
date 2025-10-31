@@ -514,13 +514,14 @@ function addMapLayers() {
                 console.log('❌ No features found at click point');
                 return;
             }
-    
+        
             const feature = features[0];
             console.log('🎯 Clicked on station:', feature.properties.name);
             console.log('📊 Station properties:', feature.properties);
             
             if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-                console.log('✅ This is an ACTIVE station (Smability)');
+                // Estaciones activas (biobox/minutales) - usar SmabilityPanels
+                console.log('✅ This is an ACTIVE station (Smability biobox/minutales)');
                 console.log('🔍 Checking SmabilityPanels...');
                 console.log('SmabilityPanels exists:', !!window.SmabilityPanels);
                 console.log('showPanel function exists:', !!window.SmabilityPanels?.showPanel);
@@ -537,11 +538,42 @@ function addMapLayers() {
                     console.error('❌ SmabilityPanels or showPanel not available');
                 }
             } else {
-                console.log('📍 This is a SIMAT station (inactive)');
-                const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                    .setLngLat(feature.geometry.coordinates)
-                    .setHTML(createPopupContent(feature, null))
-                    .addTo(map);
+                // Verificar si es estación Master API (círculo)
+                const smabilityStations = [
+                    'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
+                    'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
+                    'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02'
+                ];
+                
+                if (smabilityStations.includes(feature.properties.name)) {
+                    // Estaciones Master API - usar MasterAPIPanels
+                    console.log('🔵 This is a Master API station (circle)');
+                    console.log('🔍 Checking MasterAPIPanels...');
+                    console.log('MasterAPIPanels exists:', !!window.MasterAPIPanels);
+                    
+                    if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
+                        console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
+                        try {
+                            window.MasterAPIPanels.showPanel(feature.properties.name);
+                            console.log('✅ MasterAPIPanels.showPanel() called successfully');
+                        } catch (error) {
+                            console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
+                        }
+                    } else {
+                        console.error('❌ MasterAPIPanels not available, using fallback popup');
+                        const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                            .setLngLat(feature.geometry.coordinates)
+                            .setHTML(createPopupContent(feature, null))
+                            .addTo(map);
+                    }
+                } else {
+                    // Estaciones Reference (cuadrados) - popup original
+                    console.log('🟦 This is a Reference station (square)');
+                    const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                        .setLngLat(feature.geometry.coordinates)
+                        .setHTML(createPopupContent(feature, null))
+                        .addTo(map);
+                }
             }
         });
         
