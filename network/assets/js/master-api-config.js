@@ -90,7 +90,8 @@ window.SMAA_STATION_MAPPING = {
     'INI': 'INIAT', // 44 - Smability - 45ea/OK
     'CN5': 'CENTRUS 5', // 45 - Smability - ac80/OK Nuevo Nombre CEX
     'ITD': 'ITD', // 46 - Smability - 2043/OK
-    'ANC': 'Anahuac Cancun' // 47 - Smability/353c
+    'ANC': 'Anahuac Cancun', // 47 - Smability/353c
+    'DIA': 'La Diana' // Test on Map
 };
 
 window.SMAA_SO2_STATION_MAPPING = {
