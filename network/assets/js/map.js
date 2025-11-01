@@ -590,7 +590,7 @@ function addMapLayers() {
             }
         });
         
-        // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY
+        // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY CORREGIDO
         map.on('click', 'smaa_network_squares', (event) => {
             console.log('Click detected on smaa_network_squares layer');
             
@@ -618,19 +618,18 @@ function addMapLayers() {
             if (masterAPIStations.includes(feature.properties.name)) {
                 console.log('🔵 This is a Master API station (Reference)');
                 
-                // PREVENIR el popup default de Mapbox
-                event.preventDefault();
-                event.stopPropagation();
+                // CORREGIDO: Usar método Mapbox para prevenir eventos
+                event.originalEvent.stopPropagation();
                 
                 if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
                     console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
                     try {
-                        window.MasterAPIPanels.showPanel(feature.properties.name);
-                        console.log('✅ MasterAPIPanels.showPanel() called successfully - NO popup');
-                        
-                        // ASEGURAR: Cerrar cualquier popup existente
+                        // Cerrar cualquier popup existente ANTES de abrir panel
                         const existingPopups = document.querySelectorAll('.mapboxgl-popup');
                         existingPopups.forEach(popup => popup.remove());
+                        
+                        window.MasterAPIPanels.showPanel(feature.properties.name);
+                        console.log('✅ MasterAPIPanels.showPanel() called successfully - NO popup');
                         
                     } catch (error) {
                         console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
@@ -647,6 +646,9 @@ function addMapLayers() {
                         .setHTML(createPopupContent(feature, null))
                         .addTo(map);
                 }
+                
+                // IMPORTANTE: Return para evitar ejecución adicional
+                return;
             } else {
                 console.log('⚪ This is a traditional SIMAT station - showing popup');
                 const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
