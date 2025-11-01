@@ -17,7 +17,7 @@ window.APP_SETTINGS = {
         //  'UNAM-CCA',         // EN REPARACIÓN
         // 'CENTRUS 8',         // EN REPARACIÓN
         // 'CENTRUS 7',         // EN REPARACIÓN
-        'D.Valle'
+        // 'D.Valle'
         // 'CEN 5' 
         // 'Huerto INIAT',
         // 'INIAT IBERO',
@@ -65,7 +65,7 @@ window.API_CONFIG = {
         // 'UNAM-CCA': '349b1230277f1c67577e4f5bee6ba486',
         // 'CENTRUS 8': 'a2a9a62b622014c64426c6484334e577',         // EN REPARACIÓN
         // 'CENTRUS 7': '510a41e183a90482275b1bc8a79dfc14',         // EN REPARACIÓN
-        'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8'
+        //'D.Valle': '1ae5a53b7b315c48206ffa95fdef32d8'
         // 'CEN 5': 'c7dd6160528b3335d4f366e28a04ac80'
         // 'Huerto INIAT': 'b8c1bac206b358bde62cb25c374339c3',
         // 'INIAT IBERO': '211b4d2dd56a0ba2eb269f2eeb0945ea',
@@ -94,7 +94,7 @@ window.DEVICE_COORDINATES = {
     // 'UNAM-CCA': [-99.176186, 19.326172],
     // 'CENTRUS 8': [-99.173172, 19.392838],         // EN REPARACIÓN
     // 'CENTRUS 7': [-99.172752, 19.392725],         // EN REPARACIÓN
-    'D.Valle': [-99.167000, 19.388391]
+    // 'D.Valle': [-99.167000, 19.388391]
     // 'CEN 5': [-99.200109, 19.365869]
     // 'Huerto INIAT': [-99.263649, 19.372347],
     // 'INIAT IBERO': [-99.263580, 19.368851],
