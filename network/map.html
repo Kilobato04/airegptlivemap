@@ -329,7 +329,31 @@
     
                 <!-- Botón de gráfico -->
                 <div class="master-api-action-buttons">
-                    <button class="master-api-btn" onclick="MasterAPIPanels.toggleChart()">📊 View Historical Data</button>
+                    <button class="master-api-btn" onclick="MasterAPIPanels.toggleChart()">📊 View Historical IAS</button>
+                </div>
+                
+                <!-- NUEVO: Contenedor de gráfico inline -->
+                <div class="master-api-inline-chart-container" id="masterAPIInlineChartContainer" style="display: none;">
+                    <div class="master-api-inline-chart-header">
+                        <div class="master-api-inline-chart-controls">
+                            <label>Period:</label>
+                            <select id="masterAPITimeframeSelect">
+                                <option value="4">Last 4 hours</option>
+                                <option value="8">Last 8 hours</option>
+                                <option value="12">Last 12 hours</option>
+                                <option value="24">Last 24 hours</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="master-api-inline-chart-area">
+                        <!-- Contenedor para gráfico real de Plotly -->
+                        <div id="masterAPIInlineChart" style="width: 100%; height: 200px; display: none;"></div>
+                        <!-- Placeholder se muestra cuando no hay gráfico -->
+                        <div class="master-api-chart-placeholder" id="masterAPIChartPlaceholder">
+                            📊 Master API Historical IAS Data<br>
+                            <small style="margin-top: 8px; display: block;">Real-time air quality index visualization</small>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- Footer del panel principal -->
