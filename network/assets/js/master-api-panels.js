@@ -509,7 +509,7 @@ function toggleChart() {
 }
 
     /**
-     * NUEVO: Cargar datos de Master API para gráfico - CON MEJOR ERROR HANDLING
+     * NUEVO: Cargar datos con indicador de progreso
      */
     async function loadChartData() {
         const chartDiv = document.getElementById('masterAPIInlineChart');
@@ -517,38 +517,48 @@ function toggleChart() {
         
         if (!chartDiv || !currentStation) return;
         
-        // Obtener período seleccionado
         const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
         const hours = timeframeSelect ? parseInt(timeframeSelect.value) : 4;
         
-        // Mostrar loading
+        // Mostrar loading con indicador
         placeholder.style.display = 'flex';
-        placeholder.innerHTML = `Loading last ${hours} IAS readings...`;
+        placeholder.innerHTML = `
+            <div style="text-align: center;">
+                <div style="font-size: 20px; margin-bottom: 8px;">⏳</div>
+                <div>Loading ${hours} IAS readings...</div>
+                <small style="margin-top: 4px; display: block; color: #666;">Fetching data from Master API</small>
+            </div>
+        `;
         chartDiv.style.display = 'none';
         
         try {
-            console.log(`Loading ${hours} historical readings for ${currentStation}`);
+            console.log(`🚀 Fast loading ${hours} historical readings for ${currentStation}`);
+            const startTime = performance.now();
             
-            // Obtener datos históricos de Master API
             const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours);
+            
+            const endTime = performance.now();
+            console.log(`⚡ Data fetched in ${Math.round(endTime - startTime)}ms`);
             
             if (historicalData && historicalData.length > 0) {
                 createMasterAPIChart(chartDiv, historicalData, hours, currentStation);
                 
-                // Ocultar placeholder y mostrar gráfico
                 placeholder.style.display = 'none';
                 chartDiv.style.display = 'block';
                 chartDiv.classList.add('active');
                 
-                console.log(`✅ Chart created successfully with ${historicalData.length} data points`);
+                console.log(`✅ Bar chart created with ${historicalData.length} readings`);
             } else {
                 throw new Error('No historical data available');
             }
         } catch (error) {
             console.error('MasterAPIPanels: Error loading chart data:', error);
             placeholder.innerHTML = `
-                No historical data found<br>
-                <small style="margin-top: 8px; display: block;">Last ${hours} readings not available</small>
+                <div style="text-align: center; color: #666;">
+                    <div style="font-size: 20px; margin-bottom: 8px;">❌</div>
+                    <div>No historical data found</div>
+                    <small style="margin-top: 4px; display: block;">Last ${hours} readings not available</small>
+                </div>
             `;
             placeholder.style.display = 'flex';
             chartDiv.style.display = 'none';
@@ -557,7 +567,7 @@ function toggleChart() {
 
 
     /**
-     * NUEVO: Obtener datos históricos de Master API - LÓGICA CORREGIDA
+     * NUEVO: Obtener datos históricos de Master API - BÚSQUEDA ACELERADA
      */
     async function fetchMasterAPIHistoricalData(stationName, requestedHours) {
         try {
@@ -570,80 +580,85 @@ function toggleChart() {
                 throw new Error(`No station_id found for ${stationName}`);
             }
             
-            console.log(`Fetching last ${requestedHours} readings for station ${stationId} (${stationName})`);
+            console.log(`🚀 Fast fetching last ${requestedHours} readings for station ${stationId} (${stationName})`);
             
-            const historicalData = [];
             const now = new Date();
-            const maxLookbackHours = 72; // Buscar hasta 3 días atrás para encontrar datos
+            const maxLookbackHours = Math.min(48, requestedHours * 3); // Buscar máximo 48 horas o 3x el solicitado
             
-            // Buscar datos hacia atrás hasta encontrar el número solicitado de lecturas
-            for (let i = 0; i < maxLookbackHours && historicalData.length < requestedHours; i++) {
+            // CREAR TODAS LAS PROMESAS EN PARALELO
+            const promises = [];
+            for (let i = 0; i < maxLookbackHours; i++) {
                 const date = new Date(now.getTime() - (i * 60 * 60 * 1000));
-                const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                const dateStr = date.toISOString().split('T')[0];
                 const hour = date.getHours();
                 
-                try {
-                    const response = await fetch(
-                        `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
-                    );
+                const promise = fetch(
+                    `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
+                )
+                .then(response => {
+                    if (!response.ok) return null;
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return null;
                     
-                    if (!response.ok) {
-                        console.warn(`API response not OK for ${dateStr} hour ${hour}: ${response.status}`);
-                        continue;
-                    }
-                    
-                    const data = await response.json();
-                    
-                    // Buscar la estación específica en la respuesta
                     const stations = Array.isArray(data) ? data : data.stations || [];
                     const stationData = stations.find(s => s.station_id === stationId);
                     
                     if (stationData && 
                         stationData.ias_numeric_value !== undefined && 
                         stationData.ias_numeric_value !== null &&
-                        stationData.reading_status === 'current') { // Solo datos actuales/válidos
+                        stationData.reading_status === 'current') {
                         
-                        historicalData.push({
+                        return {
                             timestamp: date,
                             value: stationData.ias_numeric_value,
                             status: stationData.reading_status,
                             category: stationData.category,
                             color: stationData.color_code,
                             dateStr: dateStr,
-                            hour: hour
-                        });
-                        
-                        console.log(`✅ Found data point ${historicalData.length}/${requestedHours}: ${stationData.ias_numeric_value} at ${dateStr} ${hour}:00`);
-                    } else {
-                        console.log(`❌ No valid data for ${dateStr} hour ${hour} - Status: ${stationData?.reading_status}, IAS: ${stationData?.ias_numeric_value}`);
+                            hour: hour,
+                            sortKey: date.getTime() // Para ordenar después
+                        };
                     }
-                } catch (error) {
-                    console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
-                    // Continuar con la siguiente hora en caso de error
-                }
+                    return null;
+                })
+                .catch(() => null); // Ignorar errores individuales
+                
+                promises.push(promise);
             }
             
-            // Ordenar por timestamp (más antiguo primero para el gráfico)
-            historicalData.sort((a, b) => a.timestamp - b.timestamp);
+            console.log(`⏳ Executing ${promises.length} concurrent requests...`);
             
-            console.log(`✅ Successfully fetched ${historicalData.length}/${requestedHours} valid readings for ${stationName}`);
-            console.log('Historical data points:', historicalData);
+            // EJECUTAR TODAS LAS PROMESAS EN PARALELO
+            const results = await Promise.all(promises);
             
-            if (historicalData.length === 0) {
+            // FILTRAR Y ORDENAR RESULTADOS
+            const validData = results
+                .filter(result => result !== null)
+                .sort((a, b) => b.sortKey - a.sortKey) // Más reciente primero
+                .slice(0, requestedHours); // Tomar solo los N más recientes
+            
+            // Ordenar cronológicamente para el gráfico (más antiguo primero)
+            validData.sort((a, b) => a.sortKey - b.sortKey);
+            
+            console.log(`✅ Fast fetch completed: ${validData.length}/${requestedHours} readings found`);
+            
+            if (validData.length === 0) {
                 throw new Error(`No valid readings found for ${stationName} in the last ${maxLookbackHours} hours`);
             }
             
-            return historicalData;
+            return validData;
             
         } catch (error) {
-            console.error('Error fetching Master API historical data:', error);
+            console.error('Error in fast fetch:', error);
             throw error;
         }
     }
 
 
     /**
-     * NUEVO: Crear gráfico con datos de Master API - MEJORADO
+     * NUEVO: Crear gráfico de barras con colores IAS - OPTIMIZADO PARA ANCHO
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
         if (!window.Plotly) {
@@ -651,44 +666,78 @@ function toggleChart() {
             return;
         }
         
+        // Calcular ancho de barras basado en número de datos y ancho disponible
+        const maxBarWidth = Math.max(0.8, Math.min(4, 24 / historicalData.length));
+        
         const trace = {
-            x: historicalData.map(item => item.timestamp),
+            x: historicalData.map((item, index) => {
+                // Crear etiquetas cortas para el eje X
+                const date = new Date(item.timestamp);
+                if (requestedHours <= 12) {
+                    return date.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit',
+                        hour12: false 
+                    });
+                } else {
+                    return date.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        hour12: false
+                    }).replace(',', '\n');
+                }
+            }),
             y: historicalData.map(item => item.value),
-            type: 'scatter',
-            mode: 'lines+markers',
+            type: 'bar',
             name: `${stationName} IAS`,
-            line: {
-                color: '#4264fb',
-                width: 3
-            },
             marker: {
                 color: historicalData.map(item => {
-                    // Usar el color real de la API si está disponible, sino calcular
-                    return item.color || (
-                        item.value <= 50 ? '#00ff00' :
-                        item.value <= 100 ? '#ffff00' :
-                        item.value <= 150 ? '#ff8000' :
-                        item.value <= 200 ? '#ff0000' : '#800080'
-                    );
+                    // Usar colores IAS estándar
+                    if (item.value <= 50) return '#00ff00';      // Good
+                    if (item.value <= 100) return '#ffff00';     // Acceptable  
+                    if (item.value <= 150) return '#ff8000';     // Bad
+                    if (item.value <= 200) return '#ff0000';     // Very Bad
+                    return '#800080';                             // Extremely Bad
                 }),
-                size: 10,
                 line: {
                     color: '#ffffff',
-                    width: 2
-                }
+                    width: 1
+                },
+                opacity: 0.9
             },
+            width: maxBarWidth, // Ancho dinámico de barras
             hovertemplate: `<b>${stationName}</b><br>` +
-                           `<b>Time</b>: %{x|%a %b %d, %H:%M}<br>` +
+                           `<b>Time</b>: %{customdata.fullTime}<br>` +
                            `<b>IAS</b>: %{y}<br>` +
-                           `<b>Category</b>: %{customdata}<br>` +
+                           `<b>Category</b>: %{customdata.category}<br>` +
                            '<extra></extra>',
-            customdata: historicalData.map(item => item.category || 'Unknown')
+            customdata: historicalData.map(item => ({
+                category: item.category || 'Unknown',
+                fullTime: new Date(item.timestamp).toLocaleString('en-US', {
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                })
+            }))
         };
         
         const layout = {
-            margin: { t: 30, r: 20, l: 50, b: 60 },
+            margin: { 
+                t: 25, 
+                r: 10, 
+                l: 40, 
+                b: requestedHours <= 12 ? 35 : 50  // Más espacio si hay más texto
+            },
             yaxis: {
-                title: { text: 'IAS Value', font: { size: 10 } },
+                title: { 
+                    text: 'IAS', 
+                    font: { size: 10 },
+                    standoff: 5
+                },
                 zeroline: false,
                 showgrid: true,
                 gridcolor: '#E4E4E4',
@@ -696,35 +745,54 @@ function toggleChart() {
                 range: [0, Math.max(250, Math.max(...historicalData.map(item => item.value)) + 20)]
             },
             xaxis: {
-                type: 'date',
-                tickformat: '%H:%M\n%b %d',
-                tickangle: -45,
-                showgrid: true,
-                gridcolor: '#E4E4E4',
-                tickfont: { size: 8 },
-                autorange: true,
-                fixedrange: false
+                showgrid: false,
+                tickfont: { size: 7 },
+                tickangle: requestedHours > 12 ? -45 : 0, // Rotar etiquetas si hay muchas
+                automargin: true,
+                type: 'category' // Usar categorías en lugar de fechas
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
             font: { family: 'DIN Pro, Arial, sans-serif' },
             title: {
-                text: `${stationName} - Last ${historicalData.length} IAS Readings (${requestedHours}h period)`,
-                font: { size: 12, family: 'DIN Pro, Arial, sans-serif' },
-                y: 0.95
+                text: `${stationName} - Last ${historicalData.length} IAS Readings`,
+                font: { size: 11, family: 'DIN Pro, Arial, sans-serif' },
+                y: 0.95,
+                x: 0.05,
+                xanchor: 'left'
             },
-            showlegend: false
+            showlegend: false,
+            bargap: 0.1, // Espacio entre barras (10%)
+            bargroupgap: 0.0,
+            hovermode: 'closest'
         };
         
         const config = {
             responsive: true,
             displayModeBar: true,
-            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
-            displaylogo: false
+            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline', 'zoom2d', 'pan2d'],
+            displaylogo: false,
+            modeBarButtonsToAdd: [{
+                name: 'Reset View',
+                icon: {
+                    width: 1000,
+                    height: 1000,
+                    path: 'M500,100L500,900M100,500L900,500',
+                    transform: 'scale(0.8)'
+                },
+                click: function() {
+                    Plotly.relayout(container, {
+                        'xaxis.autorange': true,
+                        'yaxis.autorange': true
+                    });
+                }
+            }]
         };
         
         // Crear el gráfico
         window.Plotly.newPlot(container, [trace], layout, config);
+        
+        console.log(`📊 Bar chart created with ${historicalData.length} bars, width: ${maxBarWidth}`);
     }
     
     /**
