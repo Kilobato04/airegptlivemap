@@ -289,17 +289,34 @@ window.MasterAPIPanels = (function() {
 
     function formatLastUpdate(timeStr) {
         if (!timeStr) return 'Unknown';
+        
         const date = new Date(timeStr + ' UTC-6');
         const now = new Date();
         const diffMs = now - date;
         const diffMinutes = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMinutes / 60);
+        
+        let timeText = '';
+        let statusText = '';
         
         if (diffMinutes < 60) {
-            return `${diffMinutes}m ago`;
+            timeText = `Updated ${diffMinutes}m ago`;
         } else {
-            const diffHours = Math.floor(diffMinutes / 60);
-            return `${diffHours}h ago`;
+            timeText = `Updated ${diffHours}h ago`;
         }
+        
+        // Determinar estado basado en tiempo (igual que SmabilityPanels)
+        if (diffHours <= 1) {
+            statusText = 'Live';
+        } else if (diffHours <= 8) {
+            statusText = 'Fresh';
+        } else if (diffHours <= 24) {
+            statusText = 'Stale';
+        } else {
+            statusText = 'Offline';
+        }
+        
+        return `${timeText} • ${statusText}`;
     }
 
     function formatValue(value, unit) {
