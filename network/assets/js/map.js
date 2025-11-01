@@ -91,24 +91,21 @@ setTimeout(() => {
         // Set up data refresh - SOLO UNA VEZ
         setupDataRefresh();
         
-        // NUEVO: Debug de capas después de cargar
+        // Debug de capas después de cargar
         setTimeout(() => {
             console.log('🔍 Debugging map layers...');
             const layers = map.getStyle().layers;
             console.log('Available layers:', layers.map(l => l.id));
             
-            // Verificar si las capas existen
             console.log('smaa_network layer exists:', !!map.getLayer('smaa_network'));
             console.log('smaa_network_squares layer exists:', !!map.getLayer('smaa_network_squares'));
             
-            // Verificar features
             try {
                 const features = map.querySourceFeatures(MAP_LAYERS.source, {
                     sourceLayer: MAP_LAYERS.sourceLayer
                 });
                 console.log('Total features found:', features.length);
                 
-                // Filtrar por estaciones activas vs no activas
                 const activeFeatures = features.filter(f => APP_SETTINGS.activeStations.includes(f.properties.name));
                 const inactiveFeatures = features.filter(f => !APP_SETTINGS.activeStations.includes(f.properties.name));
                 
@@ -116,6 +113,16 @@ setTimeout(() => {
                 console.log('Inactive stations features:', inactiveFeatures.length, inactiveFeatures.map(f => f.properties.name));
             } catch (error) {
                 console.error('Error querying features:', error);
+            }
+            
+            // SOLO UNA INICIALIZACIÓN: Hacer visibles los layers de estaciones Reference
+            if (map.getLayer('smaa_network')) {
+                map.setLayoutProperty('smaa_network', 'visibility', 'visible');
+                console.log('✅ smaa_network initialized as visible');
+            }
+            if (map.getLayer('smaa_network_squares')) {
+                map.setLayoutProperty('smaa_network_squares', 'visibility', 'visible');
+                console.log('✅ smaa_network_squares initialized as visible');
             }
         }, 2000);
         
@@ -128,11 +135,10 @@ setTimeout(() => {
         setTimeout(() => {
             console.log('Initializing IAS values...');
             updateAllMarkerIAS();
-            // NUEVO: Inicializar Master API squares
             updateMasterAPISquares();
         }, 2000);
         
-        // NUEVO: Asegurar que SmabilityPanels esté inicializado
+        // Ensuring SmabilityPanels is ready
         setTimeout(() => {
             console.log('🎯 Ensuring SmabilityPanels is ready...');
             if (window.SmabilityPanels) {
@@ -142,7 +148,6 @@ setTimeout(() => {
                 console.error('❌ SmabilityPanels module NOT found');
             }
             
-            // Test panel container
             const container = document.getElementById('smabilityPanelContainer');
             const mainPanel = document.getElementById('smabilityMainPanel');
             console.log('📦 Panel container exists:', !!container);
@@ -585,7 +590,7 @@ function addMapLayers() {
             }
         });
         
-        // Click handler para markers cuadrados (SIMAT) - INCLUIR AMBOS LAYERS
+        // Click handler para markers cuadrados (SIMAT) - CON LÓGICA MASTER API
         map.on('click', 'smaa_network_squares', (event) => {
             console.log('Click detected on smaa_network_squares layer');
             
@@ -598,10 +603,43 @@ function addMapLayers() {
             const feature = features[0];
             console.log('Clicked on SIMAT square station:', feature.properties.name);
             
-            const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                .setLngLat(feature.geometry.coordinates)
-                .setHTML(createPopupContent(feature, null))
-                .addTo(map);
+            // Verificar si es estación Master API
+            const masterAPIStations = [
+                'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
+                'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
+                'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
+                'Cuautitlán', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
+                'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
+                'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
+                'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
+                'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores'
+            ];
+        
+            if (masterAPIStations.includes(feature.properties.name)) {
+                console.log('🔵 This is a Master API station (Reference)');
+                
+                if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
+                    console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
+                    try {
+                        window.MasterAPIPanels.showPanel(feature.properties.name);
+                        console.log('✅ MasterAPIPanels.showPanel() called successfully');
+                    } catch (error) {
+                        console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
+                    }
+                } else {
+                    console.error('❌ MasterAPIPanels not available, using fallback popup');
+                    const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                        .setLngLat(feature.geometry.coordinates)
+                        .setHTML(createPopupContent(feature, null))
+                        .addTo(map);
+                }
+            } else {
+                console.log('⚪ This is a traditional SIMAT station');
+                const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                    .setLngLat(feature.geometry.coordinates)
+                    .setHTML(createPopupContent(feature, null))
+                    .addTo(map);
+            }
         });
         
         // NUEVO: Click handler para el layer de texto también
