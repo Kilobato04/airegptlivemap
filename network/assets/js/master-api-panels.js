@@ -49,7 +49,7 @@ window.MasterAPIPanels = (function() {
         });
         
         // Actualizar colores por defecto
-        updatePanelColors('#ffff00');
+        updatePanelColors('#ffff00', 0);
         
         setState(2);
         
@@ -118,7 +118,7 @@ window.MasterAPIPanels = (function() {
         });
         
         // Actualizar colores
-        updatePanelColors(panelData.color);
+        updatePanelColors(panelData.color, panelData.iasValue);
         
         // Actualizar datos detallados
         updateDetailedData(panelData, stationData);
@@ -165,9 +165,9 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * Actualizar colores dinámicos - IDÉNTICO A SMABILITY
+     * Actualizar colores dinámicos - CORREGIDO
      */
-    function updatePanelColors(color) {
+    function updatePanelColors(color, iasValue) {  // ← CAMBIO: Agregar parámetro iasValue
         const colorRgb = hexToRgb(color);
         if (colorRgb) {
             const mainPanel = document.getElementById('masterAPIMainPanel');
@@ -188,7 +188,11 @@ window.MasterAPIPanels = (function() {
         if (indicator) {
             indicator.style.backgroundColor = color;
         }
-        updateIASBarPosition(panelData.iasValue);
+        
+        // CORREGIDO: Usar parámetro en lugar de variable no definida
+        if (iasValue !== undefined) {
+            updateIASBarPosition(iasValue);
+        }
     }
 
     // Función helper para convertir hex a rgb
