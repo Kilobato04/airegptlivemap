@@ -20,13 +20,24 @@ window.MasterAPIPanels = (function() {
         
         currentStation = stationName;
         
-        // Mostrar container (igual que SmabilityPanels)
+        // Mostrar container
         const container = document.getElementById('masterAPIPanelContainer');
         if (container) {
             container.style.display = 'block';
+            console.log('✅ Container display set to block');
         }
-
-        // Usar datos por defecto mientras cargan los reales (igual que SmabilityPanels)
+    
+        // CORREGIR: Forzar estilos del panel
+        const panel = document.getElementById('masterAPIMainPanel');
+        if (panel) {
+            // Forzar valores específicos (no usar transform/opacity CSS)
+            panel.style.transform = 'translateX(0px)'; // ← Específico en px
+            panel.style.opacity = '1';                 // ← Forzar opacidad
+            panel.style.visibility = 'visible';        // ← Asegurar visibilidad
+            console.log('✅ Panel forced visible');
+        }
+    
+        // Usar datos por defecto mientras cargan los reales
         updatePanelContent(stationName, {
             ias: '...',
             color: '#ffff00',
@@ -37,12 +48,12 @@ window.MasterAPIPanels = (function() {
             status: 'Loading...'
         });
         
-        // Actualizar colores por defecto (igual que SmabilityPanels)
+        // Actualizar colores por defecto
         updatePanelColors('#ffff00');
         
         setState(2);
         
-        // Cargar datos reales inmediatamente (igual que SmabilityPanels)
+        // Cargar datos reales inmediatamente
         updateWithRealData(stationName);
     }
 
