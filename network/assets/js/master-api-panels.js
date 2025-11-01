@@ -25,6 +25,9 @@ window.MasterAPIPanels = (function() {
         if (container) {
             container.style.display = 'block';
             console.log('✅ Container display set to block');
+
+            // AGREGAR: Event listener para click fuera del panel
+            setupClickOutsideListener(container);
         }
     
         // CORREGIR: Forzar estilos del panel
@@ -56,6 +59,51 @@ window.MasterAPIPanels = (function() {
         // Cargar datos reales inmediatamente
         updateWithRealData(stationName);
     }
+
+        /**
+         * NUEVA: Configurar click fuera para cerrar panel
+         */
+        function setupClickOutsideListener(container) {
+            // Remover listener previo si existe
+            if (container._clickOutsideHandler) {
+                container.removeEventListener('click', container._clickOutsideHandler);
+            }
+            
+            // Función para manejar click fuera
+            const clickOutsideHandler = function(event) {
+                const panel = document.getElementById('masterAPIMainPanel');
+                
+                // Si el click fue fuera del panel (pero dentro del container)
+                if (panel && !panel.contains(event.target)) {
+                    console.log('🖱️ Click outside panel detected, closing...');
+                    closePanel();
+                }
+            };
+            
+            // Guardar referencia y agregar listener
+            container._clickOutsideHandler = clickOutsideHandler;
+            container.addEventListener('click', clickOutsideHandler);
+        }
+        
+        /**
+         * Cerrar panel - LIMPIAR EVENT LISTENERS
+         */
+        function closePanel() {
+            const container = document.getElementById('masterAPIPanelContainer');
+            if (container) {
+                // Remover event listener de click fuera
+                if (container._clickOutsideHandler) {
+                    container.removeEventListener('click', container._clickOutsideHandler);
+                    container._clickOutsideHandler = null;
+                }
+                
+                container.style.display = 'none';
+            }
+            setState(1);
+            currentStation = null;
+            
+            console.log('✅ Master API panel closed');
+        }
 
     /**
      * Actualizar contenido del panel - IDÉNTICO A SMABILITY
@@ -122,6 +170,7 @@ window.MasterAPIPanels = (function() {
         
         // Actualizar datos detallados
         updateDetailedData(panelData, stationData);
+        updatePanelFooter(stationData);
     }
 
     /**
@@ -163,6 +212,48 @@ window.MasterAPIPanels = (function() {
         const lastUpdate = document.getElementById('masterAPILastUpdate');
         if (lastUpdate) lastUpdate.textContent = `Last update: ${panelData.lastUpdate}`;
     }
+
+        /**
+         * Actualizar footer con información de tiempo - IDÉNTICO A SMABILITY
+         */
+        function updatePanelFooter(stationData) {
+            const lastUpdateElement = document.getElementById('masterAPILastUpdate');
+            
+            if (lastUpdateElement && stationData.reading_time_UTC6) {
+                const date = new Date(stationData.reading_time_UTC6 + ' UTC-6');
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMinutes = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMinutes / 60);
+                
+                let footerText = '';
+                let footerStyle = '';
+                
+                if (diffMinutes < 60) {
+                    footerText = `Updated ${diffMinutes}m ago • Live`;
+                    footerStyle = 'color: #00aa00; font-weight: bold;';
+                } else if (diffHours <= 8) {
+                    footerText = `Updated ${diffHours}h ago • Fresh`;
+                    footerStyle = 'color: #ff8800; font-weight: bold;';
+                } else if (diffHours <= 24) {
+                    footerText = `Updated ${diffHours}h ago • Stale`;
+                    footerStyle = 'color: #888888; font-weight: bold;';
+                } else {
+                    const days = Math.floor(diffHours / 24);
+                    if (days > 0) {
+                        footerText = `Updated ${days}d ago • Offline`;
+                    } else {
+                        footerText = `Updated ${diffHours}h ago • Offline`;
+                    }
+                    footerStyle = 'color: #cc0000; font-weight: bold;';
+                }
+                
+                lastUpdateElement.innerHTML = footerText;
+                lastUpdateElement.setAttribute('style', footerStyle);
+                
+                console.log(`📅 Footer updated: ${footerText}`);
+            }
+        }
 
     /**
      * Actualizar colores dinámicos - CORREGIDO
