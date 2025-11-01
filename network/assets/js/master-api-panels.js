@@ -506,110 +506,144 @@ function toggleChart() {
     }
 }
 
-/**
- * NUEVO: Cargar datos de Master API para gráfico
- */
-async function loadChartData() {
-    const chartDiv = document.getElementById('masterAPIInlineChart');
-    const placeholder = document.getElementById('masterAPIChartPlaceholder');
-    
-    if (!chartDiv || !currentStation) return;
-    
-    // Obtener período seleccionado
-    const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
-    const hours = timeframeSelect ? parseInt(timeframeSelect.value) : 12;
-    
-    // Mostrar loading
-    placeholder.style.display = 'flex';
-    placeholder.innerHTML = 'Loading IAS historical data...';
-    chartDiv.style.display = 'none';
-    
-    try {
-        // Obtener datos históricos de Master API
-        const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours);
+    /**
+     * NUEVO: Cargar datos de Master API para gráfico - CON MEJOR ERROR HANDLING
+     */
+    async function loadChartData() {
+        const chartDiv = document.getElementById('masterAPIInlineChart');
+        const placeholder = document.getElementById('masterAPIChartPlaceholder');
         
-        if (historicalData && historicalData.length > 0) {
-            createMasterAPIChart(chartDiv, historicalData, hours, currentStation);
+        if (!chartDiv || !currentStation) return;
+        
+        // Obtener período seleccionado
+        const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
+        const hours = timeframeSelect ? parseInt(timeframeSelect.value) : 4;
+        
+        // Mostrar loading
+        placeholder.style.display = 'flex';
+        placeholder.innerHTML = `Loading last ${hours} IAS readings...`;
+        chartDiv.style.display = 'none';
+        
+        try {
+            console.log(`Loading ${hours} historical readings for ${currentStation}`);
             
-            // Ocultar placeholder y mostrar gráfico
-            placeholder.style.display = 'none';
-            chartDiv.style.display = 'block';
-            chartDiv.classList.add('active');
-        } else {
-            throw new Error('No historical data available');
-        }
-    } catch (error) {
-        console.error('MasterAPIPanels: Error loading chart data:', error);
-        placeholder.innerHTML = `
-            Error loading historical data<br>
-            <small style="margin-top: 8px; display: block;">Please try again later</small>
-        `;
-    }
-}
-
-/**
- * NUEVO: Obtener datos históricos de Master API
- */
-async function fetchMasterAPIHistoricalData(stationName, hours) {
-    try {
-        // Mapear nombre a station_id
-        const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
-            id => window.ALL_STATIONS_MAPPING[id] === stationName
-        );
-        
-        if (!stationId) {
-            throw new Error(`No station_id found for ${stationName}`);
-        }
-        
-        const historicalData = [];
-        const now = new Date();
-        
-        // Obtener datos para cada hora en el rango solicitado
-        for (let i = 0; i < hours; i++) {
-            const date = new Date(now.getTime() - (i * 60 * 60 * 1000));
-            const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-            const hour = date.getHours();
+            // Obtener datos históricos de Master API
+            const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours);
             
-            try {
-                const response = await fetch(
-                    `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
-                );
-                const data = await response.json();
+            if (historicalData && historicalData.length > 0) {
+                createMasterAPIChart(chartDiv, historicalData, hours, currentStation);
                 
-                // Buscar la estación específica en la respuesta
-                const stations = Array.isArray(data) ? data : data.stations || [];
-                const stationData = stations.find(s => s.station_id === stationId);
+                // Ocultar placeholder y mostrar gráfico
+                placeholder.style.display = 'none';
+                chartDiv.style.display = 'block';
+                chartDiv.classList.add('active');
                 
-                if (stationData && stationData.ias_numeric_value !== undefined) {
-                    historicalData.push({
-                        timestamp: date,
-                        value: stationData.ias_numeric_value,
-                        status: stationData.reading_status,
-                        category: stationData.category
-                    });
-                }
-            } catch (error) {
-                console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
-                // Continuar con la siguiente hora en caso de error
+                console.log(`✅ Chart created successfully with ${historicalData.length} data points`);
+            } else {
+                throw new Error('No historical data available');
             }
+        } catch (error) {
+            console.error('MasterAPIPanels: Error loading chart data:', error);
+            placeholder.innerHTML = `
+                No historical data found<br>
+                <small style="margin-top: 8px; display: block;">Last ${hours} readings not available</small>
+            `;
+            placeholder.style.display = 'flex';
+            chartDiv.style.display = 'none';
         }
-        
-        // Ordenar por timestamp (más antiguo primero)
-        historicalData.sort((a, b) => a.timestamp - b.timestamp);
-        
-        console.log(`Fetched ${historicalData.length} data points for ${stationName}:`, historicalData);
-        return historicalData;
-        
-    } catch (error) {
-        console.error('Error fetching Master API historical data:', error);
-        return [];
     }
-}
+
 
     /**
-     * NUEVO: Crear gráfico con datos de Master API
+     * NUEVO: Obtener datos históricos de Master API - LÓGICA CORREGIDA
      */
-    function createMasterAPIChart(container, historicalData, hours, stationName) {
+    async function fetchMasterAPIHistoricalData(stationName, requestedHours) {
+        try {
+            // Mapear nombre a station_id
+            const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
+                id => window.ALL_STATIONS_MAPPING[id] === stationName
+            );
+            
+            if (!stationId) {
+                throw new Error(`No station_id found for ${stationName}`);
+            }
+            
+            console.log(`Fetching last ${requestedHours} readings for station ${stationId} (${stationName})`);
+            
+            const historicalData = [];
+            const now = new Date();
+            const maxLookbackHours = 72; // Buscar hasta 3 días atrás para encontrar datos
+            
+            // Buscar datos hacia atrás hasta encontrar el número solicitado de lecturas
+            for (let i = 0; i < maxLookbackHours && historicalData.length < requestedHours; i++) {
+                const date = new Date(now.getTime() - (i * 60 * 60 * 1000));
+                const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                const hour = date.getHours();
+                
+                try {
+                    const response = await fetch(
+                        `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
+                    );
+                    
+                    if (!response.ok) {
+                        console.warn(`API response not OK for ${dateStr} hour ${hour}: ${response.status}`);
+                        continue;
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Buscar la estación específica en la respuesta
+                    const stations = Array.isArray(data) ? data : data.stations || [];
+                    const stationData = stations.find(s => s.station_id === stationId);
+                    
+                    if (stationData && 
+                        stationData.ias_numeric_value !== undefined && 
+                        stationData.ias_numeric_value !== null &&
+                        stationData.reading_status === 'current') { // Solo datos actuales/válidos
+                        
+                        historicalData.push({
+                            timestamp: date,
+                            value: stationData.ias_numeric_value,
+                            status: stationData.reading_status,
+                            category: stationData.category,
+                            color: stationData.color_code,
+                            dateStr: dateStr,
+                            hour: hour
+                        });
+                        
+                        console.log(`✅ Found data point ${historicalData.length}/${requestedHours}: ${stationData.ias_numeric_value} at ${dateStr} ${hour}:00`);
+                    } else {
+                        console.log(`❌ No valid data for ${dateStr} hour ${hour} - Status: ${stationData?.reading_status}, IAS: ${stationData?.ias_numeric_value}`);
+                    }
+                } catch (error) {
+                    console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
+                    // Continuar con la siguiente hora en caso de error
+                }
+            }
+            
+            // Ordenar por timestamp (más antiguo primero para el gráfico)
+            historicalData.sort((a, b) => a.timestamp - b.timestamp);
+            
+            console.log(`✅ Successfully fetched ${historicalData.length}/${requestedHours} valid readings for ${stationName}`);
+            console.log('Historical data points:', historicalData);
+            
+            if (historicalData.length === 0) {
+                throw new Error(`No valid readings found for ${stationName} in the last ${maxLookbackHours} hours`);
+            }
+            
+            return historicalData;
+            
+        } catch (error) {
+            console.error('Error fetching Master API historical data:', error);
+            throw error;
+        }
+    }
+
+
+    /**
+     * NUEVO: Crear gráfico con datos de Master API - MEJORADO
+     */
+    function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
         if (!window.Plotly) {
             console.error('MasterAPIPanels: Plotly.js not available');
             return;
@@ -627,29 +661,30 @@ async function fetchMasterAPIHistoricalData(stationName, hours) {
             },
             marker: {
                 color: historicalData.map(item => {
-                    // Colorear puntos según el valor IAS
-                    if (item.value <= 50) return '#00ff00';
-                    if (item.value <= 100) return '#ffff00';
-                    if (item.value <= 150) return '#ff8000';
-                    if (item.value <= 200) return '#ff0000';
-                    return '#800080';
+                    // Usar el color real de la API si está disponible, sino calcular
+                    return item.color || (
+                        item.value <= 50 ? '#00ff00' :
+                        item.value <= 100 ? '#ffff00' :
+                        item.value <= 150 ? '#ff8000' :
+                        item.value <= 200 ? '#ff0000' : '#800080'
+                    );
                 }),
-                size: 8,
+                size: 10,
                 line: {
                     color: '#ffffff',
-                    width: 1
+                    width: 2
                 }
             },
             hovertemplate: `<b>${stationName}</b><br>` +
-                           `<b>Time</b>: %{x|%H:%M - %b %d}<br>` +
+                           `<b>Time</b>: %{x|%a %b %d, %H:%M}<br>` +
                            `<b>IAS</b>: %{y}<br>` +
-                           `<b>Status</b>: %{customdata}<br>` +
+                           `<b>Category</b>: %{customdata}<br>` +
                            '<extra></extra>',
             customdata: historicalData.map(item => item.category || 'Unknown')
         };
         
         const layout = {
-            margin: { t: 20, r: 20, l: 50, b: 60 },
+            margin: { t: 30, r: 20, l: 50, b: 60 },
             yaxis: {
                 title: { text: 'IAS Value', font: { size: 10 } },
                 zeroline: false,
@@ -672,7 +707,7 @@ async function fetchMasterAPIHistoricalData(stationName, hours) {
             paper_bgcolor: '#FFFFFF',
             font: { family: 'DIN Pro, Arial, sans-serif' },
             title: {
-                text: `${stationName} - IAS Historical Data (${hours}h)`,
+                text: `${stationName} - Last ${historicalData.length} IAS Readings (${requestedHours}h period)`,
                 font: { size: 12, family: 'DIN Pro, Arial, sans-serif' },
                 y: 0.95
             },
