@@ -351,6 +351,7 @@ window.getIndicatorColor = function(iasValue) {
 console.log('✅ Config functions loaded: createLegendHTML, createPopupContent, getIndicatorColor');
 
 // NUEVO: Mapeo de nombres de estaciones a station_id para Master API
+// ACTUALIZADO: Mapeo completo de nombres de estaciones a station_id para Master API
 window.ALL_STATIONS_MAPPING = {
     'DVL': 'Del Valle',
     'CN2': 'CENTRUS 2',
@@ -363,5 +364,30 @@ window.ALL_STATIONS_MAPPING = {
     'ALISBio': 'ALISBio',
     'MicroSensor-03': 'MicroSensor-03',
     'AC': 'Anahuac Cancun',
-    'MicroSensor-02': 'MicroSensor-02'
+    'MicroSensor-02': 'MicroSensor-02',
+    'MER': 'Merced',           // ← NUEVA: Estación Oficial Merced
+    'TLA': 'Tlalnepantla',     // ← NUEVA: Estación Oficial (común en SIMAT)
+    'XAL': 'Xalostoc',         // ← NUEVA: Estación Oficial (común en SIMAT)  
+    'ATI': 'Atizapán',         // ← NUEVA: Estación Oficial (común en SIMAT)
+    'CAM': 'Camarones',        // ← NUEVA: Estación Oficial (común en SIMAT)
+    'CES': 'Cerro de la Estrella', // ← NUEVA: Estación Oficial (común en SIMAT)
+    'CHA': 'Chalco',           // ← NUEVA: Estación Oficial (común en SIMAT)
+    'CHO': 'Chontalcuatlán',   // ← NUEVA: Estación Oficial (común en SIMAT)
+    'CUA': 'Cuajimalpa',       // ← NUEVA: Estación Oficial (común en SIMAT)
+    'FAC': 'FES Acatlán',      // ← NUEVA: Estación Oficial (común en SIMAT)
+    'HAN': 'Hangares',         // ← NUEVA: Estación Oficial (común en SIMAT)
+    'IZT': 'Iztacalco',        // ← NUEVA: Estación Oficial (común en SIMAT)
+    'LAG': 'Lagunilla',        // ← NUEVA: Estación Oficial (común en SIMAT)
+    'MPA': 'Milpa Alta',       // ← NUEVA: Estación Oficial (común en SIMAT)
+    'MON': 'Montecillo',       // ← NUEVA: Estación Oficial (común en SIMAT)
+    'NEZ': 'Nezahualcóyotl',   // ← NUEVA: Estación Oficial (común en SIMAT)
+    'PED': 'Pedregal',         // ← NUEVA: Estación Oficial (común en SIMAT)
+    'PLA': 'Plateros',         // ← NUEVA: Estación Oficial (común en SIMAT)
+    'SAG': 'Santa Ana Galindo', // ← NUEVA: Estación Oficial (común en SIMAT)
+    'SFE': 'Santa Fe',         // ← NUEVA: Estación Oficial (común en SIMAT)
+    'TAH': 'Tláhuac',          // ← NUEVA: Estación Oficial (común en SIMAT)
+    'TLI': 'Tlalpan I',        // ← NUEVA: Estación Oficial (común en SIMAT)
+    'UAX': 'UAM Xochimilco',   // ← NUEVA: Estación Oficial (común en SIMAT)
+    'VIF': 'Villa de las Flores', // ← NUEVA: Estación Oficial (común en SIMAT)
+    'XCH': 'Xochimilco'        // ← NUEVA: Estación Oficial (común en SIMAT)
 };
