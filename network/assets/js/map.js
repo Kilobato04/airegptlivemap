@@ -685,26 +685,35 @@ function addMapLayers() {
                                  event.originalEvent.target.classList.contains('marker-pin');
             
             if (features.length === 0 && !clickedMarker) {
-                console.log('Clicked outside station, closing panels if open'); // ← CAMBIAR mensaje
+                console.log('Clicked outside station, closing panels and legend if open');
                 setTimeout(() => {
-                    // Verificar si no hay popups visibles y cerrar paneles
                     const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
-                    const smabilityPanel = document.getElementById('smabilityMainPanel');
-                    const masterAPIPanel = document.getElementById('masterAPIMainPanel'); // ← AGREGAR
                     
                     if (visiblePopups.length === 0) {
-                        // Cerrar panel Smability si está abierto
-                        if (smabilityPanel && smabilityPanel.style.display !== 'none') {
-                            if (window.SmabilityPanels && window.SmabilityPanels.closeMainPanel) {
-                                window.SmabilityPanels.closeMainPanel();
-                            }
+                        // Cerrar ambos paneles si están abiertos
+                        if (window.SmabilityPanels && window.SmabilityPanels.closeMainPanel) {
+                            window.SmabilityPanels.closeMainPanel();
                         }
                         
-                        // AGREGAR: Cerrar panel Master API si está abierto
-                        if (masterAPIPanel && masterAPIPanel.style.display !== 'none') {
-                            if (window.MasterAPIPanels && window.MasterAPIPanels.closePanel) {
-                                window.MasterAPIPanels.closePanel();
+                        if (window.MasterAPIPanels && window.MasterAPIPanels.closePanel) {
+                            window.MasterAPIPanels.closePanel();
+                        }
+                        
+                        // AGREGAR: Cerrar leyenda si está abierta
+                        const legend = document.querySelector('.legend');
+                        const legendToggle = document.querySelector('.legend-toggle');
+                        
+                        if (legend && legend.style.display !== 'none') {
+                            legend.style.display = 'none';
+                            
+                            // Actualizar estado del botón toggle si existe
+                            if (legendToggle) {
+                                legendToggle.classList.remove('active');
+                                legendToggle.style.backgroundColor = '#E2E2E2';
+                                legendToggle.style.color = '#666';
                             }
+                            
+                            console.log('✅ Legend closed by click outside');
                         }
                     }
                 }, 100);
