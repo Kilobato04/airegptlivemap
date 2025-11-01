@@ -469,47 +469,47 @@ window.MasterAPIPanels = (function() {
         }
     }
 
-    /**
- * NUEVO: Toggle del gráfico para Master API - Panel único expandible
- */
-function toggleChart() {
-    if (currentState === 2) {
-        // Expandir panel principal para incluir gráfico
-        const mainPanel = document.getElementById('masterAPIMainPanel');
-        const chartContainer = document.getElementById('masterAPIInlineChartContainer');
-        
-        if (mainPanel && chartContainer) {
-            // Mostrar área de gráfico dentro del panel principal
-            chartContainer.style.display = 'block';
+        /**
+     * NUEVO: Toggle del gráfico para Master API - Panel único expandible
+     */
+    function toggleChart() {
+        if (currentState === 2) {
+            // Expandir panel principal para incluir gráfico
+            const mainPanel = document.getElementById('masterAPIMainPanel');
+            const chartContainer = document.getElementById('masterAPIInlineChartContainer');
             
-            // Ajustar altura del panel principal para incluir el gráfico
-            mainPanel.style.maxHeight = '80vh';
-            mainPanel.style.height = 'auto';
+            if (mainPanel && chartContainer) {
+                // Mostrar área de gráfico dentro del panel principal
+                chartContainer.style.display = 'block';
+                
+                // Ajustar altura del panel principal para incluir el gráfico
+                mainPanel.style.maxHeight = '80vh';
+                mainPanel.style.height = 'auto';
+                
+                // Cargar datos del gráfico
+                loadChartData();
+                
+                setState(3); // Cambiar estado pero sin panel separado
+            }
+        } else if (currentState === 3) {
+            // Contraer panel principal
+            const mainPanel = document.getElementById('masterAPIMainPanel');
+            const chartContainer = document.getElementById('masterAPIInlineChartContainer');
             
-            // Cargar datos del gráfico
-            loadChartData();
-            
-            setState(3); // Cambiar estado pero sin panel separado
-        }
-    } else if (currentState === 3) {
-        // Contraer panel principal
-        const mainPanel = document.getElementById('masterAPIMainPanel');
-        const chartContainer = document.getElementById('masterAPIInlineChartContainer');
-        
-        if (mainPanel && chartContainer) {
-            // Ocultar área de gráfico
-            chartContainer.style.display = 'none';
-            
-            // Restaurar altura original del panel
-            mainPanel.style.maxHeight = '55vh';
-            
-            setState(2);
+            if (mainPanel && chartContainer) {
+                // Ocultar área de gráfico
+                chartContainer.style.display = 'none';
+                
+                // Restaurar altura original del panel
+                mainPanel.style.maxHeight = '55vh';
+                
+                setState(2);
+            }
         }
     }
-}
 
     /**
-     * NUEVO: Cargar datos con indicador de progreso
+     * NUEVO: Cargar datos fijos de 24 horas
      */
     async function loadChartData() {
         const chartDiv = document.getElementById('masterAPIInlineChart');
@@ -517,28 +517,27 @@ function toggleChart() {
         
         if (!chartDiv || !currentStation) return;
         
-        const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
-        const hours = timeframeSelect ? parseInt(timeframeSelect.value) : 4;
+        const hours = 24; // FIJO: Siempre 24 horas
         
-        // Mostrar loading con indicador
+        console.log(`📊 Loading fixed 24 hours of data for ${currentStation}`);
+        
+        // Mostrar loading
         placeholder.style.display = 'flex';
         placeholder.innerHTML = `
             <div style="text-align: center;">
                 <div style="font-size: 20px; margin-bottom: 8px;">⏳</div>
-                <div>Loading ${hours} IAS readings...</div>
-                <small style="margin-top: 4px; display: block; color: #666;">Fetching data from Master API</small>
+                <div>Loading 24-hour IAS history...</div>
+                <small style="margin-top: 4px; display: block; color: #666;">Fetching hourly readings</small>
             </div>
         `;
         chartDiv.style.display = 'none';
         
         try {
-            console.log(`🚀 Fast loading ${hours} historical readings for ${currentStation}`);
             const startTime = performance.now();
-            
             const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours);
-            
             const endTime = performance.now();
-            console.log(`⚡ Data fetched in ${Math.round(endTime - startTime)}ms`);
+            
+            console.log(`⚡ 24h data fetched in ${Math.round(endTime - startTime)}ms`);
             
             if (historicalData && historicalData.length > 0) {
                 createMasterAPIChart(chartDiv, historicalData, hours, currentStation);
@@ -547,17 +546,17 @@ function toggleChart() {
                 chartDiv.style.display = 'block';
                 chartDiv.classList.add('active');
                 
-                console.log(`✅ Bar chart created with ${historicalData.length} readings`);
+                console.log(`✅ 24-hour chart created with ${historicalData.length} readings`);
             } else {
                 throw new Error('No historical data available');
             }
         } catch (error) {
-            console.error('MasterAPIPanels: Error loading chart data:', error);
+            console.error('MasterAPIPanels: Error loading 24h chart data:', error);
             placeholder.innerHTML = `
                 <div style="text-align: center; color: #666;">
                     <div style="font-size: 20px; margin-bottom: 8px;">❌</div>
-                    <div>No historical data found</div>
-                    <small style="margin-top: 4px; display: block;">Last ${hours} readings not available</small>
+                    <div>No 24-hour data available</div>
+                    <small style="margin-top: 4px; display: block;">Historical readings not found</small>
                 </div>
             `;
             placeholder.style.display = 'flex';
@@ -687,7 +686,7 @@ function toggleChart() {
     }
 
     /**
-     * NUEVO: Gráfico de barras con horas correctas y sin espacios
+     * NUEVO: Gráfico optimizado para 24 horas
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
         if (!window.Plotly) {
@@ -695,17 +694,13 @@ function toggleChart() {
             return;
         }
         
-        console.log(`📊 Creating bar chart with ${historicalData.length} data points`);
+        console.log(`📊 Creating 24-hour bar chart with ${historicalData.length} data points`);
         
         const trace = {
             x: historicalData.map(item => {
-                // Mostrar hora en formato 24h (HH:mm)
+                // Para 24 horas, mostrar solo la hora
                 const date = new Date(item.timestamp);
-                return date.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
-                });
+                return `${String(date.getHours()).padStart(2, '0')}:00`;
             }),
             y: historicalData.map(item => item.value),
             type: 'bar',
@@ -732,7 +727,6 @@ function toggleChart() {
             customdata: historicalData.map(item => ({
                 category: item.category || 'Unknown',
                 fullTime: new Date(item.timestamp).toLocaleString('en-US', {
-                    weekday: 'short',
                     month: 'short', 
                     day: 'numeric',
                     hour: '2-digit',
@@ -744,10 +738,10 @@ function toggleChart() {
         
         const layout = {
             margin: { 
-                t: 25, 
+                t: 20, 
                 r: 15, 
                 l: 45, 
-                b: 50  // Más espacio para las horas
+                b: 40
             },
             yaxis: {
                 title: { 
@@ -763,7 +757,7 @@ function toggleChart() {
             xaxis: {
                 showgrid: false,
                 tickfont: { size: 7 },
-                tickangle: -45,      // Rotar etiquetas para mejor legibilidad
+                tickangle: 0,        // Sin rotación para 24h
                 autorange: true,
                 fixedrange: false,
                 type: 'category'
@@ -772,14 +766,14 @@ function toggleChart() {
             paper_bgcolor: '#FFFFFF',
             font: { family: 'DIN Pro, Arial, sans-serif' },
             title: {
-                text: `${stationName} - Last ${historicalData.length} IAS Readings`,
+                text: `${stationName} - 24 Hour IAS History`,
                 font: { size: 11, family: 'DIN Pro, Arial, sans-serif' },
                 y: 0.95,
                 x: 0.05,
                 xanchor: 'left'
             },
             showlegend: false,
-            bargap: 0,           // ← CLAVE: Sin espacio entre barras (0%)
+            bargap: 0,           // Sin espacios entre barras
             bargroupgap: 0,
             hovermode: 'closest',
             autosize: true
@@ -794,13 +788,12 @@ function toggleChart() {
             doubleClick: 'reset'
         };
         
-        // Limpiar contenedor antes de crear gráfico
+        // Limpiar y crear gráfico
         Plotly.purge(container);
         
-        // Crear el gráfico
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ Bar chart created with hours on X-axis, no gaps`);
+                console.log(`✅ 24-hour chart created successfully`);
                 setTimeout(() => {
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
@@ -808,42 +801,17 @@ function toggleChart() {
                 }, 100);
             })
             .catch(error => {
-                console.error('Error creating chart:', error);
+                console.error('Error creating 24h chart:', error);
             });
     }
     
+
     /**
-     * NUEVO: Setup de event listeners para controles del gráfico - CORREGIDO
+     * NUEVO: Setup simplificado sin controles
      */
     function setupChartControls() {
-        const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
-        
-        if (timeframeSelect) {
-            // Remover listener previo si existe
-            if (timeframeSelect._changeHandler) {
-                timeframeSelect.removeEventListener('change', timeframeSelect._changeHandler);
-            }
-            
-            // Crear nuevo handler
-            const changeHandler = function() {
-                console.log(`Timeframe changed to: ${timeframeSelect.value} hours`);
-                if (currentState === 3) {
-                    console.log('Reloading chart data...');
-                    loadChartData();
-                }
-            };
-            
-            // Guardar referencia del handler y agregar listener
-            timeframeSelect._changeHandler = changeHandler;
-            timeframeSelect.addEventListener('change', changeHandler);
-            
-            // Marcar como configurado
-            timeframeSelect.setAttribute('data-listener-added', 'true');
-            
-            console.log('✅ Chart controls event listener set up');
-        } else {
-            console.error('❌ Timeframe select not found in setupChartControls');
-        }
+        // Ya no hay controles que configurar, solo log
+        console.log('✅ Chart setup complete (24h fixed)');
     }
 
     // Event listener para resize del gráfico
