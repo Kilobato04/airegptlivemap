@@ -539,13 +539,21 @@ function addMapLayers() {
                 }
             } else {
                 // Verificar si es estación Master API (círculo)
-                const smabilityStations = [
+                const masterAPIStations = [
+                    // Estaciones Smability (smaa, smaamicro, smaaso2):
                     'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
                     'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
-                    'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02'
+                    'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
+                    
+                    // Estaciones Reference activas (20 estaciones):
+                    'Cuautitlán', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
+                    'Santiago Acahualtepec', 'Hospital General de México', 'Ajusco Medio',
+                    'Centro de Ciencias de la Atmósfera', 'FES Acatlán', 'Camarones',
+                    'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlán', 'San Agustín',
+                    'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores'
                 ];
                 
-                if (smabilityStations.includes(feature.properties.name)) {
+                if (masterAPIStations.includes(feature.properties.name)) {
                     // Estaciones Master API - usar MasterAPIPanels
                     console.log('🔵 This is a Master API station (circle)');
                     console.log('🔍 Checking MasterAPIPanels...');
