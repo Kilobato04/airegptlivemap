@@ -699,20 +699,19 @@ function addMapLayers() {
                             window.MasterAPIPanels.closePanel();
                         }
                         
-                        // CORREGIR: Colapsar leyenda (no ocultar completamente)
-                        const legendContent = document.querySelector('.legend-content');
+                        // CORREGIR: Usar la clase CSS collapsed en lugar de manipular display
+                        const legend = document.querySelector('.legend');
                         const legendToggle = document.querySelector('.legend-toggle');
                         
-                        if (legendContent && legendContent.style.display !== 'none') {
-                            // Colapsar solo el contenido, mantener el botón toggle visible
-                            legendContent.style.display = 'none';
+                        if (legend && !legend.classList.contains('collapsed')) {
+                            // Aplicar la clase collapsed (igual que hace el CSS)
+                            legend.classList.add('collapsed');
                             
-                            // Actualizar estado del botón toggle
+                            // Actualizar texto del botón
                             if (legendToggle) {
-                                legendToggle.classList.remove('active');
+                                legendToggle.textContent = '+';
                                 legendToggle.style.backgroundColor = '#E2E2E2';
                                 legendToggle.style.color = '#666';
-                                legendToggle.textContent = '+'; // Cambiar a "+" para mostrar que está colapsada
                             }
                             
                             console.log('✅ Legend collapsed by click outside');
