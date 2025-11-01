@@ -699,21 +699,23 @@ function addMapLayers() {
                             window.MasterAPIPanels.closePanel();
                         }
                         
-                        // AGREGAR: Cerrar leyenda si está abierta
-                        const legend = document.querySelector('.legend');
+                        // CORREGIR: Colapsar leyenda (no ocultar completamente)
+                        const legendContent = document.querySelector('.legend-content');
                         const legendToggle = document.querySelector('.legend-toggle');
                         
-                        if (legend && legend.style.display !== 'none') {
-                            legend.style.display = 'none';
+                        if (legendContent && legendContent.style.display !== 'none') {
+                            // Colapsar solo el contenido, mantener el botón toggle visible
+                            legendContent.style.display = 'none';
                             
-                            // Actualizar estado del botón toggle si existe
+                            // Actualizar estado del botón toggle
                             if (legendToggle) {
                                 legendToggle.classList.remove('active');
                                 legendToggle.style.backgroundColor = '#E2E2E2';
                                 legendToggle.style.color = '#666';
+                                legendToggle.textContent = '+'; // Cambiar a "+" para mostrar que está colapsada
                             }
                             
-                            console.log('✅ Legend closed by click outside');
+                            console.log('✅ Legend collapsed by click outside');
                         }
                     }
                 }, 100);
