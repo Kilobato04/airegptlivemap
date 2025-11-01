@@ -13,7 +13,7 @@ window.MasterAPIPanels = (function() {
     let currentStation = null;
 
     /**
-     * Mostrar panel con datos de Master API - LÓGICA IDÉNTICA A SMABILITY
+     * Mostrar panel con datos de Master API - CON RESET DE GRÁFICA
      */
     function showPanel(stationName) {
         console.log(`MasterAPIPanels: Showing panel for ${stationName}`);
@@ -25,41 +25,75 @@ window.MasterAPIPanels = (function() {
         if (container) {
             container.style.display = 'block';
             console.log('✅ Container display set to block');
-
-            // AGREGAR: Event listener para click fuera del panel
             setupClickOutsideListener(container);
         }
     
-        // CORREGIR: Forzar estilos del panel
+        // NUEVO: Reset completo del área de gráfica al cambiar estación
+        resetChartArea();
+    
+        // Forzar estilos del panel
         const panel = document.getElementById('masterAPIMainPanel');
         if (panel) {
-            // Forzar valores específicos (no usar transform/opacity CSS)
-            panel.style.transform = 'translateX(0px)'; // ← Específico en px
-            panel.style.opacity = '1';                 // ← Forzar opacidad
-            panel.style.visibility = 'visible';        // ← Asegurar visibilidad
+            panel.style.display = 'block';
+            panel.style.transform = 'translateX(0px)';
+            panel.style.opacity = '1';
+            panel.style.visibility = 'visible';
             console.log('✅ Panel forced visible');
         }
     
-        // Usar datos por defecto mientras cargan los reales
-        updatePanelContent(stationName, {
-            ias: '...',
-            color: '#ffff00',
-            emoji: '⏳',
-            category: 'Loading...',
-            risk: 'Loading...',
-            dominantPollutant: 'Loading...',
-            status: 'Loading...'
-        });
+        // ... resto del código existente ...
         
-        // Actualizar colores por defecto
         updatePanelColors('#ffff00', 0);
-
         setupChartControls();
-        
         setState(2);
-        
-        // Cargar datos reales inmediatamente
         updateWithRealData(stationName);
+    }
+    
+    /**
+     * NUEVA: Función para resetear completamente el área de gráfica
+     */
+    function resetChartArea() {
+        console.log('🔄 Resetting chart area for new station');
+        
+        // 1. Contraer panel principal si está expandido
+        const mainPanel = document.getElementById('masterAPIMainPanel');
+        if (mainPanel) {
+            mainPanel.style.maxHeight = '55vh'; // Altura original
+        }
+        
+        // 2. Ocultar contenedor de gráfica
+        const chartContainer = document.getElementById('masterAPIInlineChartContainer');
+        if (chartContainer) {
+            chartContainer.style.display = 'none';
+        }
+        
+        // 3. Limpiar gráfico Plotly completamente
+        const chartDiv = document.getElementById('masterAPIInlineChart');
+        if (chartDiv && window.Plotly) {
+            try {
+                Plotly.purge(chartDiv);
+                chartDiv.style.display = 'none';
+                chartDiv.classList.remove('active');
+                console.log('✅ Plotly chart purged');
+            } catch (error) {
+                console.warn('Warning purging chart:', error);
+            }
+        }
+        
+        // 4. Resetear placeholder a estado original
+        const placeholder = document.getElementById('masterAPIChartPlaceholder');
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+            placeholder.innerHTML = `
+                📊 Master API Historical IAS Data<br>
+                <small style="margin-top: 8px; display: block;">24-hour air quality index visualization</small>
+            `;
+        }
+        
+        // 5. Resetear estado interno
+        currentState = 2; // Volver a estado panel visible sin gráfica
+        
+        console.log('✅ Chart area reset complete');
     }
 
         /**
@@ -88,23 +122,21 @@ window.MasterAPIPanels = (function() {
         }
         
         /**
-         * Cerrar panel - LIMPIAR EVENT LISTENERS
+         * Cerrar panel con limpieza completa
          */
         function closePanel() {
             const container = document.getElementById('masterAPIPanelContainer');
             if (container) {
-                // Remover event listener de click fuera
-                if (container._clickOutsideHandler) {
-                    container.removeEventListener('click', container._clickOutsideHandler);
-                    container._clickOutsideHandler = null;
-                }
-                
                 container.style.display = 'none';
             }
+            
+            // Limpiar gráfico al cerrar
+            resetChartArea();
+            
             setState(1);
             currentStation = null;
             
-            console.log('✅ Master API panel closed');
+            console.log('✅ Master API panel closed and chart reset');
         }
 
     /**
@@ -440,11 +472,7 @@ window.MasterAPIPanels = (function() {
             expandedContent.style.display = 'none';
         }
     }
-    
-    function toggleChart() {
-        console.log('Master API: Chart functionality not implemented yet');
-        // Implementar después si es necesario
-    }
+
     
     // Actualizar barra IAS
     function updateIASBarPosition(iasValue) {
@@ -469,27 +497,37 @@ window.MasterAPIPanels = (function() {
         }
     }
 
-        /**
-     * NUEVO: Toggle del gráfico para Master API - Panel único expandible
+    /**
+     * ACTUALIZADO: Toggle del gráfico con verificación de estación
      */
     function toggleChart() {
+        console.log(`🎯 Toggle chart for station: ${currentStation}`);
+        
+        if (!currentStation) {
+            console.error('❌ No current station set');
+            return;
+        }
+        
         if (currentState === 2) {
             // Expandir panel principal para incluir gráfico
             const mainPanel = document.getElementById('masterAPIMainPanel');
             const chartContainer = document.getElementById('masterAPIInlineChartContainer');
             
             if (mainPanel && chartContainer) {
-                // Mostrar área de gráfico dentro del panel principal
+                console.log('📊 Expanding panel for chart...');
+                
+                // Mostrar área de gráfico
                 chartContainer.style.display = 'block';
                 
-                // Ajustar altura del panel principal para incluir el gráfico
+                // Ajustar altura del panel
                 mainPanel.style.maxHeight = '80vh';
                 mainPanel.style.height = 'auto';
                 
-                // Cargar datos del gráfico
+                // Cargar datos del gráfico PARA LA ESTACIÓN ACTUAL
+                console.log(`🔄 Loading chart data for: ${currentStation}`);
                 loadChartData();
                 
-                setState(3); // Cambiar estado pero sin panel separado
+                setState(3);
             }
         } else if (currentState === 3) {
             // Contraer panel principal
@@ -497,10 +535,12 @@ window.MasterAPIPanels = (function() {
             const chartContainer = document.getElementById('masterAPIInlineChartContainer');
             
             if (mainPanel && chartContainer) {
+                console.log('📉 Collapsing chart...');
+                
                 // Ocultar área de gráfico
                 chartContainer.style.display = 'none';
                 
-                // Restaurar altura original del panel
+                // Restaurar altura original
                 mainPanel.style.maxHeight = '55vh';
                 
                 setState(2);
@@ -833,6 +873,7 @@ window.MasterAPIPanels = (function() {
         closePanel: closePanel,
         toggleDetails: toggleDetails,    // ← AGREGAR
         toggleChart: toggleChart,        // ← AGREGAR
+        resetChartArea: resetChartArea,
         getCurrentStation: () => currentStation,
         getCurrentState: () => currentState
     };
