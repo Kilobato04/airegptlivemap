@@ -658,7 +658,7 @@ function toggleChart() {
 
 
     /**
-     * NUEVO: Crear gráfico de barras con colores IAS - OPTIMIZADO PARA ANCHO
+     * NUEVO: Gráfico de barras con escalado correcto
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
         if (!window.Plotly) {
@@ -666,34 +666,18 @@ function toggleChart() {
             return;
         }
         
-        // Calcular ancho de barras basado en número de datos y ancho disponible
-        const maxBarWidth = Math.max(0.8, Math.min(4, 24 / historicalData.length));
+        console.log(`📊 Creating bar chart with ${historicalData.length} data points`);
         
         const trace = {
             x: historicalData.map((item, index) => {
-                // Crear etiquetas cortas para el eje X
-                const date = new Date(item.timestamp);
-                if (requestedHours <= 12) {
-                    return date.toLocaleTimeString('en-US', { 
-                        hour: '2-digit', 
-                        minute: '2-digit',
-                        hour12: false 
-                    });
-                } else {
-                    return date.toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric',
-                        hour: '2-digit',
-                        hour12: false
-                    }).replace(',', '\n');
-                }
+                // Crear etiquetas simples numeradas
+                return `Reading ${index + 1}`;
             }),
             y: historicalData.map(item => item.value),
             type: 'bar',
             name: `${stationName} IAS`,
             marker: {
                 color: historicalData.map(item => {
-                    // Usar colores IAS estándar
                     if (item.value <= 50) return '#00ff00';      // Good
                     if (item.value <= 100) return '#ffff00';     // Acceptable  
                     if (item.value <= 150) return '#ff8000';     // Bad
@@ -704,9 +688,8 @@ function toggleChart() {
                     color: '#ffffff',
                     width: 1
                 },
-                opacity: 0.9
+                opacity: 0.8
             },
-            width: maxBarWidth, // Ancho dinámico de barras
             hovertemplate: `<b>${stationName}</b><br>` +
                            `<b>Time</b>: %{customdata.fullTime}<br>` +
                            `<b>IAS</b>: %{y}<br>` +
@@ -715,7 +698,6 @@ function toggleChart() {
             customdata: historicalData.map(item => ({
                 category: item.category || 'Unknown',
                 fullTime: new Date(item.timestamp).toLocaleString('en-US', {
-                    weekday: 'short',
                     month: 'short', 
                     day: 'numeric',
                     hour: '2-digit',
@@ -728,28 +710,30 @@ function toggleChart() {
         const layout = {
             margin: { 
                 t: 25, 
-                r: 10, 
-                l: 40, 
-                b: requestedHours <= 12 ? 35 : 50  // Más espacio si hay más texto
+                r: 15, 
+                l: 45, 
+                b: 40
             },
             yaxis: {
                 title: { 
-                    text: 'IAS', 
-                    font: { size: 10 },
-                    standoff: 5
+                    text: 'IAS Value', 
+                    font: { size: 10 }
                 },
                 zeroline: false,
                 showgrid: true,
                 gridcolor: '#E4E4E4',
                 tickfont: { size: 8 },
-                range: [0, Math.max(250, Math.max(...historicalData.map(item => item.value)) + 20)]
+                range: [0, Math.max(250, Math.max(...historicalData.map(item => item.value)) + 10)]
             },
             xaxis: {
                 showgrid: false,
-                tickfont: { size: 7 },
-                tickangle: requestedHours > 12 ? -45 : 0, // Rotar etiquetas si hay muchas
-                automargin: true,
-                type: 'category' // Usar categorías en lugar de fechas
+                tickfont: { size: 8 },
+                tickangle: 0,
+                autorange: true,     // ← CLAVE: Auto ajustar rango
+                fixedrange: false,   // ← CLAVE: Permitir zoom/pan
+                type: 'category',
+                categoryorder: 'array',
+                categoryarray: historicalData.map((item, index) => `Reading ${index + 1}`)
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
@@ -762,37 +746,38 @@ function toggleChart() {
                 xanchor: 'left'
             },
             showlegend: false,
-            bargap: 0.1, // Espacio entre barras (10%)
+            bargap: 0.2,         // ← CLAVE: Espacio entre barras (20%)
             bargroupgap: 0.0,
-            hovermode: 'closest'
+            hovermode: 'closest',
+            autosize: true       // ← CLAVE: Auto ajustar al contenedor
         };
         
         const config = {
             responsive: true,
             displayModeBar: true,
-            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline', 'zoom2d', 'pan2d'],
+            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
             displaylogo: false,
-            modeBarButtonsToAdd: [{
-                name: 'Reset View',
-                icon: {
-                    width: 1000,
-                    height: 1000,
-                    path: 'M500,100L500,900M100,500L900,500',
-                    transform: 'scale(0.8)'
-                },
-                click: function() {
-                    Plotly.relayout(container, {
-                        'xaxis.autorange': true,
-                        'yaxis.autorange': true
-                    });
-                }
-            }]
+            scrollZoom: false,   // ← Deshabilitar zoom con scroll
+            doubleClick: 'reset' // ← Doble click resetea vista
         };
         
-        // Crear el gráfico
-        window.Plotly.newPlot(container, [trace], layout, config);
+        // Limpiar contenedor antes de crear gráfico
+        Plotly.purge(container);
         
-        console.log(`📊 Bar chart created with ${historicalData.length} bars, width: ${maxBarWidth}`);
+        // Crear el gráfico
+        window.Plotly.newPlot(container, [trace], layout, config)
+            .then(() => {
+                console.log(`✅ Bar chart created successfully`);
+                // Forzar resize después de crear
+                setTimeout(() => {
+                    if (window.Plotly) {
+                        Plotly.Plots.resize(container);
+                    }
+                }, 100);
+            })
+            .catch(error => {
+                console.error('Error creating chart:', error);
+            });
     }
     
     /**
@@ -828,6 +813,19 @@ function toggleChart() {
             console.error('❌ Timeframe select not found in setupChartControls');
         }
     }
+
+    // Event listener para resize del gráfico
+    window.addEventListener('resize', () => {
+        const chartDiv = document.getElementById('masterAPIInlineChart');
+        if (chartDiv && chartDiv.style.display !== 'none') {
+            try {
+                Plotly.Plots.resize(chartDiv);
+                console.log('📏 Chart resized');
+            } catch (error) {
+                console.warn('Chart resize error:', error);
+            }
+        }
+    });
     
     // Actualizar el return del módulo:
     return {
