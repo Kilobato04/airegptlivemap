@@ -230,127 +230,117 @@
     </div>
 </div>
 
-<!-- Panel Container Master API - ESTRUCTURA COMPLETA COPIADA -->
+<!-- Panel Container Master API - ESTRUCTURA EXACTA DE SMABILITY -->
 <div id="masterAPIPanelContainer" style="display: none;">
-    <div id="masterAPIMainPanel" class="master-api-panel">
-        <!-- Header del panel -->
-        <div class="master-api-header">
-            <div class="master-api-header-left">
-                <h3 id="masterAPIPanelTitle" class="master-api-panel-title">Station Name</h3>
-                <p class="master-api-panel-subtitle">Air Quality Monitor</p>
-            </div>
-            <div class="master-api-header-right">
-                <!-- AGREGAR: Botón AireGPT -->
-                <a href="https://chat.openai.com" target="_blank" class="master-api-whatsapp-popup">
-                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: white;">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    AireGPT
-                </a>
-                <button class="master-api-close-btn" onclick="MasterAPIPanels.closePanel()">×</button>
-            </div>
-        </div>
-
-        <!-- Contenido del panel -->
-        <div class="master-api-panel-content">
-            <!-- IAS Principal -->
-            <div class="master-api-ias-section master-api-clickable" onclick="MasterAPIPanels.toggleDetails()">
-                <span id="masterAPIIasEmoji" class="master-api-ias-emoji">😊</span>
-                <div id="masterAPIIasIndicator" class="master-api-ias-indicator"></div>
-                <div id="masterAPIIasValue" class="master-api-ias-value">...</div>
-                <div class="master-api-ias-status">
-                    <div class="master-api-status-row">
-                        <span class="master-api-status-label">Status:</span>
-                        <span id="masterAPIStatusText1" class="master-api-status-value">...</span>
-                    </div>
-                    <div class="master-api-status-row">
-                        <span class="master-api-status-label">Risk:</span>
-                        <span id="masterAPIStatusText2" class="master-api-status-value">...</span>
-                    </div>
+        <div class="master-api-panel" id="masterAPIMainPanel" style="display: none;">
+            <div class="master-api-header">
+                <div class="master-api-header-left">
+                    <h3 class="master-api-panel-title" id="masterAPIPanelTitle">Station Name</h3>
+                    <p class="master-api-panel-subtitle" id="masterAPIPanelSubtitle"></p>
+                </div>
+                <div class="master-api-header-right">
+                    <!-- WhatsApp correcto para AireGPT -->
+                    <a href="https://wa.me/525519566483" target="_blank" class="master-api-whatsapp-popup">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                        AIreGPT
+                    </a>
+                    <button class="master-api-close-btn" onclick="MasterAPIPanels.closePanel()">×</button>
                 </div>
             </div>
-
-            <!-- AGREGAR: Barra IAS -->
+    
+            <!-- Barra IAS - JUSTO DEBAJO DEL HEADER -->
             <div class="master-api-ias-bar-container">
-                <div id="masterAPIIasBar" class="master-api-ias-bar"></div>
+                <div class="master-api-ias-bar" id="masterAPIIasBar"></div>
                 <div class="master-api-ias-bar-labels">
-                    <span class="master-api-ias-bar-label">Good</span>
-                    <span class="master-api-ias-bar-label">Moderate</span>
-                    <span class="master-api-ias-bar-label">Sensitive</span>
-                    <span class="master-api-ias-bar-label">Unhealthy</span>
-                    <span class="master-api-ias-bar-label">Very Unhealthy</span>
+                    <span class="master-api-ias-bar-label">Good<br>0-50</span>
+                    <span class="master-api-ias-bar-label">Moderate<br>51-100</span>
+                    <span class="master-api-ias-bar-label">Unhealthy<br>101-150</span>
+                    <span class="master-api-ias-bar-label">Very Bad<br>151-200</span>
+                    <span class="master-api-ias-bar-label">Extreme<br>201+</span>
                 </div>
             </div>
-
-            <!-- Datos principales -->
-            <div class="master-api-data-grid">
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Dominant Pollutant</div>
-                    <div id="masterAPIDominantPollutant" class="master-api-data-value">...</div>
+            
+            <div class="master-api-panel-content">
+                <!-- IAS Principal -->
+                <div class="master-api-ias-section master-api-clickable" id="masterAPIIasSection" onclick="MasterAPIPanels.toggleDetails()">
+                    <span class="master-api-ias-emoji" id="masterAPIIasEmoji">😐</span>
+                    <span class="master-api-ias-indicator" id="masterAPIIasIndicator"></span>
+                    <span class="master-api-ias-value" id="masterAPIIasValue">...</span>
+                    <div class="master-api-ias-status">
+                        <div class="master-api-status-row">
+                            <span class="master-api-status-label">Air Quality:</span>
+                            <span class="master-api-status-value" id="masterAPIStatusText1">...</span>
+                        </div>
+                        <div class="master-api-status-row">
+                            <span class="master-api-status-label">Risk:</span>
+                            <span class="master-api-status-value" id="masterAPIStatusText2">...</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">O3 1hr</div>
-                    <div id="masterAPIO3" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">CO 8hr</div>
-                    <div id="masterAPICO" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">PM2.5 12hr</div>
-                    <div id="masterAPIPM25" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">PM10 12hr</div>
-                    <div id="masterAPIPM10" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Temperature</div>
-                    <div id="masterAPITemperature" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Humidity</div>
-                    <div id="masterAPIHumidity" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Battery</div>
-                    <div id="masterAPIBattery" class="master-api-data-value">...</div>
-                </div>
-            </div>
-
-            <!-- AGREGAR: Contenido expandido -->
-            <div id="masterAPIExpandedContent" class="master-api-expanded-content" style="display: none;">
+                
+                <!-- Datos expandidos (inicialmente ocultos) -->
+                <div class="master-api-expanded-content" id="masterAPIExpandedContent" style="display: none;">
+                
+                <!-- Datos en grid -->
                 <div class="master-api-data-grid">
                     <div class="master-api-data-item">
-                        <div class="master-api-data-label">Status</div>
-                        <div id="masterAPIReadingStatus" class="master-api-data-value">...</div>
+                        <div class="master-api-data-label">Dominant Pollutant</div>
+                        <div class="master-api-data-value" id="masterAPIDominantPollutant">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">O3 1hr</div>
+                        <div class="master-api-data-value" id="masterAPIO3">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">CO 8hr</div>
+                        <div class="master-api-data-value" id="masterAPICO">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">PM2.5 12hr</div>
+                        <div class="master-api-data-value" id="masterAPIPM25">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">PM10 12hr</div>
+                        <div class="master-api-data-value" id="masterAPIPM10">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">Temperature</div>
+                        <div class="master-api-data-value" id="masterAPITemperature">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">Humidity</div>
+                        <div class="master-api-data-value" id="masterAPIHumidity">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">Battery</div>
+                        <div class="master-api-data-value" id="masterAPIBattery">...</div>
                     </div>
                     <div class="master-api-data-item">
                         <div class="master-api-data-label">Location</div>
-                        <div id="masterAPILocation" class="master-api-data-value">...</div>
+                        <div class="master-api-data-value" id="masterAPILocation">...</div>
                     </div>
                     <div class="master-api-data-item">
                         <div class="master-api-data-label">Device Mode</div>
-                        <div id="masterAPIDeviceMode" class="master-api-data-value">...</div>
+                        <div class="master-api-data-value" id="masterAPIDeviceMode">...</div>
                     </div>
                 </div>
+    
+                <!-- Botón de gráfico -->
+                <div class="master-api-action-buttons">
+                    <button class="master-api-btn" onclick="MasterAPIPanels.toggleChart()">📊 View Historical Data</button>
+                </div>
             </div>
-
-            <!-- AGREGAR: Botones de acción -->
-            <div class="master-api-action-buttons">
-                <button class="master-api-btn" onclick="MasterAPIPanels.toggleChart()">
-                    📊 View Chart
-                </button>
+    
+            <!-- Footer del panel principal -->
+            <div class="master-api-footer">
+                <span class="master-api-last-update" id="masterAPILastUpdate">Last update: ...</span>
+                <span class="master-api-branding"><a href="https://smability.io/en/" target="_blank" style="color: #4264fb; text-decoration: none;">Master API</a></span>
             </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="master-api-footer">
-            <span id="masterAPILastUpdate" class="master-api-last-update">Last update: ...</span>
-            <a href="https://smability.io/en/" target="_blank" class="master-api-branding">Master API</a>
         </div>
     </div>
-</div>
+  </div>
 
 
 <script src="assets/js/smability-panels.js"></script>
