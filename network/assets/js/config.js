@@ -350,9 +350,9 @@ window.getIndicatorColor = function(iasValue) {
 
 console.log('✅ Config functions loaded: createLegendHTML, createPopupContent, getIndicatorColor');
 
-// NUEVO: Mapeo de nombres de estaciones a station_id para Master API
-// ACTUALIZADO: Mapeo completo de nombres de estaciones a station_id para Master API
+// ACTUALIZADO: Mapeo completo - Estaciones Smability + Reference activas
 window.ALL_STATIONS_MAPPING = {
+    // === ESTACIONES SMABILITY EXISTENTES ===
     'DVL': 'Del Valle',
     'CN2': 'CENTRUS 2',
     'CN4': 'CENTRUS 4', 
@@ -365,29 +365,69 @@ window.ALL_STATIONS_MAPPING = {
     'MicroSensor-03': 'MicroSensor-03',
     'AC': 'Anahuac Cancun',
     'MicroSensor-02': 'MicroSensor-02',
-    'MER': 'Merced',           // ← NUEVA: Estación Oficial Merced
-    'TLA': 'Tlalnepantla',     // ← NUEVA: Estación Oficial (común en SIMAT)
-    'XAL': 'Xalostoc',         // ← NUEVA: Estación Oficial (común en SIMAT)  
-    'ATI': 'Atizapán',         // ← NUEVA: Estación Oficial (común en SIMAT)
-    'CAM': 'Camarones',        // ← NUEVA: Estación Oficial (común en SIMAT)
-    'CES': 'Cerro de la Estrella', // ← NUEVA: Estación Oficial (común en SIMAT)
-    'CHA': 'Chalco',           // ← NUEVA: Estación Oficial (común en SIMAT)
-    'CHO': 'Chontalcuatlán',   // ← NUEVA: Estación Oficial (común en SIMAT)
-    'CUA': 'Cuajimalpa',       // ← NUEVA: Estación Oficial (común en SIMAT)
-    'FAC': 'FES Acatlán',      // ← NUEVA: Estación Oficial (común en SIMAT)
-    'HAN': 'Hangares',         // ← NUEVA: Estación Oficial (común en SIMAT)
-    'IZT': 'Iztacalco',        // ← NUEVA: Estación Oficial (común en SIMAT)
-    'LAG': 'Lagunilla',        // ← NUEVA: Estación Oficial (común en SIMAT)
-    'MPA': 'Milpa Alta',       // ← NUEVA: Estación Oficial (común en SIMAT)
-    'MON': 'Montecillo',       // ← NUEVA: Estación Oficial (común en SIMAT)
-    'NEZ': 'Nezahualcóyotl',   // ← NUEVA: Estación Oficial (común en SIMAT)
-    'PED': 'Pedregal',         // ← NUEVA: Estación Oficial (común en SIMAT)
-    'PLA': 'Plateros',         // ← NUEVA: Estación Oficial (común en SIMAT)
-    'SAG': 'Santa Ana Galindo', // ← NUEVA: Estación Oficial (común en SIMAT)
-    'SFE': 'Santa Fe',         // ← NUEVA: Estación Oficial (común en SIMAT)
-    'TAH': 'Tláhuac',          // ← NUEVA: Estación Oficial (común en SIMAT)
-    'TLI': 'Tlalpan I',        // ← NUEVA: Estación Oficial (común en SIMAT)
-    'UAX': 'UAM Xochimilco',   // ← NUEVA: Estación Oficial (común en SIMAT)
-    'VIF': 'Villa de las Flores', // ← NUEVA: Estación Oficial (común en SIMAT)
-    'XCH': 'Xochimilco'        // ← NUEVA: Estación Oficial (común en SIMAT)
+    
+    // === ESTACIONES REFERENCE ACTIVAS (20 estaciones) ===
+    'CUT': 'Cuautitlán',
+    'MER': 'Merced',
+    'UAX': 'UAM Xochimilco',
+    'ATI': 'Atizapan',
+    'TLA': 'Tlalnepantla',
+    'SAC': 'Santiago Acahualtepec',
+    'HGM': 'Hospital General de México',
+    'AJM': 'Ajusco Medio',
+    'CCA': 'Centro de Ciencias de la Atmósfera',
+    'FAC': 'FES Acatlán',
+    'CAM': 'Camarones',
+    'CUA': 'Cuajimalpa',
+    'PED': 'Pedregal',
+    'MGH': 'Miguel Hidalgo',
+    'TLI': 'Tultitlán',
+    'SAG': 'San Agustín',
+    'INN': 'Investigaciones Nucleares',
+    'LLA': 'Los Laureles',
+    'LPR': 'La Presa',
+    'VIF': 'Villa de las Flores'
+};
+
+// NUEVO: Mapping completo de estaciones Reference (para referencia)
+window.REFERENCE_STATION_MAPPING = {
+    'TLI': 'Tultitlan',  // 1
+    'CUA': 'Cuajimalpa', // 2
+    'MGH': 'Miguel Hidalgo', // 3
+    'HGM': 'Hospital General de Mexico', // 4
+    'GAM': 'Gustavo A. Madero', // 5
+    'SAG': 'San Agustin', // 6
+    'PED': 'Pedregal', // 7
+    'LAG': 'Lagunas', // 8
+    'MER': 'Merced', // 9
+    'TAH': 'Tlahuac', // 10
+    'UIZ': 'UAM Iztapalapa', // 11
+    'XAL': 'Xalostoc', // 12
+    'AJM': 'Ajusco Medio', // 13
+    'AJU': 'Ajusco', // 14
+    'ATI': 'Atizapan', // 15
+    'BJU': 'Benito Juarez', // 16
+    'CAM': 'Camarones', // 17
+    'CHO': 'Chalco', // 18
+    'COY': 'Coyoacan', // 19
+    'CUT': 'Cuautitlan', // 20
+    'FAC': 'FES Acatlan', // 21
+    'HAN': 'Hangares', // 22
+    'IMP': 'IMP', // 23
+    'IZT': 'Iztacalco', // 24
+    'LPR': 'La Presa', // 25
+    'MON': 'Montecillo', // 26
+    'NEZ': 'Nezahualcoyotl', // 27
+    'PLA': 'Plateros', // 28
+    'SAC': 'Santiago Acahualtepec', // 29
+    'SJA': 'San Juan Aragon', // 30
+    'TAX': 'Taxqueña', // 31
+    'TEC': 'Tecnologico', // 32
+    'TLA': 'Tlalnepantla', // 33
+    'UAX': 'UAM Xochimilco', // 34
+    'LLA': 'Los Laureles', // 35
+    'INN': 'Investigaciones Nucleares', // 36
+    'CCA': 'Centro de Ciencias de la Atmosfera', // 37
+    'ACO': 'Acolman', // 38
+    'VIF': 'Villa de las Flores' // 39
 };
