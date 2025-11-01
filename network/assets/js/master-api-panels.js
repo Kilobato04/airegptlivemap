@@ -17,6 +17,13 @@ window.MasterAPIPanels = (function() {
      */
     function showPanel(stationName) {
         console.log(`MasterAPIPanels: Showing panel for ${stationName}`);
+
+        // Cerrar cualquier popup de Mapbox existente
+        const existingPopups = document.querySelectorAll('.mapboxgl-popup');
+        existingPopups.forEach(popup => {
+            popup.remove();
+            console.log('🗑️ Removed existing Mapbox popup');
+        });
         
         currentStation = stationName;
         
