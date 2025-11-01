@@ -725,8 +725,9 @@ window.MasterAPIPanels = (function() {
         }
     }
 
+
     /**
-     * NUEVO: Gráfico optimizado para 24 horas
+     * NUEVO: Gráfico con menos espacio en blanco, posicionado más abajo
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
         if (!window.Plotly) {
@@ -738,7 +739,6 @@ window.MasterAPIPanels = (function() {
         
         const trace = {
             x: historicalData.map(item => {
-                // Para 24 horas, mostrar solo la hora
                 const date = new Date(item.timestamp);
                 return `${String(date.getHours()).padStart(2, '0')}:00`;
             }),
@@ -747,11 +747,11 @@ window.MasterAPIPanels = (function() {
             name: `${stationName} IAS`,
             marker: {
                 color: historicalData.map(item => {
-                    if (item.value <= 50) return '#00ff00';      // Good
-                    if (item.value <= 100) return '#ffff00';     // Acceptable  
-                    if (item.value <= 150) return '#ff8000';     // Bad
-                    if (item.value <= 200) return '#ff0000';     // Very Bad
-                    return '#800080';                             // Extremely Bad
+                    if (item.value <= 50) return '#00ff00';
+                    if (item.value <= 100) return '#ffff00';
+                    if (item.value <= 150) return '#ff8000';
+                    if (item.value <= 200) return '#ff0000';
+                    return '#800080';
                 }),
                 line: {
                     color: '#ffffff',
@@ -778,10 +778,10 @@ window.MasterAPIPanels = (function() {
         
         const layout = {
             margin: { 
-                t: 20, 
+                t: 17,       // ← REDUCIDO: Menos margen superior
                 r: 15, 
                 l: 45, 
-                b: 40
+                b: 25        // ← REDUCIDO: Menos margen inferior
             },
             yaxis: {
                 title: { 
@@ -797,23 +797,24 @@ window.MasterAPIPanels = (function() {
             xaxis: {
                 showgrid: false,
                 tickfont: { size: 7 },
-                tickangle: 0,        // Sin rotación para 24h
+                tickangle: 0,
                 autorange: true,
                 fixedrange: false,
-                type: 'category'
+                type: 'category',
+                side: 'bottom'   // ← ASEGURAR: Eje en la parte inferior
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
             font: { family: 'DIN Pro, Arial, sans-serif' },
             title: {
                 text: `${stationName} - 24 Hour IAS History`,
-                font: { size: 11, family: 'DIN Pro, Arial, sans-serif' },
-                y: 0.95,
+                font: { size: 10, family: 'DIN Pro, Arial, sans-serif' }, // ← REDUCIDO: Título más pequeño
+                y: 0.97,         // ← AJUSTADO: Título más arriba
                 x: 0.05,
                 xanchor: 'left'
             },
             showlegend: false,
-            bargap: 0,           // Sin espacios entre barras
+            bargap: 0,
             bargroupgap: 0,
             hovermode: 'closest',
             autosize: true
@@ -828,12 +829,11 @@ window.MasterAPIPanels = (function() {
             doubleClick: 'reset'
         };
         
-        // Limpiar y crear gráfico
         Plotly.purge(container);
         
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ 24-hour chart created successfully`);
+                console.log(`✅ 24-hour chart created with optimized spacing`);
                 setTimeout(() => {
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
