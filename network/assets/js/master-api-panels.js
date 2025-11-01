@@ -53,6 +53,8 @@ window.MasterAPIPanels = (function() {
         
         // Actualizar colores por defecto
         updatePanelColors('#ffff00', 0);
+
+        setupChartControls();
         
         setState(2);
         
@@ -726,18 +728,36 @@ function toggleChart() {
     }
     
     /**
-     * NUEVO: Setup de event listeners para controles del gráfico
+     * NUEVO: Setup de event listeners para controles del gráfico - CORREGIDO
      */
     function setupChartControls() {
         const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
         
-        if (timeframeSelect && !timeframeSelect.hasAttribute('data-listener-added')) {
-            timeframeSelect.addEventListener('change', () => {
+        if (timeframeSelect) {
+            // Remover listener previo si existe
+            if (timeframeSelect._changeHandler) {
+                timeframeSelect.removeEventListener('change', timeframeSelect._changeHandler);
+            }
+            
+            // Crear nuevo handler
+            const changeHandler = function() {
+                console.log(`Timeframe changed to: ${timeframeSelect.value} hours`);
                 if (currentState === 3) {
+                    console.log('Reloading chart data...');
                     loadChartData();
                 }
-            });
+            };
+            
+            // Guardar referencia del handler y agregar listener
+            timeframeSelect._changeHandler = changeHandler;
+            timeframeSelect.addEventListener('change', changeHandler);
+            
+            // Marcar como configurado
             timeframeSelect.setAttribute('data-listener-added', 'true');
+            
+            console.log('✅ Chart controls event listener set up');
+        } else {
+            console.error('❌ Timeframe select not found in setupChartControls');
         }
     }
     
