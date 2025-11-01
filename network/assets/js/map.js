@@ -546,10 +546,10 @@ function addMapLayers() {
                     'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
                     
                     // Estaciones Reference activas (20 estaciones):
-                    'Cuautitlán', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
-                    'Santiago Acahualtepec', 'Hospital General de México', 'Ajusco Medio',
-                    'Centro de Ciencias de la Atmósfera', 'FES Acatlán', 'Camarones',
-                    'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlán', 'San Agustín',
+                    'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
+                    'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
+                    'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
+                    'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
                     'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores'
                 ];
                 
