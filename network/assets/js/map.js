@@ -685,16 +685,26 @@ function addMapLayers() {
                                  event.originalEvent.target.classList.contains('marker-pin');
             
             if (features.length === 0 && !clickedMarker) {
-                console.log('Clicked outside station, closing Smability panel if open');
+                console.log('Clicked outside station, closing panels if open'); // ← CAMBIAR mensaje
                 setTimeout(() => {
-                    // Verificar si no hay popups visibles y cerrar panel Smability
+                    // Verificar si no hay popups visibles y cerrar paneles
                     const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
                     const smabilityPanel = document.getElementById('smabilityMainPanel');
+                    const masterAPIPanel = document.getElementById('masterAPIMainPanel'); // ← AGREGAR
                     
-                    if (visiblePopups.length === 0 && smabilityPanel && 
-                        smabilityPanel.style.display !== 'none') {
-                        if (window.SmabilityPanels && window.SmabilityPanels.closeMainPanel) {
-                            window.SmabilityPanels.closeMainPanel();
+                    if (visiblePopups.length === 0) {
+                        // Cerrar panel Smability si está abierto
+                        if (smabilityPanel && smabilityPanel.style.display !== 'none') {
+                            if (window.SmabilityPanels && window.SmabilityPanels.closeMainPanel) {
+                                window.SmabilityPanels.closeMainPanel();
+                            }
+                        }
+                        
+                        // AGREGAR: Cerrar panel Master API si está abierto
+                        if (masterAPIPanel && masterAPIPanel.style.display !== 'none') {
+                            if (window.MasterAPIPanels && window.MasterAPIPanels.closePanel) {
+                                window.MasterAPIPanels.closePanel();
+                            }
                         }
                     }
                 }, 100);
