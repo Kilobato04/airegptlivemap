@@ -230,16 +230,23 @@
     </div>
 </div>
 
-<!-- Panel Container Master API - IDÉNTICO A SMABILITY -->
+<!-- Panel Container Master API - ESTRUCTURA COMPLETA COPIADA -->
 <div id="masterAPIPanelContainer" style="display: none;">
     <div id="masterAPIMainPanel" class="master-api-panel">
-        <!-- Header -->
+        <!-- Header del panel -->
         <div class="master-api-header">
             <div class="master-api-header-left">
                 <h3 id="masterAPIPanelTitle" class="master-api-panel-title">Station Name</h3>
-                <p id="masterAPIPanelSubtitle" class="master-api-panel-subtitle">Device Type • City</p>
+                <p class="master-api-panel-subtitle">Air Quality Monitor</p>
             </div>
             <div class="master-api-header-right">
+                <!-- AGREGAR: Botón AireGPT -->
+                <a href="https://chat.openai.com" target="_blank" class="master-api-whatsapp-popup">
+                    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: white;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    AireGPT
+                </a>
                 <button class="master-api-close-btn" onclick="MasterAPIPanels.closePanel()">×</button>
             </div>
         </div>
@@ -247,7 +254,7 @@
         <!-- Contenido del panel -->
         <div class="master-api-panel-content">
             <!-- IAS Principal -->
-            <div class="master-api-ias-section">
+            <div class="master-api-ias-section master-api-clickable" onclick="MasterAPIPanels.toggleDetails()">
                 <span id="masterAPIIasEmoji" class="master-api-ias-emoji">😊</span>
                 <div id="masterAPIIasIndicator" class="master-api-ias-indicator"></div>
                 <div id="masterAPIIasValue" class="master-api-ias-value">...</div>
@@ -263,15 +270,23 @@
                 </div>
             </div>
 
+            <!-- AGREGAR: Barra IAS -->
+            <div class="master-api-ias-bar-container">
+                <div id="masterAPIIasBar" class="master-api-ias-bar"></div>
+                <div class="master-api-ias-bar-labels">
+                    <span class="master-api-ias-bar-label">Good</span>
+                    <span class="master-api-ias-bar-label">Moderate</span>
+                    <span class="master-api-ias-bar-label">Sensitive</span>
+                    <span class="master-api-ias-bar-label">Unhealthy</span>
+                    <span class="master-api-ias-bar-label">Very Unhealthy</span>
+                </div>
+            </div>
+
             <!-- Datos principales -->
             <div class="master-api-data-grid">
                 <div class="master-api-data-item">
                     <div class="master-api-data-label">Dominant Pollutant</div>
                     <div id="masterAPIDominantPollutant" class="master-api-data-value">...</div>
-                </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Status</div>
-                    <div id="masterAPIReadingStatus" class="master-api-data-value">...</div>
                 </div>
                 <div class="master-api-data-item">
                     <div class="master-api-data-label">O3 1hr</div>
@@ -301,14 +316,31 @@
                     <div class="master-api-data-label">Battery</div>
                     <div id="masterAPIBattery" class="master-api-data-value">...</div>
                 </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Location</div>
-                    <div id="masterAPILocation" class="master-api-data-value">...</div>
+            </div>
+
+            <!-- AGREGAR: Contenido expandido -->
+            <div id="masterAPIExpandedContent" class="master-api-expanded-content" style="display: none;">
+                <div class="master-api-data-grid">
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">Status</div>
+                        <div id="masterAPIReadingStatus" class="master-api-data-value">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">Location</div>
+                        <div id="masterAPILocation" class="master-api-data-value">...</div>
+                    </div>
+                    <div class="master-api-data-item">
+                        <div class="master-api-data-label">Device Mode</div>
+                        <div id="masterAPIDeviceMode" class="master-api-data-value">...</div>
+                    </div>
                 </div>
-                <div class="master-api-data-item">
-                    <div class="master-api-data-label">Device Mode</div>
-                    <div id="masterAPIDeviceMode" class="master-api-data-value">...</div>
-                </div>
+            </div>
+
+            <!-- AGREGAR: Botones de acción -->
+            <div class="master-api-action-buttons">
+                <button class="master-api-btn" onclick="MasterAPIPanels.toggleChart()">
+                    📊 View Chart
+                </button>
             </div>
         </div>
 
