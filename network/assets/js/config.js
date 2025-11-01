@@ -349,3 +349,19 @@ window.getIndicatorColor = function(iasValue) {
 };
 
 console.log('✅ Config functions loaded: createLegendHTML, createPopupContent, getIndicatorColor');
+
+// NUEVO: Mapeo de nombres de estaciones a station_id para Master API
+window.ALL_STATIONS_MAPPING = {
+    'DVL': 'Del Valle',
+    'CN2': 'CENTRUS 2',
+    'CN4': 'CENTRUS 4', 
+    'CN5': 'CENTRUS 5',
+    'HI': 'Huerto IBERO',
+    'INIAT': 'INIAT',
+    'ITD': 'ITD',
+    'ALISBio-02': 'ALISBio-02',
+    'ALISBio': 'ALISBio',
+    'MicroSensor-03': 'MicroSensor-03',
+    'AC': 'Anahuac Cancun',
+    'MicroSensor-02': 'MicroSensor-02'
+};
