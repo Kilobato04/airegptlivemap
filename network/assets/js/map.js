@@ -590,7 +590,7 @@ function addMapLayers() {
             }
         });
         
-        // Click handler para markers cuadrados (SIMAT) - CON LÓGICA MASTER API
+        // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY
         map.on('click', 'smaa_network_squares', (event) => {
             console.log('Click detected on smaa_network_squares layer');
             
@@ -618,13 +618,27 @@ function addMapLayers() {
             if (masterAPIStations.includes(feature.properties.name)) {
                 console.log('🔵 This is a Master API station (Reference)');
                 
+                // PREVENIR el popup default de Mapbox
+                event.preventDefault();
+                event.stopPropagation();
+                
                 if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
                     console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
                     try {
                         window.MasterAPIPanels.showPanel(feature.properties.name);
-                        console.log('✅ MasterAPIPanels.showPanel() called successfully');
+                        console.log('✅ MasterAPIPanels.showPanel() called successfully - NO popup');
+                        
+                        // ASEGURAR: Cerrar cualquier popup existente
+                        const existingPopups = document.querySelectorAll('.mapboxgl-popup');
+                        existingPopups.forEach(popup => popup.remove());
+                        
                     } catch (error) {
                         console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
+                        // Solo mostrar popup si hay error
+                        const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                            .setLngLat(feature.geometry.coordinates)
+                            .setHTML(createPopupContent(feature, null))
+                            .addTo(map);
                     }
                 } else {
                     console.error('❌ MasterAPIPanels not available, using fallback popup');
@@ -634,7 +648,7 @@ function addMapLayers() {
                         .addTo(map);
                 }
             } else {
-                console.log('⚪ This is a traditional SIMAT station');
+                console.log('⚪ This is a traditional SIMAT station - showing popup');
                 const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
                     .setLngLat(feature.geometry.coordinates)
                     .setHTML(createPopupContent(feature, null))
