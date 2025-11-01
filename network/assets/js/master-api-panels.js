@@ -549,54 +549,55 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * NUEVO: Cargar datos fijos de 24 horas
+     * ACTUALIZADO: Cargar datos con variable seleccionada
      */
     async function loadChartData() {
         const chartDiv = document.getElementById('masterAPIInlineChart');
         const placeholder = document.getElementById('masterAPIChartPlaceholder');
+        const variableSelect = document.getElementById('masterAPIVariableSelect');
         
         if (!chartDiv || !currentStation) return;
         
-        const hours = 24; // FIJO: Siempre 24 horas
+        const hours = 24;
+        const variable = variableSelect ? variableSelect.value : 'ias';
         
-        console.log(`📊 Loading fixed 24 hours of data for ${currentStation}`);
+        console.log(`📊 Loading ${variable} data for ${currentStation}`);
         
-        // Mostrar loading
         placeholder.style.display = 'flex';
         placeholder.innerHTML = `
             <div style="text-align: center;">
                 <div style="font-size: 20px; margin-bottom: 8px;">⏳</div>
-                <div>Loading 24-hour IAS history...</div>
-                <small style="margin-top: 4px; display: block; color: #666;">Fetching hourly readings</small>
+                <div>Loading 24h ${variable} readings...</div>
+                <small style="margin-top: 4px; display: block; color: #666;">Fetching hourly data</small>
             </div>
         `;
         chartDiv.style.display = 'none';
         
         try {
             const startTime = performance.now();
-            const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours);
+            const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours, variable);
             const endTime = performance.now();
             
-            console.log(`⚡ 24h data fetched in ${Math.round(endTime - startTime)}ms`);
+            console.log(`⚡ ${variable} data fetched in ${Math.round(endTime - startTime)}ms`);
             
             if (historicalData && historicalData.length > 0) {
-                createMasterAPIChart(chartDiv, historicalData, hours, currentStation);
+                createMasterAPIChart(chartDiv, historicalData, hours, currentStation, variable);
                 
                 placeholder.style.display = 'none';
                 chartDiv.style.display = 'block';
                 chartDiv.classList.add('active');
                 
-                console.log(`✅ 24-hour chart created with ${historicalData.length} readings`);
+                console.log(`✅ ${variable} chart created with ${historicalData.length} readings`);
             } else {
                 throw new Error('No historical data available');
             }
         } catch (error) {
-            console.error('MasterAPIPanels: Error loading 24h chart data:', error);
+            console.error(`MasterAPIPanels: Error loading ${variable} data:`, error);
             placeholder.innerHTML = `
                 <div style="text-align: center; color: #666;">
                     <div style="font-size: 20px; margin-bottom: 8px;">❌</div>
-                    <div>No 24-hour data available</div>
-                    <small style="margin-top: 4px; display: block;">Historical readings not found</small>
+                    <div>No ${variable} data available</div>
+                    <small style="margin-top: 4px; display: block;">24-hour readings not found</small>
                 </div>
             `;
             placeholder.style.display = 'flex';
@@ -604,10 +605,11 @@ window.MasterAPIPanels = (function() {
         }
     }
 
+
     /**
-     * NUEVO: Obtener datos con secuencia horaria consecutiva correcta
+     * NUEVO: Obtener datos históricos con variable seleccionada
      */
-    async function fetchMasterAPIHistoricalData(stationName, requestedHours) {
+    async function fetchMasterAPIHistoricalData(stationName, requestedHours, variable = 'ias') {
         try {
             const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
                 id => window.ALL_STATIONS_MAPPING[id] === stationName
@@ -617,125 +619,138 @@ window.MasterAPIPanels = (function() {
                 throw new Error(`No station_id found for ${stationName}`);
             }
             
-            console.log(`🚀 Fetching ${requestedHours} consecutive readings for ${stationId} (${stationName})`);
+            console.log(`🚀 Fetching ${requestedHours} ${variable} readings for ${stationId} (${stationName})`);
+            
+            // Obtener la última lectura para determinar la hora de referencia
+            const currentResponse = await fetch("https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/current");
+            const currentData = await currentResponse.json();
+            const stations = Array.isArray(currentData) ? currentData : currentData.stations || [];
+            const currentStationData = stations.find(s => s.station_id === stationId);
+            
+            if (!currentStationData || !currentStationData.last_reading_time_UTC6) {
+                throw new Error(`No current data found for station ${stationId}`);
+            }
+            
+            const lastReadingTime = new Date(currentStationData.last_reading_time_UTC6 + ' UTC-6');
+            const referenceDate = new Date(lastReadingTime);
+            referenceDate.setMinutes(0, 0, 0);
+            
+            console.log(`📅 Reference time for ${variable}: ${currentStationData.last_reading_time_UTC6}`);
             
             const historicalData = [];
-            const now = new Date();
             
-            // Buscar desde la hora actual hacia atrás, una hora a la vez, CONSECUTIVAMENTE
             for (let i = 0; i < requestedHours; i++) {
-                const date = new Date(now.getTime() - (i * 60 * 60 * 1000));
-                const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
-                const hour = date.getHours();
-                
-                console.log(`🔍 Fetching hour ${i + 1}/${requestedHours}: ${dateStr} ${hour}:00`);
+                const targetDate = new Date(referenceDate.getTime() - (i * 60 * 60 * 1000));
+                const dateStr = targetDate.toISOString().split('T')[0];
+                const hour = targetDate.getHours();
                 
                 try {
                     const response = await fetch(
                         `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
                     );
                     
-                    if (!response.ok) {
-                        console.warn(`API response not OK for ${dateStr} hour ${hour}: ${response.status}`);
-                        // Para mantener secuencia, agregar placeholder con valor nulo
-                        historicalData.push({
-                            timestamp: date,
-                            value: null,
-                            status: 'no_data',
-                            category: 'No Data',
-                            color: '#cccccc',
-                            dateStr: dateStr,
-                            hour: hour,
-                            sortKey: date.getTime()
-                        });
-                        continue;
-                    }
+                    if (!response.ok) continue;
                     
                     const data = await response.json();
-                    const stations = Array.isArray(data) ? data : data.stations || [];
-                    const stationData = stations.find(s => s.station_id === stationId);
+                    const apiStations = Array.isArray(data) ? data : data.stations || [];
+                    const stationData = apiStations.find(s => s.station_id === stationId);
                     
-                    if (stationData && 
-                        stationData.ias_numeric_value !== undefined && 
-                        stationData.ias_numeric_value !== null &&
-                        stationData.reading_status === 'current') {
+                    if (stationData && stationData.reading_status === 'current') {
+                        let value, unit, color;
                         
-                        historicalData.push({
-                            timestamp: date,
-                            value: stationData.ias_numeric_value,
-                            status: stationData.reading_status,
-                            category: stationData.category,
-                            color: stationData.color_code,
-                            dateStr: dateStr,
-                            hour: hour,
-                            sortKey: date.getTime()
-                        });
+                        // Extraer valor según variable seleccionada
+                        switch (variable) {
+                            case 'ias':
+                                value = stationData.ias_numeric_value;
+                                unit = 'IAS';
+                                color = getIASColor(value);
+                                break;
+                            case 'ozone':
+                                value = stationData.pollutants?.o3?.avg_1h?.value;
+                                unit = 'ppb';
+                                color = '#9c27b0';
+                                break;
+                            case 'pm25':
+                                value = stationData.pollutants?.pm25?.avg_1h?.value;
+                                unit = 'μg/m³';
+                                color = '#ff9800';
+                                break;
+                            case 'temperature':
+                                value = stationData.meteorological?.temperature?.avg_1h?.value;
+                                unit = '°C';
+                                color = '#4264fb';
+                                break;
+                            case 'humidity':
+                                value = stationData.meteorological?.relative_humidity?.avg_1h?.value;
+                                unit = '%';
+                                color = '#4caf50';
+                                break;
+                            default:
+                                value = stationData.ias_numeric_value;
+                                unit = 'IAS';
+                                color = getIASColor(value);
+                        }
                         
-                        console.log(`✅ Hour ${i + 1}: ${stationData.ias_numeric_value} IAS at ${hour}:00`);
-                    } else {
-                        console.log(`❌ Hour ${i + 1}: No valid data at ${hour}:00`);
-                        // Agregar placeholder para mantener secuencia temporal
-                        historicalData.push({
-                            timestamp: date,
-                            value: null,
-                            status: 'no_data',
-                            category: 'No Data',
-                            color: '#cccccc',
-                            dateStr: dateStr,
-                            hour: hour,
-                            sortKey: date.getTime()
-                        });
+                        if (value !== undefined && value !== null) {
+                            const exactHourTimestamp = new Date(targetDate);
+                            exactHourTimestamp.setMinutes(0, 0, 0);
+                            
+                            historicalData.push({
+                                timestamp: exactHourTimestamp,
+                                value: value,
+                                unit: unit,
+                                color: color,
+                                variable: variable,
+                                status: stationData.reading_status,
+                                category: stationData.category,
+                                dateStr: dateStr,
+                                hour: hour,
+                                sortKey: exactHourTimestamp.getTime()
+                            });
+                            
+                            console.log(`✅ Hour ${hour}:00 = ${value} ${unit}`);
+                        }
                     }
                 } catch (error) {
                     console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
-                    // Agregar placeholder para mantener secuencia
-                    historicalData.push({
-                        timestamp: date,
-                        value: null,
-                        status: 'error',
-                        category: 'Error',
-                        color: '#ff0000',
-                        dateStr: dateStr,
-                        hour: hour,
-                        sortKey: date.getTime()
-                    });
                 }
             }
             
-            // Ordenar cronológicamente (más antiguo primero) para mostrar correctamente en el gráfico
             historicalData.sort((a, b) => a.sortKey - b.sortKey);
             
-            // Filtrar solo los que tienen datos válidos para el gráfico
-            const validData = historicalData.filter(item => item.value !== null);
-            
-            console.log(`✅ Consecutive fetch completed: ${validData.length}/${requestedHours} valid readings`);
-            console.log('Time sequence:', validData.map(item => 
-                `${item.hour}:00 = ${item.value}`
-            ));
-            
-            if (validData.length === 0) {
-                throw new Error(`No valid readings found for ${stationName} in the last ${requestedHours} hours`);
-            }
-            
-            return validData;
+            console.log(`✅ ${variable} fetch completed: ${historicalData.length}/${requestedHours} readings`);
+            return historicalData;
             
         } catch (error) {
-            console.error('Error fetching consecutive historical data:', error);
+            console.error(`Error fetching ${variable} data:`, error);
             throw error;
         }
+    }
+    
+    /**
+     * NUEVA: Función para obtener color IAS
+     */
+    function getIASColor(value) {
+        if (value <= 50) return '#00ff00';
+        if (value <= 100) return '#ffff00';
+        if (value <= 150) return '#ff8000';
+        if (value <= 200) return '#ff0000';
+        return '#800080';
     }
 
 
     /**
-     * NUEVO: Gráfico con menos espacio en blanco, posicionado más abajo
+     * NUEVO: Gráfico adaptable según variable seleccionada
      */
-    function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
+    function createMasterAPIChart(container, historicalData, requestedHours, stationName, variable = 'ias') {
         if (!window.Plotly) {
             console.error('MasterAPIPanels: Plotly.js not available');
             return;
         }
         
-        console.log(`📊 Creating 24-hour bar chart with ${historicalData.length} data points`);
+        console.log(`📊 Creating ${variable} chart with ${historicalData.length} data points`);
+        
+        const isIAS = variable === 'ias';
         
         const trace = {
             x: historicalData.map(item => {
@@ -743,29 +758,27 @@ window.MasterAPIPanels = (function() {
                 return `${String(date.getHours()).padStart(2, '0')}:00`;
             }),
             y: historicalData.map(item => item.value),
-            type: 'bar',
-            name: `${stationName} IAS`,
-            marker: {
-                color: historicalData.map(item => {
-                    if (item.value <= 50) return '#00ff00';
-                    if (item.value <= 100) return '#ffff00';
-                    if (item.value <= 150) return '#ff8000';
-                    if (item.value <= 200) return '#ff0000';
-                    return '#800080';
-                }),
-                line: {
-                    color: '#ffffff',
-                    width: 1
-                },
+            type: isIAS ? 'bar' : 'scatter',
+            mode: isIAS ? undefined : 'lines+markers',
+            name: `${stationName} ${variable.toUpperCase()}`,
+            marker: isIAS ? {
+                color: historicalData.map(item => item.color),
+                line: { color: '#ffffff', width: 1 },
                 opacity: 0.8
+            } : {
+                color: historicalData[0]?.color || '#4264fb',
+                size: 6,
+                line: { color: '#ffffff', width: 1 }
+            },
+            line: isIAS ? undefined : {
+                color: historicalData[0]?.color || '#4264fb',
+                width: 3
             },
             hovertemplate: `<b>${stationName}</b><br>` +
                            `<b>Time</b>: %{customdata.fullTime}<br>` +
-                           `<b>IAS</b>: %{y}<br>` +
-                           `<b>Category</b>: %{customdata.category}<br>` +
+                           `<b>${variable.toUpperCase()}</b>: %{y} ${historicalData[0]?.unit || ''}<br>` +
                            '<extra></extra>',
             customdata: historicalData.map(item => ({
-                category: item.category || 'Unknown',
                 fullTime: new Date(item.timestamp).toLocaleString('en-US', {
                     month: 'short', 
                     day: 'numeric',
@@ -777,22 +790,17 @@ window.MasterAPIPanels = (function() {
         };
         
         const layout = {
-            margin: { 
-                t: 17,       // ← REDUCIDO: Menos margen superior
-                r: 15, 
-                l: 45, 
-                b: 25        // ← REDUCIDO: Menos margen inferior
-            },
+            margin: { t: 15, r: 15, l: 45, b: 25 },
             yaxis: {
                 title: { 
-                    text: 'IAS Value', 
+                    text: `${variable.toUpperCase()} ${historicalData[0]?.unit || ''}`, 
                     font: { size: 10 }
                 },
                 zeroline: false,
                 showgrid: true,
                 gridcolor: '#E4E4E4',
                 tickfont: { size: 8 },
-                range: [0, Math.max(250, Math.max(...historicalData.map(item => item.value)) + 10)]
+                autorange: true
             },
             xaxis: {
                 showgrid: false,
@@ -800,21 +808,20 @@ window.MasterAPIPanels = (function() {
                 tickangle: 0,
                 autorange: true,
                 fixedrange: false,
-                type: 'category',
-                side: 'bottom'   // ← ASEGURAR: Eje en la parte inferior
+                type: 'category'
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
             font: { family: 'DIN Pro, Arial, sans-serif' },
             title: {
-                text: `${stationName} - 24 Hour IAS History`,
-                font: { size: 10, family: 'DIN Pro, Arial, sans-serif' }, // ← REDUCIDO: Título más pequeño
-                y: 0.97,         // ← AJUSTADO: Título más arriba
+                text: `${stationName} - 24h ${variable.toUpperCase()} History`,
+                font: { size: 10, family: 'DIN Pro, Arial, sans-serif' },
+                y: 0.97,
                 x: 0.05,
                 xanchor: 'left'
             },
             showlegend: false,
-            bargap: 0,
+            bargap: isIAS ? 0 : undefined,
             bargroupgap: 0,
             hovermode: 'closest',
             autosize: true
@@ -833,7 +840,7 @@ window.MasterAPIPanels = (function() {
         
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ 24-hour chart created with optimized spacing`);
+                console.log(`✅ ${variable} chart created successfully`);
                 setTimeout(() => {
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
@@ -841,17 +848,67 @@ window.MasterAPIPanels = (function() {
                 }, 100);
             })
             .catch(error => {
-                console.error('Error creating 24h chart:', error);
+                console.error(`Error creating ${variable} chart:`, error);
             });
     }
     
 
     /**
-     * NUEVO: Setup simplificado sin controles
+     * ACTUALIZADO: Setup con dropdown de variables
      */
     function setupChartControls() {
-        // Ya no hay controles que configurar, solo log
-        console.log('✅ Chart setup complete (24h fixed)');
+        const variableSelect = document.getElementById('masterAPIVariableSelect');
+        
+        if (variableSelect) {
+            const changeHandler = function() {
+                const variable = variableSelect.value;
+                console.log(`🔄 Variable changed to: ${variable}`);
+                
+                if (currentState === 3) {
+                    console.log('Reloading chart with new variable...');
+                    
+                    const chartDiv = document.getElementById('masterAPIInlineChart');
+                    const placeholder = document.getElementById('masterAPIChartPlaceholder');
+                    
+                    if (chartDiv && placeholder) {
+                        chartDiv.style.display = 'none';
+                        chartDiv.classList.remove('active');
+                        placeholder.style.display = 'flex';
+                        placeholder.innerHTML = `
+                            <div style="text-align: center;">
+                                <div style="font-size: 20px; margin-bottom: 8px;">🔄</div>
+                                <div>Loading ${variable} data...</div>
+                                <small style="margin-top: 4px; display: block; color: #666;">Fetching 24-hour readings</small>
+                            </div>
+                        `;
+                        
+                        if (window.Plotly) {
+                            try {
+                                Plotly.purge(chartDiv);
+                            } catch (error) {
+                                console.warn('Error purging chart:', error);
+                            }
+                        }
+                    }
+                    
+                    setTimeout(() => {
+                        loadChartData();
+                    }, 200);
+                }
+            };
+            
+            if (variableSelect._changeHandler) {
+                variableSelect.removeEventListener('change', variableSelect._changeHandler);
+            }
+            
+            variableSelect._changeHandler = changeHandler;
+            variableSelect.addEventListener('change', changeHandler);
+            variableSelect.setAttribute('data-listener-added', 'true');
+            
+            console.log('✅ Variable selector set up');
+        } else {
+            console.error('❌ Variable select not found');
+        }
     }
 
     // Event listener para resize del gráfico
