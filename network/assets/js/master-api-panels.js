@@ -111,6 +111,10 @@ window.MasterAPIPanels = (function() {
         container.innerHTML = panelHTML;
         container.style.display = 'block';
         
+        // AGREGAR AQUÍ: Actualizar colores inmediatamente después de insertar en DOM
+        const panelData = mapMasterAPIData(stationData);
+        updatePanelColors(panelData);
+        
         // Mostrar panel con animación
         setTimeout(() => {
             const panel = container.querySelector('.master-api-panel');
@@ -118,6 +122,7 @@ window.MasterAPIPanels = (function() {
                 panel.style.transform = 'translateX(0)';
                 panel.style.opacity = '1';
             }
+            
         }, 50);
         
         setState(2);
@@ -253,13 +258,15 @@ window.MasterAPIPanels = (function() {
             lastUpdate: formatLastUpdate(stationData.reading_time_UTC6)
         };
     }
-
-        /**
+    
+    /**
      * Actualizar colores dinámicos del panel según IAS - IDÉNTICO A SMABILITY
      */
     function updatePanelColors(panelData) {
         const color = panelData.color;
         const iasValue = panelData.iasValue;
+        
+        console.log('🎨 Updating panel colors with:', color, iasValue);
         
         // Convertir hex a RGB
         const colorRgb = hexToRgb(color);
@@ -267,6 +274,7 @@ window.MasterAPIPanels = (function() {
             // Actualizar variables CSS dinámicas
             const panel = document.querySelector('.master-api-panel');
             if (panel) {
+                console.log('✅ Panel found, applying colors...');
                 panel.style.setProperty('--master-api-ias-bg', `rgba(240, 240, 240, 0.65)`);
                 panel.style.setProperty('--master-api-header-bg', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.35)`);
                 panel.style.setProperty('--master-api-ias-bg-hover', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.40)`);
@@ -275,13 +283,18 @@ window.MasterAPIPanels = (function() {
                 panel.style.setProperty('--master-api-data-bg-hover', `rgba(${colorRgb.r}, ${colorRgb.g}, ${colorRgb.b}, 0.15)`);
                 panel.style.setProperty('--master-api-ias-color', color);
                 panel.style.borderColor = color;
+                
+                // Actualizar indicador circular
+                const indicator = panel.querySelector('.master-api-ias-indicator');
+                if (indicator) {
+                    indicator.style.backgroundColor = color;
+                    console.log('✅ Indicator color updated');
+                }
+            } else {
+                console.error('❌ Panel not found in DOM');
             }
-            
-            // Actualizar indicador circular
-            const indicator = panel.querySelector('.master-api-ias-indicator');
-            if (indicator) {
-                indicator.style.backgroundColor = color;
-            }
+        } else {
+            console.error('❌ Could not convert color to RGB:', color);
         }
     }
     
