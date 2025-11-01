@@ -565,13 +565,11 @@ function toggleChart() {
         }
     }
 
-
     /**
-     * NUEVO: Obtener datos históricos de Master API - BÚSQUEDA ACELERADA
+     * NUEVO: Obtener datos con secuencia horaria consecutiva correcta
      */
     async function fetchMasterAPIHistoricalData(stationName, requestedHours) {
         try {
-            // Mapear nombre a station_id
             const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
                 id => window.ALL_STATIONS_MAPPING[id] === stationName
             );
@@ -580,28 +578,41 @@ function toggleChart() {
                 throw new Error(`No station_id found for ${stationName}`);
             }
             
-            console.log(`🚀 Fast fetching last ${requestedHours} readings for station ${stationId} (${stationName})`);
+            console.log(`🚀 Fetching ${requestedHours} consecutive readings for ${stationId} (${stationName})`);
             
+            const historicalData = [];
             const now = new Date();
-            const maxLookbackHours = Math.min(48, requestedHours * 3); // Buscar máximo 48 horas o 3x el solicitado
             
-            // CREAR TODAS LAS PROMESAS EN PARALELO
-            const promises = [];
-            for (let i = 0; i < maxLookbackHours; i++) {
+            // Buscar desde la hora actual hacia atrás, una hora a la vez, CONSECUTIVAMENTE
+            for (let i = 0; i < requestedHours; i++) {
                 const date = new Date(now.getTime() - (i * 60 * 60 * 1000));
-                const dateStr = date.toISOString().split('T')[0];
+                const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
                 const hour = date.getHours();
                 
-                const promise = fetch(
-                    `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
-                )
-                .then(response => {
-                    if (!response.ok) return null;
-                    return response.json();
-                })
-                .then(data => {
-                    if (!data) return null;
+                console.log(`🔍 Fetching hour ${i + 1}/${requestedHours}: ${dateStr} ${hour}:00`);
+                
+                try {
+                    const response = await fetch(
+                        `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
+                    );
                     
+                    if (!response.ok) {
+                        console.warn(`API response not OK for ${dateStr} hour ${hour}: ${response.status}`);
+                        // Para mantener secuencia, agregar placeholder con valor nulo
+                        historicalData.push({
+                            timestamp: date,
+                            value: null,
+                            status: 'no_data',
+                            category: 'No Data',
+                            color: '#cccccc',
+                            dateStr: dateStr,
+                            hour: hour,
+                            sortKey: date.getTime()
+                        });
+                        continue;
+                    }
+                    
+                    const data = await response.json();
                     const stations = Array.isArray(data) ? data : data.stations || [];
                     const stationData = stations.find(s => s.station_id === stationId);
                     
@@ -610,7 +621,7 @@ function toggleChart() {
                         stationData.ias_numeric_value !== null &&
                         stationData.reading_status === 'current') {
                         
-                        return {
+                        historicalData.push({
                             timestamp: date,
                             value: stationData.ias_numeric_value,
                             status: stationData.reading_status,
@@ -618,47 +629,65 @@ function toggleChart() {
                             color: stationData.color_code,
                             dateStr: dateStr,
                             hour: hour,
-                            sortKey: date.getTime() // Para ordenar después
-                        };
+                            sortKey: date.getTime()
+                        });
+                        
+                        console.log(`✅ Hour ${i + 1}: ${stationData.ias_numeric_value} IAS at ${hour}:00`);
+                    } else {
+                        console.log(`❌ Hour ${i + 1}: No valid data at ${hour}:00`);
+                        // Agregar placeholder para mantener secuencia temporal
+                        historicalData.push({
+                            timestamp: date,
+                            value: null,
+                            status: 'no_data',
+                            category: 'No Data',
+                            color: '#cccccc',
+                            dateStr: dateStr,
+                            hour: hour,
+                            sortKey: date.getTime()
+                        });
                     }
-                    return null;
-                })
-                .catch(() => null); // Ignorar errores individuales
-                
-                promises.push(promise);
+                } catch (error) {
+                    console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
+                    // Agregar placeholder para mantener secuencia
+                    historicalData.push({
+                        timestamp: date,
+                        value: null,
+                        status: 'error',
+                        category: 'Error',
+                        color: '#ff0000',
+                        dateStr: dateStr,
+                        hour: hour,
+                        sortKey: date.getTime()
+                    });
+                }
             }
             
-            console.log(`⏳ Executing ${promises.length} concurrent requests...`);
+            // Ordenar cronológicamente (más antiguo primero) para mostrar correctamente en el gráfico
+            historicalData.sort((a, b) => a.sortKey - b.sortKey);
             
-            // EJECUTAR TODAS LAS PROMESAS EN PARALELO
-            const results = await Promise.all(promises);
+            // Filtrar solo los que tienen datos válidos para el gráfico
+            const validData = historicalData.filter(item => item.value !== null);
             
-            // FILTRAR Y ORDENAR RESULTADOS
-            const validData = results
-                .filter(result => result !== null)
-                .sort((a, b) => b.sortKey - a.sortKey) // Más reciente primero
-                .slice(0, requestedHours); // Tomar solo los N más recientes
-            
-            // Ordenar cronológicamente para el gráfico (más antiguo primero)
-            validData.sort((a, b) => a.sortKey - b.sortKey);
-            
-            console.log(`✅ Fast fetch completed: ${validData.length}/${requestedHours} readings found`);
+            console.log(`✅ Consecutive fetch completed: ${validData.length}/${requestedHours} valid readings`);
+            console.log('Time sequence:', validData.map(item => 
+                `${item.hour}:00 = ${item.value}`
+            ));
             
             if (validData.length === 0) {
-                throw new Error(`No valid readings found for ${stationName} in the last ${maxLookbackHours} hours`);
+                throw new Error(`No valid readings found for ${stationName} in the last ${requestedHours} hours`);
             }
             
             return validData;
             
         } catch (error) {
-            console.error('Error in fast fetch:', error);
+            console.error('Error fetching consecutive historical data:', error);
             throw error;
         }
     }
 
-
     /**
-     * NUEVO: Gráfico de barras con escalado correcto
+     * NUEVO: Gráfico de barras con horas correctas y sin espacios
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName) {
         if (!window.Plotly) {
@@ -669,9 +698,14 @@ function toggleChart() {
         console.log(`📊 Creating bar chart with ${historicalData.length} data points`);
         
         const trace = {
-            x: historicalData.map((item, index) => {
-                // Crear etiquetas simples numeradas
-                return `Reading ${index + 1}`;
+            x: historicalData.map(item => {
+                // Mostrar hora en formato 24h (HH:mm)
+                const date = new Date(item.timestamp);
+                return date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                });
             }),
             y: historicalData.map(item => item.value),
             type: 'bar',
@@ -698,6 +732,7 @@ function toggleChart() {
             customdata: historicalData.map(item => ({
                 category: item.category || 'Unknown',
                 fullTime: new Date(item.timestamp).toLocaleString('en-US', {
+                    weekday: 'short',
                     month: 'short', 
                     day: 'numeric',
                     hour: '2-digit',
@@ -712,7 +747,7 @@ function toggleChart() {
                 t: 25, 
                 r: 15, 
                 l: 45, 
-                b: 40
+                b: 50  // Más espacio para las horas
             },
             yaxis: {
                 title: { 
@@ -727,13 +762,11 @@ function toggleChart() {
             },
             xaxis: {
                 showgrid: false,
-                tickfont: { size: 8 },
-                tickangle: 0,
-                autorange: true,     // ← CLAVE: Auto ajustar rango
-                fixedrange: false,   // ← CLAVE: Permitir zoom/pan
-                type: 'category',
-                categoryorder: 'array',
-                categoryarray: historicalData.map((item, index) => `Reading ${index + 1}`)
+                tickfont: { size: 7 },
+                tickangle: -45,      // Rotar etiquetas para mejor legibilidad
+                autorange: true,
+                fixedrange: false,
+                type: 'category'
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
@@ -746,10 +779,10 @@ function toggleChart() {
                 xanchor: 'left'
             },
             showlegend: false,
-            bargap: 0.2,         // ← CLAVE: Espacio entre barras (20%)
-            bargroupgap: 0.0,
+            bargap: 0,           // ← CLAVE: Sin espacio entre barras (0%)
+            bargroupgap: 0,
             hovermode: 'closest',
-            autosize: true       // ← CLAVE: Auto ajustar al contenedor
+            autosize: true
         };
         
         const config = {
@@ -757,8 +790,8 @@ function toggleChart() {
             displayModeBar: true,
             modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
             displaylogo: false,
-            scrollZoom: false,   // ← Deshabilitar zoom con scroll
-            doubleClick: 'reset' // ← Doble click resetea vista
+            scrollZoom: false,
+            doubleClick: 'reset'
         };
         
         // Limpiar contenedor antes de crear gráfico
@@ -767,8 +800,7 @@ function toggleChart() {
         // Crear el gráfico
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ Bar chart created successfully`);
-                // Forzar resize después de crear
+                console.log(`✅ Bar chart created with hours on X-axis, no gaps`);
                 setTimeout(() => {
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
