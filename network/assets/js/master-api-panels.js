@@ -188,6 +188,7 @@ window.MasterAPIPanels = (function() {
         if (indicator) {
             indicator.style.backgroundColor = color;
         }
+        updateIASBarPosition(panelData.iasValue);
     }
 
     // Función helper para convertir hex a rgb
@@ -312,12 +313,54 @@ window.MasterAPIPanels = (function() {
         }
         setState(1);
         currentStation = null;
+    }    
+    
+    function toggleDetails() {
+        const expandedContent = document.getElementById('masterAPIExpandedContent');
+        
+        if (!expandedContent) return;
+        
+        if (expandedContent.style.display === 'none') {
+            expandedContent.style.display = 'block';
+        } else {
+            expandedContent.style.display = 'none';
+        }
     }
-
-    // API pública
+    
+    function toggleChart() {
+        console.log('Master API: Chart functionality not implemented yet');
+        // Implementar después si es necesario
+    }
+    
+    // Actualizar barra IAS
+    function updateIASBarPosition(iasValue) {
+        const iasBar = document.getElementById('masterAPIIasBar');
+        if (iasBar && iasValue !== undefined) {
+            let position = 0;
+            
+            if (iasValue <= 50) {
+                position = (iasValue / 50) * 25;
+            } else if (iasValue <= 100) {
+                position = 25 + ((iasValue - 50) / 50) * 25;
+            } else if (iasValue <= 150) {
+                position = 50 + ((iasValue - 100) / 50) * 25;
+            } else if (iasValue <= 200) {
+                position = 75 + ((iasValue - 150) / 50) * 12.5;
+            } else {
+                position = 87.5 + Math.min(((iasValue - 200) / 100) * 12.5, 12.5);
+            }
+            
+            position = Math.max(0, Math.min(100, position));
+            iasBar.style.setProperty('--ias-position', `${position}%`);
+        }
+    }
+    
+    // Actualizar el return del módulo:
     return {
         showPanel: showPanel,
         closePanel: closePanel,
+        toggleDetails: toggleDetails,    // ← AGREGAR
+        toggleChart: toggleChart,        // ← AGREGAR
         getCurrentStation: () => currentStation,
         getCurrentState: () => currentState
     };
