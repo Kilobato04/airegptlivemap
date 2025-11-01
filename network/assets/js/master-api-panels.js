@@ -466,6 +466,245 @@ window.MasterAPIPanels = (function() {
             iasBar.style.setProperty('--ias-position', `${position}%`);
         }
     }
+
+    /**
+ * NUEVO: Toggle del gráfico para Master API - Panel único expandible
+ */
+function toggleChart() {
+    if (currentState === 2) {
+        // Expandir panel principal para incluir gráfico
+        const mainPanel = document.getElementById('masterAPIMainPanel');
+        const chartContainer = document.getElementById('masterAPIInlineChartContainer');
+        
+        if (mainPanel && chartContainer) {
+            // Mostrar área de gráfico dentro del panel principal
+            chartContainer.style.display = 'block';
+            
+            // Ajustar altura del panel principal para incluir el gráfico
+            mainPanel.style.maxHeight = '80vh';
+            mainPanel.style.height = 'auto';
+            
+            // Cargar datos del gráfico
+            loadChartData();
+            
+            setState(3); // Cambiar estado pero sin panel separado
+        }
+    } else if (currentState === 3) {
+        // Contraer panel principal
+        const mainPanel = document.getElementById('masterAPIMainPanel');
+        const chartContainer = document.getElementById('masterAPIInlineChartContainer');
+        
+        if (mainPanel && chartContainer) {
+            // Ocultar área de gráfico
+            chartContainer.style.display = 'none';
+            
+            // Restaurar altura original del panel
+            mainPanel.style.maxHeight = '55vh';
+            
+            setState(2);
+        }
+    }
+}
+
+/**
+ * NUEVO: Cargar datos de Master API para gráfico
+ */
+async function loadChartData() {
+    const chartDiv = document.getElementById('masterAPIInlineChart');
+    const placeholder = document.getElementById('masterAPIChartPlaceholder');
+    
+    if (!chartDiv || !currentStation) return;
+    
+    // Obtener período seleccionado
+    const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
+    const hours = timeframeSelect ? parseInt(timeframeSelect.value) : 12;
+    
+    // Mostrar loading
+    placeholder.style.display = 'flex';
+    placeholder.innerHTML = 'Loading IAS historical data...';
+    chartDiv.style.display = 'none';
+    
+    try {
+        // Obtener datos históricos de Master API
+        const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours);
+        
+        if (historicalData && historicalData.length > 0) {
+            createMasterAPIChart(chartDiv, historicalData, hours, currentStation);
+            
+            // Ocultar placeholder y mostrar gráfico
+            placeholder.style.display = 'none';
+            chartDiv.style.display = 'block';
+            chartDiv.classList.add('active');
+        } else {
+            throw new Error('No historical data available');
+        }
+    } catch (error) {
+        console.error('MasterAPIPanels: Error loading chart data:', error);
+        placeholder.innerHTML = `
+            Error loading historical data<br>
+            <small style="margin-top: 8px; display: block;">Please try again later</small>
+        `;
+    }
+}
+
+/**
+ * NUEVO: Obtener datos históricos de Master API
+ */
+async function fetchMasterAPIHistoricalData(stationName, hours) {
+    try {
+        // Mapear nombre a station_id
+        const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
+            id => window.ALL_STATIONS_MAPPING[id] === stationName
+        );
+        
+        if (!stationId) {
+            throw new Error(`No station_id found for ${stationName}`);
+        }
+        
+        const historicalData = [];
+        const now = new Date();
+        
+        // Obtener datos para cada hora en el rango solicitado
+        for (let i = 0; i < hours; i++) {
+            const date = new Date(now.getTime() - (i * 60 * 60 * 1000));
+            const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+            const hour = date.getHours();
+            
+            try {
+                const response = await fetch(
+                    `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
+                );
+                const data = await response.json();
+                
+                // Buscar la estación específica en la respuesta
+                const stations = Array.isArray(data) ? data : data.stations || [];
+                const stationData = stations.find(s => s.station_id === stationId);
+                
+                if (stationData && stationData.ias_numeric_value !== undefined) {
+                    historicalData.push({
+                        timestamp: date,
+                        value: stationData.ias_numeric_value,
+                        status: stationData.reading_status,
+                        category: stationData.category
+                    });
+                }
+            } catch (error) {
+                console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
+                // Continuar con la siguiente hora en caso de error
+            }
+        }
+        
+        // Ordenar por timestamp (más antiguo primero)
+        historicalData.sort((a, b) => a.timestamp - b.timestamp);
+        
+        console.log(`Fetched ${historicalData.length} data points for ${stationName}:`, historicalData);
+        return historicalData;
+        
+    } catch (error) {
+        console.error('Error fetching Master API historical data:', error);
+        return [];
+    }
+}
+
+    /**
+     * NUEVO: Crear gráfico con datos de Master API
+     */
+    function createMasterAPIChart(container, historicalData, hours, stationName) {
+        if (!window.Plotly) {
+            console.error('MasterAPIPanels: Plotly.js not available');
+            return;
+        }
+        
+        const trace = {
+            x: historicalData.map(item => item.timestamp),
+            y: historicalData.map(item => item.value),
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: `${stationName} IAS`,
+            line: {
+                color: '#4264fb',
+                width: 3
+            },
+            marker: {
+                color: historicalData.map(item => {
+                    // Colorear puntos según el valor IAS
+                    if (item.value <= 50) return '#00ff00';
+                    if (item.value <= 100) return '#ffff00';
+                    if (item.value <= 150) return '#ff8000';
+                    if (item.value <= 200) return '#ff0000';
+                    return '#800080';
+                }),
+                size: 8,
+                line: {
+                    color: '#ffffff',
+                    width: 1
+                }
+            },
+            hovertemplate: `<b>${stationName}</b><br>` +
+                           `<b>Time</b>: %{x|%H:%M - %b %d}<br>` +
+                           `<b>IAS</b>: %{y}<br>` +
+                           `<b>Status</b>: %{customdata}<br>` +
+                           '<extra></extra>',
+            customdata: historicalData.map(item => item.category || 'Unknown')
+        };
+        
+        const layout = {
+            margin: { t: 20, r: 20, l: 50, b: 60 },
+            yaxis: {
+                title: { text: 'IAS Value', font: { size: 10 } },
+                zeroline: false,
+                showgrid: true,
+                gridcolor: '#E4E4E4',
+                tickfont: { size: 8 },
+                range: [0, Math.max(250, Math.max(...historicalData.map(item => item.value)) + 20)]
+            },
+            xaxis: {
+                type: 'date',
+                tickformat: '%H:%M\n%b %d',
+                tickangle: -45,
+                showgrid: true,
+                gridcolor: '#E4E4E4',
+                tickfont: { size: 8 },
+                autorange: true,
+                fixedrange: false
+            },
+            plot_bgcolor: '#FFFFFF',
+            paper_bgcolor: '#FFFFFF',
+            font: { family: 'DIN Pro, Arial, sans-serif' },
+            title: {
+                text: `${stationName} - IAS Historical Data (${hours}h)`,
+                font: { size: 12, family: 'DIN Pro, Arial, sans-serif' },
+                y: 0.95
+            },
+            showlegend: false
+        };
+        
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
+            displaylogo: false
+        };
+        
+        // Crear el gráfico
+        window.Plotly.newPlot(container, [trace], layout, config);
+    }
+    
+    /**
+     * NUEVO: Setup de event listeners para controles del gráfico
+     */
+    function setupChartControls() {
+        const timeframeSelect = document.getElementById('masterAPITimeframeSelect');
+        
+        if (timeframeSelect && !timeframeSelect.hasAttribute('data-listener-added')) {
+            timeframeSelect.addEventListener('change', () => {
+                if (currentState === 3) {
+                    loadChartData();
+                }
+            });
+            timeframeSelect.setAttribute('data-listener-added', 'true');
+        }
+    }
     
     // Actualizar el return del módulo:
     return {
