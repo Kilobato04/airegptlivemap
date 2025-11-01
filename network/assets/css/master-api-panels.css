@@ -341,6 +341,12 @@
     transform: scale(1.05);
 }
 
+.master-api-whatsapp-popup svg {
+    width: 16px;
+    height: 16px;
+    fill: white;
+}
+
 /* Barra IAS */
 .master-api-ias-bar-container {
     margin: 12px 16px;
