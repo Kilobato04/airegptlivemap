@@ -196,31 +196,30 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * CORREGIDO: Función con parámetros correctos
+     * CORREGIDO: Con subtítulo dinámico tipo + ubicación
      */
     function updatePanelWithAPIData(stationData) {
         const panelData = mapMasterAPIData(stationData);
         
-        // CORREGIR: Usar nombres correctos de propiedades
+        // NUEVO: Crear subtítulo dinámico
+        const deviceType = getDeviceTypeLabel(stationData.device_type);
+        const location = stationData.city || 'Mexico City';
+        const subtitle = `${deviceType} - ${location}`;
+        
         updatePanelContent(currentStation, {
-            subtitle: 'Air Quality Monitor',           // ← AGREGAR: subtítulo faltante
+            subtitle: subtitle,                        // ← DINÁMICO: "Reference - Mexico City"
             emoji: panelData.emoji,
-            ias: panelData.iasValue,                   // ← CORREGIR: de 'iasValue' a 'ias'  
+            ias: panelData.iasValue,                   
             color: panelData.color,
             colorName: panelData.colorName,
             category: panelData.category,
-            risk: panelData.risk,                      // ← CORREGIR: de 'riskLevel' a 'risk'
+            risk: panelData.risk,                      
             dominantPollutant: panelData.dominantPollutant,
             lastUpdate: panelData.lastUpdate
         });
         
-        // Actualizar colores del panel
         updatePanelColors(panelData.color, panelData.iasValue);
-        
-        // Actualizar datos detallados
         updateDetailedData(panelData, stationData);
-        
-        // Actualizar footer con información de tiempo
         updatePanelFooter(stationData);
     }
 
@@ -402,14 +401,20 @@ window.MasterAPIPanels = (function() {
         return '☠️';
     }
 
+    /**
+     * MEJORADO: Etiquetas más claras para tipos de dispositivo
+     */
     function getDeviceTypeLabel(deviceType) {
         const typeMap = {
-            'smability-SMAA': 'Smability SMAA',
+            'smability-SMAA': 'Smability',
             'smability-SMAAso2': 'Smability SO2',
             'smability-SMAAmicro': 'Smability Micro',
-            'reference': 'Reference Station'
+            'reference': 'Reference',           // ← Simple y claro
+            'smaa': 'Smability',               // ← Por si acaso
+            'smaamicro': 'Smability Micro',
+            'smaaso2': 'Smability SO2'
         };
-        return typeMap[deviceType] || deviceType;
+        return typeMap[deviceType] || 'Monitor';
     }
 
     function getStatusLabel(status) {
