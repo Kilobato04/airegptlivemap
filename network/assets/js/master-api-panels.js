@@ -152,25 +152,25 @@ window.MasterAPIPanels = (function() {
         }
 
     /**
-     * Actualizar contenido del panel - IDÉNTICO A SMABILITY
+     * VERIFICAR: Que esta función maneje todos los campos
      */
     function updatePanelContent(stationName, data) {
         const title = document.getElementById('masterAPIPanelTitle');
         const subtitle = document.getElementById('masterAPIPanelSubtitle');
         
         if (title) title.textContent = stationName;
-        if (subtitle) subtitle.textContent = data.subtitle || '';
-
+        if (subtitle) subtitle.textContent = data.subtitle || 'Air Quality Monitor'; // ← ASEGURAR subtítulo
+    
         const emoji = document.getElementById('masterAPIIasEmoji');
         const value = document.getElementById('masterAPIIasValue');
         const status1 = document.getElementById('masterAPIStatusText1');
         const status2 = document.getElementById('masterAPIStatusText2');
         
         if (emoji) emoji.textContent = data.emoji;
-        if (value) value.textContent = data.ias;
+        if (value) value.textContent = data.ias;        // ← DEBE recibir 'ias'
         if (status1) status1.textContent = data.category;
-        if (status2) status2.textContent = data.risk;
-
+        if (status2) status2.textContent = data.risk;   // ← DEBE recibir 'risk'
+    
         const pollutant = document.getElementById('masterAPIDominantPollutant');
         if (pollutant) pollutant.textContent = data.dominantPollutant;
     }
@@ -196,19 +196,21 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * REVERTIDO: Función original sin lógica de "No data"
+     * CORREGIDO: Función con parámetros correctos
      */
     function updatePanelWithAPIData(stationData) {
         const panelData = mapMasterAPIData(stationData);
         
-        // Actualizar contenido básico del panel
+        // CORREGIR: Usar nombres correctos de propiedades
         updatePanelContent(currentStation, {
+            subtitle: 'Air Quality Monitor',           // ← AGREGAR: subtítulo faltante
             emoji: panelData.emoji,
-            iasValue: panelData.iasValue,
+            ias: panelData.iasValue,                   // ← CORREGIR: de 'iasValue' a 'ias'  
             color: panelData.color,
             colorName: panelData.colorName,
             category: panelData.category,
-            riskLevel: panelData.riskLevel,
+            risk: panelData.risk,                      // ← CORREGIR: de 'riskLevel' a 'risk'
+            dominantPollutant: panelData.dominantPollutant,
             lastUpdate: panelData.lastUpdate
         });
         
