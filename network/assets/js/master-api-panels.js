@@ -196,41 +196,12 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * ACTUALIZADO: Manejo de "No data" con estado offline
+     * REVERTIDO: Función original sin lógica de "No data"
      */
     function updatePanelWithAPIData(stationData) {
-        if (!stationData || stationData.reading_status !== 'current') {
-            console.log('❌ No current data - setting offline state');
-            
-            // Estado offline con color gris
-            const panelData = {
-                emoji: '😴',
-                iasValue: 'N/A',
-                color: '#cccccc', // Gris claro
-                colorName: 'Gris',
-                category: 'No Data',
-                riskLevel: 'Unknown',
-                lastUpdate: 'Offline'
-            };
-            
-            // Actualizar contenido con estado offline
-            updatePanelContent(currentStation, panelData);
-            updatePanelColors('#cccccc', null);
-            
-            // Calcular tiempo desde última actividad
-            if (stationData && stationData.last_reading_time_UTC6) {
-                updateOfflineFooter(stationData.last_reading_time_UTC6);
-            } else {
-                updateOfflineFooter(null);
-            }
-            
-            console.log('⚪ Panel set to offline state');
-            return;
-        }
-        
-        // Datos normales (código existente)
         const panelData = mapMasterAPIData(stationData);
         
+        // Actualizar contenido básico del panel
         updatePanelContent(currentStation, {
             emoji: panelData.emoji,
             iasValue: panelData.iasValue,
@@ -241,52 +212,14 @@ window.MasterAPIPanels = (function() {
             lastUpdate: panelData.lastUpdate
         });
         
+        // Actualizar colores del panel
         updatePanelColors(panelData.color, panelData.iasValue);
+        
+        // Actualizar datos detallados
         updateDetailedData(panelData, stationData);
+        
+        // Actualizar footer con información de tiempo
         updatePanelFooter(stationData);
-    }
-    
-    /**
-     * NUEVA: Actualizar footer para estado offline
-     */
-    function updateOfflineFooter(lastReadingTime) {
-        const lastUpdateElement = document.getElementById('masterAPILastUpdate');
-        
-        if (!lastUpdateElement) return;
-        
-        if (!lastReadingTime) {
-            lastUpdateElement.innerHTML = 'Status: Offline';
-            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
-            return;
-        }
-        
-        try {
-            const lastDate = new Date(lastReadingTime + ' UTC-6');
-            const now = new Date();
-            const diffMs = now - lastDate;
-            const diffMinutes = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMinutes / 60);
-            const diffDays = Math.floor(diffHours / 24);
-            
-            let offlineText = '';
-            
-            if (diffDays > 0) {
-                offlineText = `Last active ${diffDays}d ago • Offline`;
-            } else if (diffHours > 0) {
-                offlineText = `Last active ${diffHours}h ago • Offline`;
-            } else {
-                offlineText = `Last active ${diffMinutes}m ago • Offline`;
-            }
-            
-            lastUpdateElement.innerHTML = offlineText;
-            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
-            
-            console.log(`📅 Offline footer: ${offlineText}`);
-        } catch (error) {
-            console.error('Error calculating offline time:', error);
-            lastUpdateElement.innerHTML = 'Status: Offline';
-            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
-        }
     }
 
     /**
