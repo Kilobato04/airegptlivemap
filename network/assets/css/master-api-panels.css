@@ -399,15 +399,18 @@
     padding: 0 2px;
 }
 
-/* Botones de acción */
+/* === BOTÓN DE ACCIÓN CON ANCHO COMPLETO === */
 .master-api-action-buttons {
     display: flex;
     justify-content: center;
     margin-top: 16px;
     margin-bottom: 16px;
+    padding: 0 16px; /* Padding igual al del header */
 }
 
 .master-api-btn {
+    width: 100%; /* ← CLAVE: Ancho completo */
+    max-width: none; /* Remover límite de ancho */
     padding: 12px 24px;
     border: 2px solid #4264fb;
     border-radius: 8px;
@@ -421,6 +424,7 @@
     font-weight: bold;
     font-family: 'DIN Pro', Arial, sans-serif;
     box-shadow: 0 2px 8px rgba(66, 100, 251, 0.1);
+    display: block; /* Asegurar que tome todo el ancho */
 }
 
 .master-api-btn:hover {
@@ -429,6 +433,11 @@
     color: #3251d8;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(66, 100, 251, 0.2);
+}
+
+/* Asegurar que el header del gráfico tenga el mismo padding */
+.master-api-inline-chart-header > div {
+    margin: 0 16px; /* Mismo margen que el botón */
 }
 
 /* Contenido expandido */
