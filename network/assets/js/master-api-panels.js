@@ -57,15 +57,15 @@ window.MasterAPIPanels = (function() {
     }
     
     /**
-     * NUEVA: Función para resetear completamente el área de gráfica
+     * ACTUALIZADO: Reset con panel compacto por defecto
      */
     function resetChartArea() {
-        console.log('🔄 Resetting chart area for new station');
+        console.log('🔄 Resetting chart area for new station - compact mode');
         
-        // 1. Contraer panel principal si está expandido
+        // 1. Contraer panel principal a versión compacta
         const mainPanel = document.getElementById('masterAPIMainPanel');
         if (mainPanel) {
-            mainPanel.style.maxHeight = '55vh'; // Altura original
+            mainPanel.style.maxHeight = '55vh'; // Altura compacta
         }
         
         // 2. Ocultar contenedor de gráfica
@@ -74,33 +74,38 @@ window.MasterAPIPanels = (function() {
             chartContainer.style.display = 'none';
         }
         
-        // 3. Limpiar gráfico Plotly completamente
+        // 3. Ocultar datos expandidos (versión compacta)
+        const expandedContent = document.getElementById('masterAPIExpandedContent');
+        if (expandedContent) {
+            expandedContent.style.display = 'none';
+        }
+        
+        // 4. Limpiar gráfico Plotly
         const chartDiv = document.getElementById('masterAPIInlineChart');
         if (chartDiv && window.Plotly) {
             try {
                 Plotly.purge(chartDiv);
                 chartDiv.style.display = 'none';
                 chartDiv.classList.remove('active');
-                console.log('✅ Plotly chart purged');
             } catch (error) {
                 console.warn('Warning purging chart:', error);
             }
         }
         
-        // 4. Resetear placeholder a estado original
+        // 5. Resetear placeholder
         const placeholder = document.getElementById('masterAPIChartPlaceholder');
         if (placeholder) {
             placeholder.style.display = 'flex';
             placeholder.innerHTML = `
-                📊 Master API Historical IAS Data<br>
-                <small style="margin-top: 8px; display: block;">24-hour air quality index visualization</small>
+                📊 Master API Historical Data<br>
+                <small style="margin-top: 8px; display: block;">24-hour readings visualization</small>
             `;
         }
         
-        // 5. Resetear estado interno
-        currentState = 2; // Volver a estado panel visible sin gráfica
+        // 6. Resetear estado a compacto
+        currentState = 2; // Panel visible, versión compacta
         
-        console.log('✅ Chart area reset complete');
+        console.log('✅ Chart area reset - compact mode ready');
     }
 
         /**
@@ -191,27 +196,97 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * Actualizar panel con datos de Master API
+     * ACTUALIZADO: Manejo de "No data" con estado offline
      */
     function updatePanelWithAPIData(stationData) {
+        if (!stationData || stationData.reading_status !== 'current') {
+            console.log('❌ No current data - setting offline state');
+            
+            // Estado offline con color gris
+            const panelData = {
+                emoji: '😴',
+                iasValue: 'N/A',
+                color: '#cccccc', // Gris claro
+                colorName: 'Gris',
+                category: 'No Data',
+                riskLevel: 'Unknown',
+                lastUpdate: 'Offline'
+            };
+            
+            // Actualizar contenido con estado offline
+            updatePanelContent(currentStation, panelData);
+            updatePanelColors('#cccccc', null);
+            
+            // Calcular tiempo desde última actividad
+            if (stationData && stationData.last_reading_time_UTC6) {
+                updateOfflineFooter(stationData.last_reading_time_UTC6);
+            } else {
+                updateOfflineFooter(null);
+            }
+            
+            console.log('⚪ Panel set to offline state');
+            return;
+        }
+        
+        // Datos normales (código existente)
         const panelData = mapMasterAPIData(stationData);
         
-        // Actualizar contenido
         updatePanelContent(currentStation, {
-            ias: panelData.iasValue,
             emoji: panelData.emoji,
+            iasValue: panelData.iasValue,
+            color: panelData.color,
+            colorName: panelData.colorName,
             category: panelData.category,
-            risk: panelData.risk,
-            dominantPollutant: panelData.dominantPollutant,
-            subtitle: `${getDeviceTypeLabel(stationData.device_type)} • ${stationData.city}`
+            riskLevel: panelData.riskLevel,
+            lastUpdate: panelData.lastUpdate
         });
         
-        // Actualizar colores
         updatePanelColors(panelData.color, panelData.iasValue);
-        
-        // Actualizar datos detallados
         updateDetailedData(panelData, stationData);
         updatePanelFooter(stationData);
+    }
+    
+    /**
+     * NUEVA: Actualizar footer para estado offline
+     */
+    function updateOfflineFooter(lastReadingTime) {
+        const lastUpdateElement = document.getElementById('masterAPILastUpdate');
+        
+        if (!lastUpdateElement) return;
+        
+        if (!lastReadingTime) {
+            lastUpdateElement.innerHTML = 'Status: Offline';
+            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+            return;
+        }
+        
+        try {
+            const lastDate = new Date(lastReadingTime + ' UTC-6');
+            const now = new Date();
+            const diffMs = now - lastDate;
+            const diffMinutes = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            let offlineText = '';
+            
+            if (diffDays > 0) {
+                offlineText = `Last active ${diffDays}d ago • Offline`;
+            } else if (diffHours > 0) {
+                offlineText = `Last active ${diffHours}h ago • Offline`;
+            } else {
+                offlineText = `Last active ${diffMinutes}m ago • Offline`;
+            }
+            
+            lastUpdateElement.innerHTML = offlineText;
+            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+            
+            console.log(`📅 Offline footer: ${offlineText}`);
+        } catch (error) {
+            console.error('Error calculating offline time:', error);
+            lastUpdateElement.innerHTML = 'Status: Offline';
+            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+        }
     }
 
     /**
