@@ -502,8 +502,9 @@
     font-family: 'DIN Pro', Arial, sans-serif;
 }
 
+/* CORREGIDO: Sin fondo blanco en el área del gráfico */
 .master-api-inline-chart-area {
-    background: rgba(255, 255, 255, 0.9);
+    background: transparent; /* ← CAMBIO: De blanco a transparente */
     border-radius: 8px;
     padding: 12px;
     min-height: 250px;
@@ -512,8 +513,7 @@
     justify-content: center;
     border: 1px solid rgba(0,0,0,0.06);
     position: relative;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    /* Removido backdrop-filter que podría causar efectos visuales */
 }
 
 .master-api-chart-placeholder {
@@ -539,18 +539,20 @@
     right: 0;
     bottom: 0;
     display: none;
+    background: transparent !important; /* ← AGREGAR: Forzar transparente */
 }
 
 #masterAPIInlineChart.active {
     display: block;
 }
 
-/* TEST: Forzar fondo rojo en gráficos Plotly */
+/* CORREGIDO: Cambiar a transparente para test final */
 #masterAPIInlineChart,
 #masterAPIInlineChart .plotly-graph-div,
-#masterAPIInlineChart svg {
-    background-color: #ff0000 !important;
-    background: #ff0000 !important;
+#masterAPIInlineChart svg,
+#masterAPIInlineChart .plot-container {
+    background-color: transparent !important;
+    background: transparent !important;
 }
 
 /* Asegurar que no aparezcan controles residuales */
