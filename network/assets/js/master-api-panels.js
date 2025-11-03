@@ -758,7 +758,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * OPTIMIZADO: Sin fondo blanco y sin controles de Plotly
+     * TEST: Fondo rojo para verificar que se aplique + arreglo IAS duplicado
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName, variable = 'ias') {
         if (!window.Plotly) {
@@ -824,7 +824,8 @@ window.MasterAPIPanels = (function() {
             margin: { t: 45, r: 15, l: 45, b: 35 },
             yaxis: {
                 title: { 
-                    text: `${variable.toUpperCase()} ${historicalData[0]?.unit || ''}`, 
+                    // ← ARREGLADO: Solo mostrar unidad, no variable + unidad
+                    text: historicalData[0]?.unit || '',
                     font: { size: 10, color: '#333333' }
                 },
                 zeroline: false,
@@ -843,9 +844,9 @@ window.MasterAPIPanels = (function() {
                 nticks: Math.min(12, Math.ceil(historicalData.length / 3)),
                 tickmode: 'auto'
             },
-            // ← CORREGIDO: Fondo completamente transparente
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            paper_bgcolor: 'rgba(0,0,0,0)',
+            // ← TEST: Fondo rojo para verificar que se aplique
+            plot_bgcolor: '#ff0000',
+            paper_bgcolor: '#ff0000',
             font: { 
                 family: 'DIN Pro, Arial, sans-serif',
                 color: '#333333'
@@ -873,30 +874,28 @@ window.MasterAPIPanels = (function() {
         
         const config = {
             responsive: true,
-            displayModeBar: false,  // ← CLAVE: Ocultar completamente los controles
+            displayModeBar: false,
             displaylogo: false,
-            scrollZoom: false,      // ← DESHABILITADO: Sin zoom para evitar controles
-            doubleClick: false      // ← DESHABILITADO: Sin double click
+            scrollZoom: false,
+            doubleClick: false
         };
         
         Plotly.purge(container);
         
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                // ← NUEVO: Forzar eliminación de cualquier elemento de fondo residual
                 setTimeout(() => {
                     const plotlyDiv = container.querySelector('.plotly-graph-div');
                     if (plotlyDiv) {
-                        plotlyDiv.style.backgroundColor = 'transparent';
+                        plotlyDiv.style.backgroundColor = '#ff0000'; // ← TEST: Fondo rojo
                     }
                     
-                    // Eliminar cualquier SVG con fondo
                     const svgs = container.querySelectorAll('svg');
                     svgs.forEach(svg => {
-                        svg.style.backgroundColor = 'transparent';
+                        svg.style.backgroundColor = '#ff0000'; // ← TEST: Fondo rojo
                     });
                     
-                    console.log(`✅ ${variable} chart created - no background, no controls`);
+                    console.log(`✅ ${variable} chart created - RED TEST BACKGROUND`);
                     
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
