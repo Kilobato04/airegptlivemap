@@ -545,12 +545,12 @@
     display: block;
 }
 
-/* Forzar fondo transparente en gráficos Plotly */
+/* TEST: Forzar fondo rojo en gráficos Plotly */
 #masterAPIInlineChart,
 #masterAPIInlineChart .plotly-graph-div,
 #masterAPIInlineChart svg {
-    background-color: transparent !important;
-    background: transparent !important;
+    background-color: #ff0000 !important;
+    background: #ff0000 !important;
 }
 
 /* Asegurar que no aparezcan controles residuales */
