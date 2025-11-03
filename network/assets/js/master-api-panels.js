@@ -758,7 +758,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * OPTIMIZADO: Gráfico con eje X mejorado para 36 horas
+     * OPTIMIZADO: Gráfico con estilos mejorados y sin fondo blanco
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName, variable = 'ias') {
         if (!window.Plotly) {
@@ -770,13 +770,21 @@ window.MasterAPIPanels = (function() {
         
         const isIAS = variable === 'ias';
         
+        // NUEVO: Mapear nombres de variables para título
+        const variableNames = {
+            'ias': 'IAS',
+            'ozone': 'Ozone',
+            'pm25': 'PM2.5',
+            'temperature': 'Temperature',
+            'humidity': 'Humidity'
+        };
+        
         const trace = {
             x: historicalData.map(item => {
                 const date = new Date(item.timestamp);
-                // MEJORADO: Formato más legible para 36 horas
                 const day = String(date.getDate()).padStart(2, '0');
                 const hour = String(date.getHours()).padStart(2, '0');
-                return `${day}/${hour}:00`; // Formato: "02/14:00"
+                return `${day}/${hour}:00`;
             }),
             y: historicalData.map(item => item.value),
             type: isIAS ? 'bar' : 'scatter',
@@ -784,16 +792,19 @@ window.MasterAPIPanels = (function() {
             name: `${stationName} ${variable.toUpperCase()}`,
             marker: isIAS ? {
                 color: historicalData.map(item => item.color),
-                line: { color: '#ffffff', width: 1 },
-                opacity: 0.8
+                line: { 
+                    color: '#999999',  // ← NUEVO: Borde gris para barras IAS
+                    width: 1.5        // ← Borde más visible
+                },
+                opacity: 0.9
             } : {
                 color: historicalData[0]?.color || '#4264fb',
-                size: 4, // ← REDUCIDO: Puntos más pequeños para 36 horas
+                size: 4,
                 line: { color: '#ffffff', width: 1 }
             },
             line: isIAS ? undefined : {
                 color: historicalData[0]?.color || '#4264fb',
-                width: 2 // ← REDUCIDO: Línea más delgada
+                width: 2
             },
             hovertemplate: `<b>${stationName}</b><br>` +
                            `<b>Time</b>: %{customdata.fullTime}<br>` +
@@ -811,41 +822,57 @@ window.MasterAPIPanels = (function() {
         };
         
         const layout = {
-            margin: { t: 15, r: 15, l: 45, b: 35 }, // ← AUMENTADO: Más espacio abajo para etiquetas
+            margin: { 
+                t: 45,  // ← AUMENTADO: Más espacio arriba para título + buffer
+                r: 15, 
+                l: 45, 
+                b: 35 
+            },
             yaxis: {
                 title: { 
                     text: `${variable.toUpperCase()} ${historicalData[0]?.unit || ''}`, 
-                    font: { size: 10 }
+                    font: { size: 10, color: '#333333' }
                 },
                 zeroline: false,
                 showgrid: true,
-                gridcolor: '#E4E4E4',
-                tickfont: { size: 8 },
+                gridcolor: 'rgba(200, 200, 200, 0.3)', // ← SUTIL: Grid más suave
+                tickfont: { size: 8, color: '#666666' },
                 autorange: true
             },
             xaxis: {
                 showgrid: false,
-                tickfont: { size: 6 }, // ← REDUCIDO: Texto más pequeño
-                tickangle: -45,        // ← ROTADO: Etiquetas inclinadas para mejor legibilidad
+                tickfont: { size: 6, color: '#666666' },
+                tickangle: -45,
                 autorange: true,
                 fixedrange: false,
                 type: 'category',
-                // NUEVO: Controlar cuántas etiquetas mostrar
-                nticks: Math.min(12, Math.ceil(historicalData.length / 3)), // Máximo 12 etiquetas
+                nticks: Math.min(12, Math.ceil(historicalData.length / 3)),
                 tickmode: 'auto'
             },
-            plot_bgcolor: '#FFFFFF',
-            paper_bgcolor: '#FFFFFF',
-            font: { family: 'DIN Pro, Arial, sans-serif' },
+            // ← REMOVIDO: Sin fondo blanco, usar fondo del panel
+            plot_bgcolor: 'transparent',
+            paper_bgcolor: 'transparent',
+            font: { 
+                family: 'DIN Pro, Arial, sans-serif',
+                color: '#333333'
+            },
             title: {
-                text: `${stationName} - 36h ${variable.toUpperCase()} History`,
-                font: { size: 10, family: 'DIN Pro, Arial, sans-serif' },
-                y: 0.97,
-                x: 0.05,
-                xanchor: 'left'
+                // NUEVO: Título simplificado "Estación - Variable"
+                text: `${stationName} - ${variableNames[variable] || variable.toUpperCase()}`,
+                font: { 
+                    size: 12,  // ← AUMENTADO: Título más grande
+                    family: 'DIN Pro, Arial, sans-serif',
+                    color: '#333333',
+                    weight: 'bold'
+                },
+                y: 0.95,  // ← AJUSTADO: Posición del título
+                x: 0.5,   // ← CENTRADO: Título en el centro
+                xanchor: 'center',
+                yanchor: 'top',
+                pad: { b: 20 }  // ← NUEVO: Buffer debajo del título
             },
             showlegend: false,
-            bargap: isIAS ? 0.1 : undefined, // ← PEQUEÑO GAP: Para barras IAS con 36 horas
+            bargap: isIAS ? 0.15 : undefined,  // ← AJUSTADO: Más espacio entre barras para ver bordes
             bargroupgap: 0,
             hovermode: 'closest',
             autosize: true
@@ -856,7 +883,7 @@ window.MasterAPIPanels = (function() {
             displayModeBar: true,
             modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
             displaylogo: false,
-            scrollZoom: true,  // ← HABILITADO: Permitir zoom para 36 horas
+            scrollZoom: true,
             doubleClick: 'reset'
         };
         
@@ -864,7 +891,7 @@ window.MasterAPIPanels = (function() {
         
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ ${variable} chart created with optimized 36h layout`);
+                console.log(`✅ ${variable} chart created with improved styling`);
                 setTimeout(() => {
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
