@@ -571,7 +571,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * ACTUALIZADO: Cargar datos con variable seleccionada
+     * ACTUALIZADO: Cargar 36 horas con endpoint optimizado
      */
     async function loadChartData() {
         const chartDiv = document.getElementById('masterAPIInlineChart');
@@ -580,27 +580,29 @@ window.MasterAPIPanels = (function() {
         
         if (!chartDiv || !currentStation) return;
         
-        const hours = 24;
+        const hours = 36; // ← CAMBIO: De 24 a 36 horas
         const variable = variableSelect ? variableSelect.value : 'ias';
         
-        console.log(`📊 Loading ${variable} data for ${currentStation}`);
+        console.log(`📊 Loading ${hours}h ${variable} data for ${currentStation}`);
         
         placeholder.style.display = 'flex';
         placeholder.innerHTML = `
             <div style="text-align: center;">
                 <div style="font-size: 20px; margin-bottom: 8px;">⏳</div>
-                <div>Loading 24h ${variable} readings...</div>
-                <small style="margin-top: 4px; display: block; color: #666;">Fetching hourly data</small>
+                <div>Loading ${hours}h ${variable} readings...</div>
+                <small style="margin-top: 4px; display: block; color: #666;">Optimized endpoint</small>
             </div>
         `;
         chartDiv.style.display = 'none';
         
         try {
             const startTime = performance.now();
-            const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours, variable);
-            const endTime = performance.now();
             
-            console.log(`⚡ ${variable} data fetched in ${Math.round(endTime - startTime)}ms`);
+            // ¡USAR ENDPOINT OPTIMIZADO!
+            const historicalData = await fetchMasterAPIHistoricalDataOptimized(currentStation, hours, variable);
+            
+            const endTime = performance.now();
+            console.log(`⚡ ${variable} data loaded in ${Math.round(endTime - startTime)}ms`);
             
             if (historicalData && historicalData.length > 0) {
                 createMasterAPIChart(chartDiv, historicalData, hours, currentStation, variable);
@@ -619,7 +621,7 @@ window.MasterAPIPanels = (function() {
                 <div style="text-align: center; color: #666;">
                     <div style="font-size: 20px; margin-bottom: 8px;">❌</div>
                     <div>No ${variable} data available</div>
-                    <small style="margin-top: 4px; display: block;">24-hour readings not found</small>
+                    <small style="margin-top: 4px; display: block;">36-hour readings not found</small>
                 </div>
             `;
             placeholder.style.display = 'flex';
@@ -627,11 +629,10 @@ window.MasterAPIPanels = (function() {
         }
     }
 
-
     /**
-     * NUEVO: Obtener datos históricos con variable seleccionada
+     * NUEVO: Fetch optimizado con endpoint dedicado (súper rápido)
      */
-    async function fetchMasterAPIHistoricalData(stationName, requestedHours, variable = 'ias') {
+    async function fetchMasterAPIHistoricalDataOptimized(stationName, requestedHours = 36, variable = 'ias') {
         try {
             const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
                 id => window.ALL_STATIONS_MAPPING[id] === stationName
@@ -641,116 +642,108 @@ window.MasterAPIPanels = (function() {
                 throw new Error(`No station_id found for ${stationName}`);
             }
             
-            console.log(`🚀 Fetching ${requestedHours} ${variable} readings for ${stationId} (${stationName})`);
+            // Mapear variables al formato API
+            const apiVariable = mapVariableToAPI(variable);
             
-            // Obtener la última lectura para determinar la hora de referencia
-            const currentResponse = await fetch("https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/current");
-            const currentData = await currentResponse.json();
-            const stations = Array.isArray(currentData) ? currentData : currentData.stations || [];
-            const currentStationData = stations.find(s => s.station_id === stationId);
+            console.log(`🚀 OPTIMIZED fetch: ${requestedHours}h ${apiVariable} data for ${stationId} (${stationName})`);
             
-            if (!currentStationData || !currentStationData.last_reading_time_UTC6) {
-                throw new Error(`No current data found for station ${stationId}`);
+            const startTime = performance.now();
+            
+            // ¡UNA SOLA REQUEST!
+            const response = await fetch(
+                `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/satation/${stationId}/historical/${requestedHours}h?variable=${apiVariable}`
+            );
+            
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
             }
             
-            const lastReadingTime = new Date(currentStationData.last_reading_time_UTC6 + ' UTC-6');
-            const referenceDate = new Date(lastReadingTime);
-            referenceDate.setMinutes(0, 0, 0);
+            const data = await response.json();
+            const endTime = performance.now();
             
-            console.log(`📅 Reference time for ${variable}: ${currentStationData.last_reading_time_UTC6}`);
+            console.log(`⚡ SUPER FAST fetch completed in ${Math.round(endTime - startTime)}ms`);
             
-            const historicalData = [];
-            
-            for (let i = 0; i < requestedHours; i++) {
-                const targetDate = new Date(referenceDate.getTime() - (i * 60 * 60 * 1000));
-                const dateStr = targetDate.toISOString().split('T')[0];
-                const hour = targetDate.getHours();
-                
-                try {
-                    const response = await fetch(
-                        `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/date/${dateStr}/hour/${hour}`
-                    );
-                    
-                    if (!response.ok) continue;
-                    
-                    const data = await response.json();
-                    const apiStations = Array.isArray(data) ? data : data.stations || [];
-                    const stationData = apiStations.find(s => s.station_id === stationId);
-                    
-                    if (stationData && stationData.reading_status === 'current') {
-                        let value, unit, color;
-                        
-                        // Extraer valor según variable seleccionada
-                        switch (variable) {
-                            case 'ias':
-                                value = stationData.ias_numeric_value;
-                                unit = 'IAS';
-                                color = getIASColor(value);
-                                break;
-                            case 'ozone':
-                                value = stationData.pollutants?.o3?.avg_1h?.value;
-                                unit = 'ppb';
-                                color = '#9c27b0';
-                                break;
-                            case 'pm25':
-                                value = stationData.pollutants?.pm25?.avg_1h?.value;
-                                unit = 'μg/m³';
-                                color = '#ff9800';
-                                break;
-                            case 'temperature':
-                                value = stationData.meteorological?.temperature?.avg_1h?.value;
-                                unit = '°C';
-                                color = '#4264fb';
-                                break;
-                            case 'humidity':
-                                value = stationData.meteorological?.relative_humidity?.avg_1h?.value;
-                                unit = '%';
-                                color = '#4caf50';
-                                break;
-                            default:
-                                value = stationData.ias_numeric_value;
-                                unit = 'IAS';
-                                color = getIASColor(value);
-                        }
-                        
-                        if (value !== undefined && value !== null) {
-                            const exactHourTimestamp = new Date(targetDate);
-                            exactHourTimestamp.setMinutes(0, 0, 0);
-                            
-                            historicalData.push({
-                                timestamp: exactHourTimestamp,
-                                value: value,
-                                unit: unit,
-                                color: color,
-                                variable: variable,
-                                status: stationData.reading_status,
-                                category: stationData.category,
-                                dateStr: dateStr,
-                                hour: hour,
-                                sortKey: exactHourTimestamp.getTime()
-                            });
-                            
-                            console.log(`✅ Hour ${hour}:00 = ${value} ${unit}`);
-                        }
-                    }
-                } catch (error) {
-                    console.warn(`Error fetching data for ${dateStr} hour ${hour}:`, error);
-                }
+            if (!data.readings || !Array.isArray(data.readings)) {
+                throw new Error('Invalid response format');
             }
             
-            historicalData.sort((a, b) => a.sortKey - b.sortKey);
+            // Procesar datos del endpoint optimizado
+            const historicalData = data.readings
+                .filter(reading => reading.value !== null && reading.value !== undefined)
+                .map(reading => {
+                    const timestamp = new Date(reading.timestamp || reading.hour);
+                    
+                    return {
+                        timestamp: timestamp,
+                        value: reading.value,
+                        unit: getVariableUnit(variable),
+                        color: getVariableColor(variable, reading.value),
+                        variable: variable,
+                        status: reading.status || 'current',
+                        hour: timestamp.getHours(),
+                        sortKey: timestamp.getTime()
+                    };
+                })
+                .sort((a, b) => a.sortKey - b.sortKey); // Ordenar cronológicamente
             
-            console.log(`✅ ${variable} fetch completed: ${historicalData.length}/${requestedHours} readings`);
+            console.log(`✅ Optimized fetch: ${historicalData.length}/${requestedHours} readings in ${Math.round(endTime - startTime)}ms`);
+            console.log(`📊 Data range: ${historicalData[0]?.timestamp} to ${historicalData[historicalData.length - 1]?.timestamp}`);
+            
             return historicalData;
             
         } catch (error) {
-            console.error(`Error fetching ${variable} data:`, error);
+            console.error(`Error fetching optimized ${variable} data for ${stationName}:`, error);
             throw error;
         }
     }
     
     /**
-     * NUEVA: Función para obtener color IAS
+     * NUEVO: Mapear variables del frontend al formato API
+     */
+    function mapVariableToAPI(variable) {
+        const variableMap = {
+            'ias': 'ias',
+            'ozone': 'o3',
+            'pm25': 'pm25',
+            'temperature': 'temperature',
+            'humidity': 'relative_humidity'
+        };
+        return variableMap[variable] || 'ias';
+    }
+    
+    /**
+     * NUEVO: Obtener unidad por variable
+     */
+    function getVariableUnit(variable) {
+        const units = {
+            'ias': 'IAS',
+            'ozone': 'ppb', 
+            'pm25': 'μg/m³',
+            'temperature': '°C',
+            'humidity': '%'
+        };
+        return units[variable] || 'IAS';
+    }
+    
+    /**
+     * NUEVO: Obtener color por variable y valor
+     */
+    function getVariableColor(variable, value) {
+        if (variable === 'ias') {
+            return getIASColor(value);
+        }
+        
+        const colors = {
+            'ozone': '#9c27b0',
+            'pm25': '#ff9800', 
+            'temperature': '#4264fb',
+            'humidity': '#4caf50'
+        };
+        return colors[variable] || '#4264fb';
+    }
+    
+    /**
+     * EXISTENTE: Función para color IAS
      */
     function getIASColor(value) {
         if (value <= 50) return '#00ff00';
