@@ -844,9 +844,9 @@ window.MasterAPIPanels = (function() {
                 nticks: Math.min(12, Math.ceil(historicalData.length / 3)),
                 tickmode: 'auto'
             },
-            // ← TEST: Fondo rojo para verificar que se aplique
-            plot_bgcolor: '#ff0000',
-            paper_bgcolor: '#ff0000',
+            // ← CAMBIO: De rojo a transparente para producción
+            plot_bgcolor: 'transparent',
+            paper_bgcolor: 'transparent',
             font: { 
                 family: 'DIN Pro, Arial, sans-serif',
                 color: '#333333'
@@ -887,15 +887,15 @@ window.MasterAPIPanels = (function() {
                 setTimeout(() => {
                     const plotlyDiv = container.querySelector('.plotly-graph-div');
                     if (plotlyDiv) {
-                        plotlyDiv.style.backgroundColor = '#ff0000'; // ← TEST: Fondo rojo
+                        plotlyDiv.style.backgroundColor = 'transparent';
                     }
                     
                     const svgs = container.querySelectorAll('svg');
                     svgs.forEach(svg => {
-                        svg.style.backgroundColor = '#ff0000'; // ← TEST: Fondo rojo
+                        svg.style.backgroundColor = 'transparent';
                     });
                     
-                    console.log(`✅ ${variable} chart created - RED TEST BACKGROUND`);
+                    console.log(`✅ ${variable} chart created - transparent background`);
                     
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
