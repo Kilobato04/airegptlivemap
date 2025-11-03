@@ -630,9 +630,9 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * NUEVO: Fetch optimizado con endpoint dedicado (súper rápido)
+     * CORREGIDO: Para el formato real del endpoint optimizado
      */
-    async function fetchMasterAPIHistoricalDataOptimized(stationName, requestedHours = 36, variable = 'ias') {
+    async function fetchMasterAPIHistoricalData(stationName, requestedHours = 36, variable = 'ias') {
         try {
             const stationId = Object.keys(window.ALL_STATIONS_MAPPING || {}).find(
                 id => window.ALL_STATIONS_MAPPING[id] === stationName
@@ -642,52 +642,56 @@ window.MasterAPIPanels = (function() {
                 throw new Error(`No station_id found for ${stationName}`);
             }
             
-            // Mapear variables al formato API
             const apiVariable = mapVariableToAPI(variable);
+            const url = `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/satation/${stationId}/historical/${requestedHours}h?variable=${apiVariable}`;
             
             console.log(`🚀 OPTIMIZED fetch: ${requestedHours}h ${apiVariable} data for ${stationId} (${stationName})`);
             
             const startTime = performance.now();
-            
-            // ¡UNA SOLA REQUEST!
-            const response = await fetch(
-                `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/satation/${stationId}/historical/${requestedHours}h?variable=${apiVariable}`
-            );
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
             }
             
-            const data = await response.json();
+            const apiResponse = await response.json();
             const endTime = performance.now();
             
             console.log(`⚡ SUPER FAST fetch completed in ${Math.round(endTime - startTime)}ms`);
+            console.log(`📊 API Response:`, {
+                station: apiResponse.station?.station_name,
+                variable: apiResponse.variable,
+                data_points: apiResponse.data_points,
+                time_range: apiResponse.time_range
+            });
             
-            if (!data.readings || !Array.isArray(data.readings)) {
-                throw new Error('Invalid response format');
+            // Verificar que tengamos el array 'data'
+            if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
+                throw new Error('Invalid response format: missing data array');
             }
             
             // Procesar datos del endpoint optimizado
-            const historicalData = data.readings
+            const historicalData = apiResponse.data
                 .filter(reading => reading.value !== null && reading.value !== undefined)
                 .map(reading => {
-                    const timestamp = new Date(reading.timestamp || reading.hour);
+                    // El timestamp viene como "2025-11-02 05:00" - agregar timezone
+                    const timestamp = new Date(reading.timestamp + ':00 UTC-6');
                     
                     return {
                         timestamp: timestamp,
                         value: reading.value,
-                        unit: getVariableUnit(variable),
+                        unit: reading.unit, // Usar la unidad del API
                         color: getVariableColor(variable, reading.value),
                         variable: variable,
-                        status: reading.status || 'current',
+                        status: 'current', // Los datos del histórico son válidos
                         hour: timestamp.getHours(),
                         sortKey: timestamp.getTime()
                     };
                 })
-                .sort((a, b) => a.sortKey - b.sortKey); // Ordenar cronológicamente
+                .sort((a, b) => a.sortKey - b.sortKey); // Ya están ordenados, pero por seguridad
             
-            console.log(`✅ Optimized fetch: ${historicalData.length}/${requestedHours} readings in ${Math.round(endTime - startTime)}ms`);
-            console.log(`📊 Data range: ${historicalData[0]?.timestamp} to ${historicalData[historicalData.length - 1]?.timestamp}`);
+            console.log(`✅ Optimized fetch: ${historicalData.length}/${apiResponse.data.length} readings in ${Math.round(endTime - startTime)}ms`);
+            console.log(`📈 Data range: ${historicalData[0]?.timestamp.toLocaleString()} to ${historicalData[historicalData.length - 1]?.timestamp.toLocaleString()}`);
             
             return historicalData;
             
