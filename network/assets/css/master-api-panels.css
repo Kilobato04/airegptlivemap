@@ -544,3 +544,20 @@
 #masterAPIInlineChart.active {
     display: block;
 }
+
+/* Forzar fondo transparente en gráficos Plotly */
+#masterAPIInlineChart,
+#masterAPIInlineChart .plotly-graph-div,
+#masterAPIInlineChart svg {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
+/* Asegurar que no aparezcan controles residuales */
+#masterAPIInlineChart .modebar {
+    display: none !important;
+}
+
+#masterAPIInlineChart .modebar-container {
+    display: none !important;
+}
