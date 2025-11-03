@@ -571,7 +571,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * ACTUALIZADO: Cargar 36 horas con endpoint optimizado
+     * CORREGIDO: Usar el nombre correcto de la función
      */
     async function loadChartData() {
         const chartDiv = document.getElementById('masterAPIInlineChart');
@@ -580,7 +580,7 @@ window.MasterAPIPanels = (function() {
         
         if (!chartDiv || !currentStation) return;
         
-        const hours = 36; // ← CAMBIO: De 24 a 36 horas
+        const hours = 36;
         const variable = variableSelect ? variableSelect.value : 'ias';
         
         console.log(`📊 Loading ${hours}h ${variable} data for ${currentStation}`);
@@ -598,8 +598,8 @@ window.MasterAPIPanels = (function() {
         try {
             const startTime = performance.now();
             
-            // ¡USAR ENDPOINT OPTIMIZADO!
-            const historicalData = await fetchMasterAPIHistoricalDataOptimized(currentStation, hours, variable);
+            // CORREGIR: Usar el nombre correcto de la función
+            const historicalData = await fetchMasterAPIHistoricalData(currentStation, hours, variable);
             
             const endTime = performance.now();
             console.log(`⚡ ${variable} data loaded in ${Math.round(endTime - startTime)}ms`);
