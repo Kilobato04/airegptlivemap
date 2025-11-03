@@ -758,7 +758,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * OPTIMIZADO: Gráfico con estilos mejorados y sin fondo blanco
+     * OPTIMIZADO: Sin fondo blanco y sin controles de Plotly
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName, variable = 'ias') {
         if (!window.Plotly) {
@@ -770,7 +770,6 @@ window.MasterAPIPanels = (function() {
         
         const isIAS = variable === 'ias';
         
-        // NUEVO: Mapear nombres de variables para título
         const variableNames = {
             'ias': 'IAS',
             'ozone': 'Ozone',
@@ -793,8 +792,8 @@ window.MasterAPIPanels = (function() {
             marker: isIAS ? {
                 color: historicalData.map(item => item.color),
                 line: { 
-                    color: '#999999',  // ← NUEVO: Borde gris para barras IAS
-                    width: 1.5        // ← Borde más visible
+                    color: '#999999',
+                    width: 1.5
                 },
                 opacity: 0.9
             } : {
@@ -822,12 +821,7 @@ window.MasterAPIPanels = (function() {
         };
         
         const layout = {
-            margin: { 
-                t: 45,  // ← AUMENTADO: Más espacio arriba para título + buffer
-                r: 15, 
-                l: 45, 
-                b: 35 
-            },
+            margin: { t: 45, r: 15, l: 45, b: 35 },
             yaxis: {
                 title: { 
                     text: `${variable.toUpperCase()} ${historicalData[0]?.unit || ''}`, 
@@ -835,7 +829,7 @@ window.MasterAPIPanels = (function() {
                 },
                 zeroline: false,
                 showgrid: true,
-                gridcolor: 'rgba(200, 200, 200, 0.3)', // ← SUTIL: Grid más suave
+                gridcolor: 'rgba(200, 200, 200, 0.3)',
                 tickfont: { size: 8, color: '#666666' },
                 autorange: true
             },
@@ -849,30 +843,29 @@ window.MasterAPIPanels = (function() {
                 nticks: Math.min(12, Math.ceil(historicalData.length / 3)),
                 tickmode: 'auto'
             },
-            // ← REMOVIDO: Sin fondo blanco, usar fondo del panel
-            plot_bgcolor: 'transparent',
-            paper_bgcolor: 'transparent',
+            // ← CORREGIDO: Fondo completamente transparente
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
             font: { 
                 family: 'DIN Pro, Arial, sans-serif',
                 color: '#333333'
             },
             title: {
-                // NUEVO: Título simplificado "Estación - Variable"
                 text: `${stationName} - ${variableNames[variable] || variable.toUpperCase()}`,
                 font: { 
-                    size: 12,  // ← AUMENTADO: Título más grande
+                    size: 12,
                     family: 'DIN Pro, Arial, sans-serif',
                     color: '#333333',
                     weight: 'bold'
                 },
-                y: 0.95,  // ← AJUSTADO: Posición del título
-                x: 0.5,   // ← CENTRADO: Título en el centro
+                y: 0.95,
+                x: 0.5,
                 xanchor: 'center',
                 yanchor: 'top',
-                pad: { b: 20 }  // ← NUEVO: Buffer debajo del título
+                pad: { b: 20 }
             },
             showlegend: false,
-            bargap: isIAS ? 0.15 : undefined,  // ← AJUSTADO: Más espacio entre barras para ver bordes
+            bargap: isIAS ? 0.15 : undefined,
             bargroupgap: 0,
             hovermode: 'closest',
             autosize: true
@@ -880,19 +873,31 @@ window.MasterAPIPanels = (function() {
         
         const config = {
             responsive: true,
-            displayModeBar: true,
-            modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
+            displayModeBar: false,  // ← CLAVE: Ocultar completamente los controles
             displaylogo: false,
-            scrollZoom: true,
-            doubleClick: 'reset'
+            scrollZoom: false,      // ← DESHABILITADO: Sin zoom para evitar controles
+            doubleClick: false      // ← DESHABILITADO: Sin double click
         };
         
         Plotly.purge(container);
         
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ ${variable} chart created with improved styling`);
+                // ← NUEVO: Forzar eliminación de cualquier elemento de fondo residual
                 setTimeout(() => {
+                    const plotlyDiv = container.querySelector('.plotly-graph-div');
+                    if (plotlyDiv) {
+                        plotlyDiv.style.backgroundColor = 'transparent';
+                    }
+                    
+                    // Eliminar cualquier SVG con fondo
+                    const svgs = container.querySelectorAll('svg');
+                    svgs.forEach(svg => {
+                        svg.style.backgroundColor = 'transparent';
+                    });
+                    
+                    console.log(`✅ ${variable} chart created - no background, no controls`);
+                    
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
                     }
