@@ -757,9 +757,8 @@ window.MasterAPIPanels = (function() {
         return '#800080';
     }
 
-
     /**
-     * NUEVO: Gráfico adaptable según variable seleccionada
+     * OPTIMIZADO: Gráfico con eje X mejorado para 36 horas
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName, variable = 'ias') {
         if (!window.Plotly) {
@@ -774,7 +773,10 @@ window.MasterAPIPanels = (function() {
         const trace = {
             x: historicalData.map(item => {
                 const date = new Date(item.timestamp);
-                return `${String(date.getHours()).padStart(2, '0')}:00`;
+                // MEJORADO: Formato más legible para 36 horas
+                const day = String(date.getDate()).padStart(2, '0');
+                const hour = String(date.getHours()).padStart(2, '0');
+                return `${day}/${hour}:00`; // Formato: "02/14:00"
             }),
             y: historicalData.map(item => item.value),
             type: isIAS ? 'bar' : 'scatter',
@@ -786,12 +788,12 @@ window.MasterAPIPanels = (function() {
                 opacity: 0.8
             } : {
                 color: historicalData[0]?.color || '#4264fb',
-                size: 6,
+                size: 4, // ← REDUCIDO: Puntos más pequeños para 36 horas
                 line: { color: '#ffffff', width: 1 }
             },
             line: isIAS ? undefined : {
                 color: historicalData[0]?.color || '#4264fb',
-                width: 3
+                width: 2 // ← REDUCIDO: Línea más delgada
             },
             hovertemplate: `<b>${stationName}</b><br>` +
                            `<b>Time</b>: %{customdata.fullTime}<br>` +
@@ -809,7 +811,7 @@ window.MasterAPIPanels = (function() {
         };
         
         const layout = {
-            margin: { t: 15, r: 15, l: 45, b: 25 },
+            margin: { t: 15, r: 15, l: 45, b: 35 }, // ← AUMENTADO: Más espacio abajo para etiquetas
             yaxis: {
                 title: { 
                     text: `${variable.toUpperCase()} ${historicalData[0]?.unit || ''}`, 
@@ -823,24 +825,27 @@ window.MasterAPIPanels = (function() {
             },
             xaxis: {
                 showgrid: false,
-                tickfont: { size: 7 },
-                tickangle: 0,
+                tickfont: { size: 6 }, // ← REDUCIDO: Texto más pequeño
+                tickangle: -45,        // ← ROTADO: Etiquetas inclinadas para mejor legibilidad
                 autorange: true,
                 fixedrange: false,
-                type: 'category'
+                type: 'category',
+                // NUEVO: Controlar cuántas etiquetas mostrar
+                nticks: Math.min(12, Math.ceil(historicalData.length / 3)), // Máximo 12 etiquetas
+                tickmode: 'auto'
             },
             plot_bgcolor: '#FFFFFF',
             paper_bgcolor: '#FFFFFF',
             font: { family: 'DIN Pro, Arial, sans-serif' },
             title: {
-                text: `${stationName} - 24h ${variable.toUpperCase()} History`,
+                text: `${stationName} - 36h ${variable.toUpperCase()} History`,
                 font: { size: 10, family: 'DIN Pro, Arial, sans-serif' },
                 y: 0.97,
                 x: 0.05,
                 xanchor: 'left'
             },
             showlegend: false,
-            bargap: isIAS ? 0 : undefined,
+            bargap: isIAS ? 0.1 : undefined, // ← PEQUEÑO GAP: Para barras IAS con 36 horas
             bargroupgap: 0,
             hovermode: 'closest',
             autosize: true
@@ -851,7 +856,7 @@ window.MasterAPIPanels = (function() {
             displayModeBar: true,
             modeBarButtonsToRemove: ['lasso2d', 'select2d', 'drawline'],
             displaylogo: false,
-            scrollZoom: false,
+            scrollZoom: true,  // ← HABILITADO: Permitir zoom para 36 horas
             doubleClick: 'reset'
         };
         
@@ -859,7 +864,7 @@ window.MasterAPIPanels = (function() {
         
         window.Plotly.newPlot(container, [trace], layout, config)
             .then(() => {
-                console.log(`✅ ${variable} chart created successfully`);
+                console.log(`✅ ${variable} chart created with optimized 36h layout`);
                 setTimeout(() => {
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
