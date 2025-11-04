@@ -266,13 +266,28 @@ window.MasterAPIPanels = (function() {
     }
 
         /**
-         * Actualizar footer con información de tiempo - IDÉNTICO A SMABILITY
+         * CORREGIDO: Footer con validación de timestamp para móvil
          */
         function updatePanelFooter(stationData) {
             const lastUpdateElement = document.getElementById('masterAPILastUpdate');
             
-            if (lastUpdateElement && stationData.reading_time_UTC6) {
+            if (!lastUpdateElement) return;
+            
+            // Verificar que tengamos timestamp válido
+            if (!stationData.reading_time_UTC6) {
+                lastUpdateElement.innerHTML = 'Status: No data';
+                lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+                return;
+            }
+            
+            try {
                 const date = new Date(stationData.reading_time_UTC6 + ' UTC-6');
+                
+                // Verificar que la fecha sea válida
+                if (isNaN(date.getTime())) {
+                    throw new Error('Invalid date');
+                }
+                
                 const now = new Date();
                 const diffMs = now - date;
                 const diffMinutes = Math.floor(diffMs / 60000);
@@ -304,6 +319,11 @@ window.MasterAPIPanels = (function() {
                 lastUpdateElement.setAttribute('style', footerStyle);
                 
                 console.log(`📅 Footer updated: ${footerText}`);
+                
+            } catch (error) {
+                console.error('Error updating footer:', error);
+                lastUpdateElement.innerHTML = 'Status: Error';
+                lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
             }
         }
 
@@ -760,7 +780,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * TEST: Fondo rojo para verificar que se aplique + arreglo IAS duplicado
+     * CORREGIDO: Gráfico con formato de timestamp mejorado para móvil
      */
     function createMasterAPIChart(container, historicalData, requestedHours, stationName, variable = 'ias') {
         if (!window.Plotly) {
@@ -782,7 +802,20 @@ window.MasterAPIPanels = (function() {
         
         const trace = {
             x: historicalData.map(item => {
-                const date = new Date(item.timestamp);
+                // CORREGIDO: Validar timestamp antes de usar
+                let date;
+                try {
+                    date = new Date(item.timestamp);
+                    // Verificar que sea una fecha válida
+                    if (isNaN(date.getTime())) {
+                        console.warn('Invalid timestamp:', item.timestamp);
+                        return 'N/A';
+                    }
+                } catch (error) {
+                    console.warn('Error parsing timestamp:', item.timestamp, error);
+                    return 'N/A';
+                }
+                
                 const day = String(date.getDate()).padStart(2, '0');
                 const hour = String(date.getHours()).padStart(2, '0');
                 return `${day}/${hour}:00`;
@@ -811,22 +844,32 @@ window.MasterAPIPanels = (function() {
                            `<b>Time</b>: %{customdata.fullTime}<br>` +
                            `<b>${variable.toUpperCase()}</b>: %{y} ${historicalData[0]?.unit || ''}<br>` +
                            '<extra></extra>',
-            customdata: historicalData.map(item => ({
-                fullTime: new Date(item.timestamp).toLocaleString('en-US', {
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })
-            }))
+            customdata: historicalData.map(item => {
+                // CORREGIDO: Validar timestamp en customdata
+                let fullTime = 'Unknown time';
+                try {
+                    const date = new Date(item.timestamp);
+                    if (!isNaN(date.getTime())) {
+                        fullTime = date.toLocaleString('en-US', {
+                            month: 'short', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                        });
+                    }
+                } catch (error) {
+                    console.warn('Error formatting custom date:', item.timestamp);
+                }
+                
+                return { fullTime: fullTime };
+            })
         };
         
         const layout = {
             margin: { t: 45, r: 15, l: 45, b: 35 },
             yaxis: {
                 title: { 
-                    // ← ARREGLADO: Solo mostrar unidad, no variable + unidad
                     text: historicalData[0]?.unit || '',
                     font: { size: 10, color: '#333333' }
                 },
@@ -846,7 +889,6 @@ window.MasterAPIPanels = (function() {
                 nticks: Math.min(12, Math.ceil(historicalData.length / 3)),
                 tickmode: 'auto'
             },
-            // ← CAMBIO: De rojo a transparente para producción
             plot_bgcolor: 'transparent',
             paper_bgcolor: 'transparent',
             font: { 
@@ -897,7 +939,7 @@ window.MasterAPIPanels = (function() {
                         svg.style.backgroundColor = 'transparent';
                     });
                     
-                    console.log(`✅ ${variable} chart created - transparent background`);
+                    console.log(`✅ ${variable} chart created with mobile-friendly timestamps`);
                     
                     if (window.Plotly) {
                         Plotly.Plots.resize(container);
