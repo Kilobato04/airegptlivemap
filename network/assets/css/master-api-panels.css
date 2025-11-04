@@ -563,3 +563,10 @@
 #masterAPIInlineChart .modebar-container {
     display: none !important;
 }
+
+/* === LOGO SMABILITY === */
+.master-api-logo {
+    filter: brightness(0) invert(1);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
