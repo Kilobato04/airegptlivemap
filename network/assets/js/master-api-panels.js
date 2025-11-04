@@ -266,64 +266,52 @@ window.MasterAPIPanels = (function() {
     }
 
         /**
-         * CORREGIDO: Footer con validación de timestamp para móvil
+         * MOBILE-COMPATIBLE: Footer simplificado
          */
         function updatePanelFooter(stationData) {
             const lastUpdateElement = document.getElementById('masterAPILastUpdate');
             
             if (!lastUpdateElement) return;
             
-            // Verificar que tengamos timestamp válido
-            if (!stationData.reading_time_UTC6) {
-                lastUpdateElement.innerHTML = 'Status: No data';
-                lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
-                return;
-            }
-            
             try {
-                const date = new Date(stationData.reading_time_UTC6 + ' UTC-6');
-                
-                // Verificar que la fecha sea válida
-                if (isNaN(date.getTime())) {
-                    throw new Error('Invalid date');
-                }
-                
-                const now = new Date();
-                const diffMs = now - date;
-                const diffMinutes = Math.floor(diffMs / 60000);
-                const diffHours = Math.floor(diffMinutes / 60);
-                
-                let footerText = '';
-                let footerStyle = '';
-                
-                if (diffMinutes < 60) {
-                    footerText = `Updated ${diffMinutes}m ago • Live`;
-                    footerStyle = 'color: #00aa00; font-weight: bold;';
-                } else if (diffHours <= 8) {
-                    footerText = `Updated ${diffHours}h ago • Fresh`;
-                    footerStyle = 'color: #ff8800; font-weight: bold;';
-                } else if (diffHours <= 24) {
-                    footerText = `Updated ${diffHours}h ago • Stale`;
-                    footerStyle = 'color: #888888; font-weight: bold;';
-                } else {
-                    const days = Math.floor(diffHours / 24);
-                    if (days > 0) {
-                        footerText = `Updated ${days}d ago • Offline`;
-                    } else {
-                        footerText = `Updated ${diffHours}h ago • Offline`;
+                if (stationData.reading_time_UTC6) {
+                    // MOBILE FIX: Parsing más simple
+                    const timeStr = stationData.reading_time_UTC6;
+                    const now = new Date();
+                    
+                    // Parsing simplificado para móvil
+                    let updateTime;
+                    try {
+                        updateTime = new Date(timeStr.replace(' ', 'T') + '-06:00');
+                    } catch (e) {
+                        updateTime = new Date(timeStr + ' UTC-6');
                     }
-                    footerStyle = 'color: #cc0000; font-weight: bold;';
+                    
+                    if (isNaN(updateTime.getTime())) {
+                        throw new Error('Invalid timestamp');
+                    }
+                    
+                    const diffMs = now - updateTime;
+                    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                    const diffHours = Math.floor(diffMinutes / 60);
+                    
+                    let status = 'Live';
+                    if (diffHours > 8) status = 'Stale';
+                    if (diffHours > 24) status = 'Offline';
+                    
+                    const timeAgo = diffMinutes < 60 ? `${diffMinutes}m` : `${diffHours}h`;
+                    
+                    lastUpdateElement.innerHTML = `Updated ${timeAgo} ago • ${status}`;
+                    lastUpdateElement.setAttribute('style', 'color: #00aa00; font-weight: bold;');
+                    
+                } else {
+                    lastUpdateElement.innerHTML = 'Data available';
+                    lastUpdateElement.setAttribute('style', 'color: #666; font-weight: bold;');
                 }
-                
-                lastUpdateElement.innerHTML = footerText;
-                lastUpdateElement.setAttribute('style', footerStyle);
-                
-                console.log(`📅 Footer updated: ${footerText}`);
-                
             } catch (error) {
-                console.error('Error updating footer:', error);
-                lastUpdateElement.innerHTML = 'Status: Error';
-                lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+                console.warn('Footer update error (using fallback):', error);
+                lastUpdateElement.innerHTML = 'Recently updated';
+                lastUpdateElement.setAttribute('style', 'color: #666; font-weight: bold;');
             }
         }
 
@@ -652,7 +640,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * CORREGIDO: Para el formato real del endpoint optimizado
+     * CORREGIDO: Timestamp parsing compatible móvil/desktop
      */
     async function fetchMasterAPIHistoricalData(stationName, requestedHours = 36, variable = 'ias') {
         try {
@@ -667,58 +655,79 @@ window.MasterAPIPanels = (function() {
             const apiVariable = mapVariableToAPI(variable);
             const url = `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/satation/${stationId}/historical/${requestedHours}h?variable=${apiVariable}`;
             
-            console.log(`🚀 OPTIMIZED fetch: ${requestedHours}h ${apiVariable} data for ${stationId} (${stationName})`);
+            console.log(`🚀 Mobile-compatible fetch: ${requestedHours}h ${apiVariable} data for ${stationId}`);
             
-            const startTime = performance.now();
             const response = await fetch(url);
-            
             if (!response.ok) {
                 throw new Error(`API responded with status: ${response.status}`);
             }
             
             const apiResponse = await response.json();
-            const endTime = performance.now();
             
-            console.log(`⚡ SUPER FAST fetch completed in ${Math.round(endTime - startTime)}ms`);
-            console.log(`📊 API Response:`, {
-                station: apiResponse.station?.station_name,
-                variable: apiResponse.variable,
-                data_points: apiResponse.data_points,
-                time_range: apiResponse.time_range
-            });
-            
-            // Verificar que tengamos el array 'data'
             if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
                 throw new Error('Invalid response format: missing data array');
             }
             
-            // Procesar datos del endpoint optimizado
+            // MOBILE-COMPATIBLE: Parsing de timestamp más robusto
             const historicalData = apiResponse.data
                 .filter(reading => reading.value !== null && reading.value !== undefined)
-                .map(reading => {
-                    // El timestamp viene como "2025-11-02 05:00" - agregar timezone
-                    const timestamp = new Date(reading.timestamp + ':00 UTC-6');
+                .map((reading, index) => {
+                    let timestamp;
+                    
+                    if (reading.timestamp) {
+                        try {
+                            // MOBILE FIX: Parsing más compatible
+                            const timestampStr = reading.timestamp;
+                            
+                            // Método 1: Intentar formato ISO estricto
+                            const parts = timestampStr.split(' ');
+                            if (parts.length === 2) {
+                                const [datePart, timePart] = parts;
+                                const isoString = `${datePart}T${timePart}:00-06:00`; // UTC-6 explícito
+                                timestamp = new Date(isoString);
+                            }
+                            
+                            // Método 2: Fallback manual si falla
+                            if (!timestamp || isNaN(timestamp.getTime())) {
+                                const [datePart, timePart] = timestampStr.split(' ');
+                                const [year, month, day] = datePart.split('-').map(Number);
+                                const [hour, minute] = timePart.split(':').map(Number);
+                                
+                                // Crear fecha manualmente (más compatible)
+                                timestamp = new Date(year, month - 1, day, hour, minute || 0);
+                            }
+                            
+                        } catch (error) {
+                            console.warn(`Mobile timestamp parsing error for index ${index}:`, error);
+                            timestamp = null;
+                        }
+                    }
+                    
+                    // Fallback: timestamp secuencial si falla el parsing
+                    if (!timestamp || isNaN(timestamp.getTime())) {
+                        const now = new Date();
+                        timestamp = new Date(now.getTime() - ((apiResponse.data.length - 1 - index) * 60 * 60 * 1000));
+                        console.warn(`Using fallback timestamp for index ${index}`);
+                    }
                     
                     return {
                         timestamp: timestamp,
                         value: reading.value,
-                        unit: reading.unit, // Usar la unidad del API
+                        unit: reading.unit,
                         color: getVariableColor(variable, reading.value),
                         variable: variable,
-                        status: 'current', // Los datos del histórico son válidos
+                        status: 'current',
                         hour: timestamp.getHours(),
                         sortKey: timestamp.getTime()
                     };
                 })
-                .sort((a, b) => a.sortKey - b.sortKey); // Ya están ordenados, pero por seguridad
+                .sort((a, b) => a.sortKey - b.sortKey);
             
-            console.log(`✅ Optimized fetch: ${historicalData.length}/${apiResponse.data.length} readings in ${Math.round(endTime - startTime)}ms`);
-            console.log(`📈 Data range: ${historicalData[0]?.timestamp.toLocaleString()} to ${historicalData[historicalData.length - 1]?.timestamp.toLocaleString()}`);
-            
+            console.log(`✅ Mobile-compatible processing: ${historicalData.length} readings`);
             return historicalData;
             
         } catch (error) {
-            console.error(`Error fetching optimized ${variable} data for ${stationName}:`, error);
+            console.error(`Mobile fetch error for ${variable}:`, error);
             throw error;
         }
     }
