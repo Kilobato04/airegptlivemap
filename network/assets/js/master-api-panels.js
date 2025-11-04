@@ -57,15 +57,15 @@ window.MasterAPIPanels = (function() {
     }
     
     /**
-     * ACTUALIZADO: Reset con panel compacto por defecto
+     * ACTUALIZADO: Reset con dropdown por defecto en IAS
      */
     function resetChartArea() {
-        console.log('🔄 Resetting chart area for new station - compact mode');
+        console.log('🔄 Resetting chart area for new station');
         
-        // 1. Contraer panel principal a versión compacta
+        // 1. Contraer panel principal si está expandido
         const mainPanel = document.getElementById('masterAPIMainPanel');
         if (mainPanel) {
-            mainPanel.style.maxHeight = '55vh'; // Altura compacta
+            mainPanel.style.maxHeight = '55vh';
         }
         
         // 2. Ocultar contenedor de gráfica
@@ -74,38 +74,40 @@ window.MasterAPIPanels = (function() {
             chartContainer.style.display = 'none';
         }
         
-        // 3. Ocultar datos expandidos (versión compacta)
-        const expandedContent = document.getElementById('masterAPIExpandedContent');
-        if (expandedContent) {
-            expandedContent.style.display = 'none';
-        }
-        
-        // 4. Limpiar gráfico Plotly
+        // 3. Limpiar gráfico Plotly completamente
         const chartDiv = document.getElementById('masterAPIInlineChart');
         if (chartDiv && window.Plotly) {
             try {
                 Plotly.purge(chartDiv);
                 chartDiv.style.display = 'none';
                 chartDiv.classList.remove('active');
+                console.log('✅ Plotly chart purged');
             } catch (error) {
                 console.warn('Warning purging chart:', error);
             }
         }
         
-        // 5. Resetear placeholder
+        // 4. Resetear placeholder a estado original
         const placeholder = document.getElementById('masterAPIChartPlaceholder');
         if (placeholder) {
             placeholder.style.display = 'flex';
             placeholder.innerHTML = `
                 📊 Master API Historical Data<br>
-                <small style="margin-top: 8px; display: block;">24-hour readings visualization</small>
+                <small style="margin-top: 8px; display: block;">36-hour readings visualization</small>
             `;
         }
         
-        // 6. Resetear estado a compacto
-        currentState = 2; // Panel visible, versión compacta
+        // 5. NUEVO: Resetear dropdown a IAS por defecto
+        const variableSelect = document.getElementById('masterAPIVariableSelect');
+        if (variableSelect) {
+            variableSelect.value = 'ias';
+            console.log('✅ Variable dropdown reset to IAS');
+        }
         
-        console.log('✅ Chart area reset - compact mode ready');
+        // 6. Resetear estado interno
+        currentState = 2;
+        
+        console.log('✅ Chart area reset complete - IAS default set');
     }
 
         /**
@@ -909,12 +911,15 @@ window.MasterAPIPanels = (function() {
     
 
     /**
-     * ACTUALIZADO: Setup con dropdown de variables
+     * ACTUALIZADO: Setup con IAS por defecto garantizado
      */
     function setupChartControls() {
         const variableSelect = document.getElementById('masterAPIVariableSelect');
         
         if (variableSelect) {
+            // ASEGURAR: Valor inicial siempre IAS
+            variableSelect.value = 'ias';
+            
             const changeHandler = function() {
                 const variable = variableSelect.value;
                 console.log(`🔄 Variable changed to: ${variable}`);
@@ -933,7 +938,7 @@ window.MasterAPIPanels = (function() {
                             <div style="text-align: center;">
                                 <div style="font-size: 20px; margin-bottom: 8px;">🔄</div>
                                 <div>Loading ${variable} data...</div>
-                                <small style="margin-top: 4px; display: block; color: #666;">Fetching 24-hour readings</small>
+                                <small style="margin-top: 4px; display: block; color: #666;">Fetching 36-hour readings</small>
                             </div>
                         `;
                         
@@ -960,7 +965,7 @@ window.MasterAPIPanels = (function() {
             variableSelect.addEventListener('change', changeHandler);
             variableSelect.setAttribute('data-listener-added', 'true');
             
-            console.log('✅ Variable selector set up');
+            console.log('✅ Variable selector set up with IAS default');
         } else {
             console.error('❌ Variable select not found');
         }
