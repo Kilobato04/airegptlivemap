@@ -608,7 +608,7 @@ function addMapLayers() {
                 'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
                 'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
                 'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
-                'Cuautitlán', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
+                'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
                 'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
                 'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
                 'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
