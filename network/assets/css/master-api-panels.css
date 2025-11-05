@@ -437,7 +437,7 @@
 
 /* Asegurar que el header del gráfico tenga el mismo padding */
 .master-api-inline-chart-header > div {
-    margin: 0 16px; /* Mismo margen que el botón */
+    margin: 0; /* Mismo margen que el botón */
 }
 
 /* Contenido expandido */
