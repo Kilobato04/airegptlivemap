@@ -365,6 +365,9 @@ window.ALL_STATIONS_MAPPING = {
     'MicroSensor-03': 'MicroSensor-03',
     'AC': 'Anahuac Cancun',
     'MicroSensor-02': 'MicroSensor-02',
+    'INSMAA': 'INSYC-Smability',    // ← NUEVA
+    'SMAA': 'Hipódromo',            // ← NUEVA  
+    'DIA': 'La Diana',              // ← NUEVA
     
     // === ESTACIONES REFERENCE ACTIVAS (20 estaciones) ===
     'CUT': 'Cuautitlan',
