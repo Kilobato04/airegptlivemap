@@ -372,7 +372,7 @@ window.ALL_STATIONS_MAPPING = {
     'INS': 'INSYC',    // ← NUEVA - OK
     'HIP': 'Hipódromo',  // ← NUEVA  -OK
     
-    // === ESTACIONES REFERENCE ACTIVAS (21 estaciones) ===
+    // === ESTACIONES REFERENCE ACTIVAS (22 estaciones) ===
     'CUT': 'Cuautitlan',
     'MER': 'Merced',
     'UAX': 'UAM Xochimilco',
@@ -393,7 +393,8 @@ window.ALL_STATIONS_MAPPING = {
     'LLA': 'Los Laureles',
     'LPR': 'La Presa',
     'VIF': 'Villa de las Flores',
-    'ACO': 'Acolman' // ← NUEVA
+    'ACO': 'Acolman', 
+    'UIZ': 'UAM Iztapalapa' // ← NUEVA
 };
 
 // NUEVO: Mapping completo de estaciones Reference (para referencia)
