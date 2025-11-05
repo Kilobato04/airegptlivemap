@@ -570,3 +570,8 @@
     transition: all 0.3s ease;
     flex-shrink: 0;
 }
+
+.master-api-logo:hover {
+    transform: scale(1.1);
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px rgba(255,255,255,0.5));
+}
