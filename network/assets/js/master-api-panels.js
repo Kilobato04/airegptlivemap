@@ -178,7 +178,7 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * Actualizar con datos reales de Master API
+     * ACTUALIZADO: Con manejo de estado offline
      */
     async function updateWithRealData(stationName) {
         try {
@@ -186,14 +186,134 @@ window.MasterAPIPanels = (function() {
             
             const stationData = await findStationDataInMasterAPI(stationName);
             
-            if (stationData) {
-                console.log('MasterAPIPanels: Station data found:', stationData);
+            if (stationData && stationData.reading_status === 'current') {
+                console.log('MasterAPIPanels: Current data found for station:', stationName);
                 updatePanelWithAPIData(stationData);
             } else {
-                console.log('MasterAPIPanels: No data found for station');
+                console.log(`MasterAPIPanels: No current data for ${stationName} - setting offline state`);
+                setOfflineState(stationData, stationName);  // ← AGREGAR ESTA LÍNEA
             }
         } catch (error) {
-            console.error(`MasterAPIPanels: Error fetching real data for ${stationName}:`, error);
+            console.error(`MasterAPIPanels: Error fetching data for ${stationName}:`, error);
+            setOfflineState(null, stationName);  // ← AGREGAR ESTA LÍNEA
+        }
+    }
+
+        /**
+     * NUEVO: Manejar estado offline para estación específica
+     */
+    function setOfflineState(stationData, stationName) {
+        console.log(`❌ Setting offline state for ${stationName}`);
+        
+        // Determinar tipo de dispositivo y ubicación
+        let deviceType = 'Monitor';
+        let location = 'Mexico City';
+        
+        if (stationData) {
+            deviceType = getDeviceTypeLabel(stationData.device_type);
+            location = stationData.city || 'Mexico City';
+        } else {
+            // Si no hay datos, inferir del nombre de estación
+            const stationMapping = window.ALL_STATIONS_MAPPING || {};
+            const stationId = Object.keys(stationMapping).find(id => stationMapping[id] === stationName);
+            
+            if (stationId && stationId.length === 3) {
+                deviceType = 'Reference'; // Estaciones con códigos de 3 letras son Reference
+            } else {
+                deviceType = 'Smability'; // Otras son Smability
+            }
+        }
+        
+        const subtitle = `${deviceType} - ${location}`;
+        
+        // Panel en estado offline
+        updatePanelContent(stationName, {
+            subtitle: subtitle,
+            emoji: '😴',
+            ias: 'N/A',
+            color: '#cccccc',
+            colorName: 'Gris',
+            category: 'No Data',
+            risk: 'Unknown',
+            dominantPollutant: 'N/A',
+            lastUpdate: 'Offline'
+        });
+        
+        // Colores grises
+        updatePanelColors('#cccccc', null);
+        
+        // Datos detallados en N/A
+        setOfflineDetailedData();
+        
+        // Footer con última actividad
+        if (stationData && stationData.last_reading_time_UTC6) {
+            updateOfflineFooter(stationData.last_reading_time_UTC6);
+        } else {
+            updateOfflineFooter(null);
+        }
+        
+        console.log(`⚪ ${stationName} panel set to offline state`);
+    }
+
+        /**
+     * NUEVO: Datos detallados en estado offline
+     */
+    function setOfflineDetailedData() {
+        const elements = [
+            'masterAPIO3', 'masterAPICO', 'masterAPIPM25', 'masterAPIPM10',
+            'masterAPITemperature', 'masterAPIHumidity', 'masterAPIBattery',
+            'masterAPILocation', 'masterAPIDeviceMode', 'masterAPIReadingStatus'
+        ];
+        
+        elements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = 'N/A';
+                element.style.color = '#999';
+            }
+        });
+    }
+
+        /**
+     * NUEVO: Footer para estado offline con última actividad
+     */
+    function updateOfflineFooter(lastReadingTime) {
+        const lastUpdateElement = document.getElementById('masterAPILastUpdate');
+        
+        if (!lastUpdateElement) return;
+        
+        if (!lastReadingTime) {
+            lastUpdateElement.innerHTML = 'Status: Offline';
+            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+            return;
+        }
+        
+        try {
+            const lastDate = new Date(lastReadingTime + ' UTC-6');
+            const now = new Date();
+            const diffMs = now - lastDate;
+            const diffMinutes = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            let offlineText = '';
+            
+            if (diffDays > 0) {
+                offlineText = `Last active ${diffDays}d ago • Offline`;
+            } else if (diffHours > 0) {
+                offlineText = `Last active ${diffHours}h ago • Offline`;
+            } else {
+                offlineText = `Last active ${diffMinutes}m ago • Offline`;
+            }
+            
+            lastUpdateElement.innerHTML = offlineText;
+            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
+            
+            console.log(`📅 Offline footer: ${offlineText}`);
+        } catch (error) {
+            console.error('Error calculating offline time:', error);
+            lastUpdateElement.innerHTML = 'Status: Offline';
+            lastUpdateElement.setAttribute('style', 'color: #cc0000; font-weight: bold;');
         }
     }
 
