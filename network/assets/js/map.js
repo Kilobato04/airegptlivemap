@@ -551,13 +551,13 @@ function addMapLayers() {
                     'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
                     'INSYC', 'Hipódromo', 'La Diana', 'UNAM', 'UAM', 'Tepeji', // ← NUEVAS
                     
-                    // Estaciones Reference activas (21 estaciones):
+                    // Estaciones Reference activas (22 estaciones):
                     'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
                     'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
                     'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
                     'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
                     'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
-                    'Acolman'
+                    'Acolman', 'UAM Iztapalapa' // ← NUEVA
                 ];
                 
                 if (masterAPIStations.includes(feature.properties.name)) {
@@ -616,7 +616,7 @@ function addMapLayers() {
                 'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
                 'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
                 'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
-                'Acolman'  // ← AGREGAR ESTA LÍNEA
+                'Acolman', 'UAM Iztapalapa' // ← AGREGAR ESTA LÍNEA
             ];
         
             if (masterAPIStations.includes(feature.properties.name)) {
