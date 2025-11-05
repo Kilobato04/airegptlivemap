@@ -363,13 +363,13 @@ window.ALL_STATIONS_MAPPING = {
     'ALISBio-02': 'ALISBio-02',
     'ALISBio': 'ALISBio',
     'MicroSensor-03': 'MicroSensor-03',
-    'AC': 'Anahuac Cancun',
+    'ANC': 'Anahuac Cancun',
     'MicroSensor-02': 'MicroSensor-02',
     'INSMAA': 'INSYC-Smability',    // ← NUEVA
     'SMAA': 'Hipódromo',            // ← NUEVA  
     'DIA': 'La Diana',              // ← NUEVA
     
-    // === ESTACIONES REFERENCE ACTIVAS (20 estaciones) ===
+    // === ESTACIONES REFERENCE ACTIVAS (21 estaciones) ===
     'CUT': 'Cuautitlan',
     'MER': 'Merced',
     'UAX': 'UAM Xochimilco',
@@ -389,7 +389,8 @@ window.ALL_STATIONS_MAPPING = {
     'INN': 'Investigaciones Nucleares',
     'LLA': 'Los Laureles',
     'LPR': 'La Presa',
-    'VIF': 'Villa de las Flores'
+    'VIF': 'Villa de las Flores',
+    'ACO': 'Acolman' // ← NUEVA
 };
 
 // NUEVO: Mapping completo de estaciones Reference (para referencia)
