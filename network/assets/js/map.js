@@ -608,6 +608,11 @@ function addMapLayers() {
             // AGREGAR: Debug específico para Acolman
             if (feature.properties.name === 'Acolman') {
                 console.log('🎯 ACOLMAN CLICKED - About to check masterAPIStations...');
+                    // DEBUG: Ver la lista real que se está usando
+                console.log('🔍 masterAPIStations list has:', masterAPIStations.length, 'stations');
+                console.log('🔍 Last 5 stations in list:', masterAPIStations.slice(-5));
+                console.log('🔍 Includes Acolman?', masterAPIStations.includes('Acolman'));
+                console.log('🔍 Index of Acolman:', masterAPIStations.indexOf('Acolman'));
             }
             
             // Verificar si es estación Master API
