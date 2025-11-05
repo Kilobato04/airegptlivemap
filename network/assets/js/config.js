@@ -350,7 +350,7 @@ window.getIndicatorColor = function(iasValue) {
 
 console.log('✅ Config functions loaded: createLegendHTML, createPopupContent, getIndicatorColor');
 
-// ACTUALIZADO: Mapeo completo - Estaciones Smability + Reference activas
+// ACTUALIZADO: Mapeo completo - Estaciones Smability + Reference activas - (16 estaciones)
 window.ALL_STATIONS_MAPPING = {
     // === ESTACIONES SMABILITY EXISTENTES ===
     'DVL': 'Del Valle',
@@ -368,6 +368,7 @@ window.ALL_STATIONS_MAPPING = {
     'INSMAA': 'INSYC-Smability',    // ← NUEVA
     'SMAA': 'Hipódromo',            // ← NUEVA  
     'DIA': 'La Diana',              // ← NUEVA
+    'ICAYCC': 'UNAM - ICAYCC',      // ← NUEVA
     
     // === ESTACIONES REFERENCE ACTIVAS (21 estaciones) ===
     'CUT': 'Cuautitlan',
