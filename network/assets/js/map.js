@@ -604,6 +604,11 @@ function addMapLayers() {
             
             const feature = features[0];
             console.log('Clicked on SIMAT square station:', feature.properties.name);
+
+            // AGREGAR: Debug específico para Acolman
+            if (feature.properties.name === 'Acolman') {
+                console.log('🎯 ACOLMAN CLICKED - About to check masterAPIStations...');
+            }
             
             // Verificar si es estación Master API
             const masterAPIStations = [
