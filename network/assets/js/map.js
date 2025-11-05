@@ -551,12 +551,13 @@ function addMapLayers() {
                     'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
                     'INSYC-Smability', 'Hipódromo', 'La Diana',  // ← NUEVAS
                     
-                    // Estaciones Reference activas (20 estaciones):
+                    // Estaciones Reference activas (21 estaciones):
                     'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
                     'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
                     'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
                     'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
-                    'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores'
+                    'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
+                    'Acolman'
                 ];
                 
                 if (masterAPIStations.includes(feature.properties.name)) {
