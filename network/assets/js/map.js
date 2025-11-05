@@ -549,7 +549,7 @@ function addMapLayers() {
                     'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
                     'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
                     'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
-                    'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC' // ← NUEVAS
+                    'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', // ← NUEVAS
                     
                     // Estaciones Reference activas (21 estaciones):
                     'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
