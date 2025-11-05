@@ -405,7 +405,7 @@
     justify-content: center;
     margin-top: 16px;
     margin-bottom: 16px;
-    padding: 0 16px; /* Padding igual al del header */
+    padding: 0; /* Padding igual al del header */
 }
 
 .master-api-btn {
