@@ -545,10 +545,11 @@ function addMapLayers() {
             } else {
                 // Verificar si es estación Master API (círculo)
                 const masterAPIStations = [
-                    // Estaciones Smability (smaa, smaamicro, smaaso2):
+                    // Estaciones Smability (smaa, smaamicro, smaaso2- 15 estaciones):
                     'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
                     'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
                     'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
+                    'INSYC-Smability', 'Hipódromo', 'La Diana',  // ← NUEVAS
                     
                     // Estaciones Reference activas (20 estaciones):
                     'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
