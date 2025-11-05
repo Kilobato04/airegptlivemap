@@ -860,6 +860,10 @@ window.MasterAPIPanels = (function() {
             'ias': 'ias',
             'ozone': 'o3',
             'pm25': 'pm25',
+            'pm10': 'pm10',              // ← NUEVA
+            'so2': 'so2',                // ← NUEVA  
+            'no2': 'no2',                // ← NUEVA
+            'co': 'co',                  // ← NUEVA
             'temperature': 'temperature',
             'humidity': 'relative_humidity'
         };
@@ -874,6 +878,10 @@ window.MasterAPIPanels = (function() {
             'ias': 'IAS',
             'ozone': 'ppb', 
             'pm25': 'μg/m³',
+            'pm10': 'μg/m³',             // ← NUEVA
+            'so2': 'ppb',                // ← NUEVA
+            'no2': 'ppb',                // ← NUEVA
+            'co': 'ppm',                 // ← NUEVA
             'temperature': '°C',
             'humidity': '%'
         };
@@ -890,7 +898,11 @@ window.MasterAPIPanels = (function() {
         
         const colors = {
             'ozone': '#9c27b0',
-            'pm25': '#ff9800', 
+            'pm25': '#ff9800',
+            'pm10': '#ff5722',           // ← NUEVA: Rojo-naranja
+            'so2': '#795548',            // ← NUEVA: Marrón
+            'no2': '#e91e63',            // ← NUEVA: Rosa
+            'co': '#607d8b',             // ← NUEVA: Azul gris
             'temperature': '#4264fb',
             'humidity': '#4caf50'
         };
@@ -925,6 +937,10 @@ window.MasterAPIPanels = (function() {
             'ias': 'IAS',
             'ozone': 'Ozone',
             'pm25': 'PM2.5',
+            'pm10': 'PM10',              // ← NUEVA
+            'so2': 'SO2',                // ← NUEVA
+            'no2': 'NO2',                // ← NUEVA
+            'co': 'CO',                  // ← NUEVA
             'temperature': 'Temperature',
             'humidity': 'Humidity'
         };
