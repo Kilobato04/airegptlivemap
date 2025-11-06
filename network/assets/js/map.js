@@ -622,12 +622,10 @@ function addMapLayers() {
             if (masterAPIStations.includes(feature.properties.name)) {
                 console.log('🔵 This is a Master API station (Reference)');
                 
-                // MEJORADO: Prevención múltiple del popup
-                event.preventDefault();
-                event.stopPropagation();
+                // CORREGIDO: Usar originalEvent para stopPropagation
                 if (event.originalEvent) {
-                    event.originalEvent.preventDefault();
                     event.originalEvent.stopPropagation();
+                    event.originalEvent.preventDefault();
                 }
                 
                 // Limpiar popups existentes inmediatamente
@@ -643,7 +641,7 @@ function addMapLayers() {
                         window.MasterAPIPanels.showPanel(feature.properties.name);
                         console.log('✅ MasterAPIPanels.showPanel() called successfully - NO popup');
                         
-                        // NUEVO: Limpiar popups después de un delay también
+                        // Limpiar popups después de un delay
                         setTimeout(() => {
                             const laterPopups = document.querySelectorAll('.mapboxgl-popup');
                             laterPopups.forEach(popup => popup.remove());
@@ -652,11 +650,9 @@ function addMapLayers() {
                     } catch (error) {
                         console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
                     }
-                } else {
-                    console.error('❌ MasterAPIPanels not available');
                 }
                 
-                return false; // IMPORTANTE: Prevenir propagación adicional
+                return; // Salir sin crear popup
                 
             } else {
                 console.log('⚪ This is a traditional SIMAT station - showing popup');
