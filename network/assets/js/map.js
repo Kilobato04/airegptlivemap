@@ -622,37 +622,42 @@ function addMapLayers() {
             if (masterAPIStations.includes(feature.properties.name)) {
                 console.log('🔵 This is a Master API station (Reference)');
                 
-                // CORREGIDO: Usar método Mapbox para prevenir eventos
-                event.originalEvent.stopPropagation();
+                // MEJORADO: Prevención múltiple del popup
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.originalEvent) {
+                    event.originalEvent.preventDefault();
+                    event.originalEvent.stopPropagation();
+                }
+                
+                // Limpiar popups existentes inmediatamente
+                const existingPopups = document.querySelectorAll('.mapboxgl-popup');
+                existingPopups.forEach(popup => {
+                    popup.remove();
+                    console.log('🗑️ Removed existing popup');
+                });
                 
                 if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
                     console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
                     try {
-                        // Cerrar cualquier popup existente ANTES de abrir panel
-                        const existingPopups = document.querySelectorAll('.mapboxgl-popup');
-                        existingPopups.forEach(popup => popup.remove());
-                        
                         window.MasterAPIPanels.showPanel(feature.properties.name);
                         console.log('✅ MasterAPIPanels.showPanel() called successfully - NO popup');
                         
+                        // NUEVO: Limpiar popups después de un delay también
+                        setTimeout(() => {
+                            const laterPopups = document.querySelectorAll('.mapboxgl-popup');
+                            laterPopups.forEach(popup => popup.remove());
+                        }, 100);
+                        
                     } catch (error) {
                         console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
-                        // Solo mostrar popup si hay error
-                        const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                            .setLngLat(feature.geometry.coordinates)
-                            .setHTML(createPopupContent(feature, null))
-                            .addTo(map);
                     }
                 } else {
-                    console.error('❌ MasterAPIPanels not available, using fallback popup');
-                    const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                        .setLngLat(feature.geometry.coordinates)
-                        .setHTML(createPopupContent(feature, null))
-                        .addTo(map);
+                    console.error('❌ MasterAPIPanels not available');
                 }
                 
-                // IMPORTANTE: Return para evitar ejecución adicional
-                return;
+                return false; // IMPORTANTE: Prevenir propagación adicional
+                
             } else {
                 console.log('⚪ This is a traditional SIMAT station - showing popup');
                 const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
