@@ -367,8 +367,8 @@ window.ALL_STATIONS_MAPPING = {
     'MicroSensor-02': 'MicroSensor-02',
     'DIA': 'La Diana',              // ← NUEVA
     'UNAM': 'UNAM - ICAYCC',      // ← NUEVA - OK
-    'UAM': 'UAM',      // ← NUEVA - OK
-    'TPJ': 'Tepeji',      // ← NUEVA - OK
+    'UAM': 'UAM SF IMSS',      // ← NUEVA - OK
+    'TPJ': 'Tepeji HGO',      // ← NUEVA - OK
     'INSMAA': 'INSYC-Smability',    // ← NUEVA - OK
     'HIP': 'Hipódromo',  // ← NUEVA  -OK
     
