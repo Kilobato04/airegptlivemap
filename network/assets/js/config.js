@@ -369,7 +369,7 @@ window.ALL_STATIONS_MAPPING = {
     'UNAM': 'UNAM - ICAYCC',      // ← NUEVA - OK
     'UAM': 'UAM',      // ← NUEVA - OK
     'TPJ': 'Tepeji',      // ← NUEVA - OK
-    'INS': 'INSYC',    // ← NUEVA - OK
+    'INS': 'INSYC-Smability',    // ← NUEVA - OK
     'HIP': 'Hipódromo',  // ← NUEVA  -OK
     
     // === ESTACIONES REFERENCE ACTIVAS (22 estaciones) ===
