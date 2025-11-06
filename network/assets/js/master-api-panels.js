@@ -16,8 +16,8 @@ window.MasterAPIPanels = (function() {
      * Mostrar panel con datos de Master API - CON RESET DE GRÁFICA
      */
     function showPanel(stationName) {
-        console.log(`MasterAPIPanels: Showing panel for ${stationName}`);
-
+        console.log(`MasterAPIPanels: Showing panel for ${stationName} in DEFAULT state`);
+        
         // REFORZADO: Limpieza agresiva de popups
         const existingPopups = document.querySelectorAll('.mapboxgl-popup');
         existingPopups.forEach(popup => {
@@ -33,6 +33,9 @@ window.MasterAPIPanels = (function() {
         
         currentStation = stationName;
         
+        // CLAVE: SIEMPRE resetear a estado default ANTES de mostrar
+        resetChartArea();
+        
         // Mostrar container
         const container = document.getElementById('masterAPIPanelContainer');
         if (container) {
@@ -41,37 +44,36 @@ window.MasterAPIPanels = (function() {
             setupClickOutsideListener(container);
         }
     
-        // NUEVO: Reset completo del área de gráfica al cambiar estación
-        resetChartArea();
-    
-        // Forzar estilos del panel
+        // Forzar estilos del panel en modo DEFAULT
         const panel = document.getElementById('masterAPIMainPanel');
         if (panel) {
             panel.style.display = 'block';
             panel.style.transform = 'translateX(0px)';
             panel.style.opacity = '1';
             panel.style.visibility = 'visible';
-            console.log('✅ Panel forced visible');
+            panel.style.maxHeight = '55vh'; // FORZAR altura default
+            console.log('✅ Panel forced visible in DEFAULT state');
         }
     
-        // ... resto del código existente ...
-        
+        // Configuración default
         updatePanelColors('#ffff00', 0);
         setupChartControls();
-        setState(2);
+        setState(2); // FORZAR estado default/compacto
         updateWithRealData(stationName);
+        
+        console.log('✅ Panel opened in DEFAULT/COMPACT state');
     }
     
     /**
-     * ACTUALIZADO: Reset con dropdown por defecto en IAS
+     * ACTUALIZADO: Forzar estado default/compacto SIEMPRE
      */
     function resetChartArea() {
-        console.log('🔄 Resetting chart area for new station');
+        console.log('🔄 Resetting to DEFAULT state for new station');
         
-        // 1. Contraer panel principal si está expandido
+        // 1. Contraer panel a altura default
         const mainPanel = document.getElementById('masterAPIMainPanel');
         if (mainPanel) {
-            mainPanel.style.maxHeight = '55vh';
+            mainPanel.style.maxHeight = '55vh'; // Altura default
         }
         
         // 2. Ocultar contenedor de gráfica
@@ -80,20 +82,25 @@ window.MasterAPIPanels = (function() {
             chartContainer.style.display = 'none';
         }
         
-        // 3. Limpiar gráfico Plotly completamente
+        // 3. NUEVO: Forzar datos expandidos a estado colapsado
+        const expandedContent = document.getElementById('masterAPIExpandedContent');
+        if (expandedContent) {
+            expandedContent.style.display = 'none';
+        }
+        
+        // 4. Limpiar gráfico Plotly
         const chartDiv = document.getElementById('masterAPIInlineChart');
         if (chartDiv && window.Plotly) {
             try {
                 Plotly.purge(chartDiv);
                 chartDiv.style.display = 'none';
                 chartDiv.classList.remove('active');
-                console.log('✅ Plotly chart purged');
             } catch (error) {
                 console.warn('Warning purging chart:', error);
             }
         }
         
-        // 4. Resetear placeholder a estado original
+        // 5. Resetear placeholder
         const placeholder = document.getElementById('masterAPIChartPlaceholder');
         if (placeholder) {
             placeholder.style.display = 'flex';
@@ -103,17 +110,16 @@ window.MasterAPIPanels = (function() {
             `;
         }
         
-        // 5. NUEVO: Resetear dropdown a IAS por defecto
+        // 6. Resetear dropdown a IAS por defecto
         const variableSelect = document.getElementById('masterAPIVariableSelect');
         if (variableSelect) {
             variableSelect.value = 'ias';
-            console.log('✅ Variable dropdown reset to IAS');
         }
         
-        // 6. Resetear estado interno
-        currentState = 2;
+        // 7. CLAVE: Resetear estado interno a DEFAULT
+        currentState = 2; // Panel visible en modo compacto/default
         
-        console.log('✅ Chart area reset complete - IAS default set');
+        console.log('✅ Reset complete - DEFAULT/COMPACT state enforced');
     }
 
         /**
@@ -141,23 +147,23 @@ window.MasterAPIPanels = (function() {
             container.addEventListener('click', clickOutsideHandler);
         }
         
-        /**
-         * Cerrar panel con limpieza completa
-         */
-        function closePanel() {
-            const container = document.getElementById('masterAPIPanelContainer');
-            if (container) {
-                container.style.display = 'none';
-            }
-            
-            // Limpiar gráfico al cerrar
-            resetChartArea();
-            
-            setState(1);
-            currentStation = null;
-            
-            console.log('✅ Master API panel closed and chart reset');
+    /**
+     * ACTUALIZADO: Cerrar y preparar para próxima apertura default
+     */
+    function closePanel() {
+        const container = document.getElementById('masterAPIPanelContainer');
+        if (container) {
+            container.style.display = 'none';
         }
+        
+        // IMPORTANTE: Reset completo para próxima apertura
+        resetChartArea();
+        
+        setState(1); // Cerrado
+        currentStation = null;
+        
+        console.log('✅ Panel closed - ready for next DEFAULT opening');
+    }
 
     /**
      * VERIFICAR: Que esta función maneje todos los campos
