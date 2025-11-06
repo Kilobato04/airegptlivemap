@@ -593,6 +593,9 @@ function addMapLayers() {
         });
         
         // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY CORREGIDO
+        // AGREGAR: Flag global para prevenir popups
+        let preventPopupCreation = false;
+        
         map.on('click', 'smaa_network_squares', (event) => {
             console.log('Click detected on smaa_network_squares layer');
             
@@ -622,46 +625,59 @@ function addMapLayers() {
             if (masterAPIStations.includes(feature.properties.name)) {
                 console.log('🔵 This is a Master API station (Reference)');
                 
-                // CORREGIDO: Usar originalEvent para stopPropagation
+                // NUEVO: Establecer flag inmediatamente
+                preventPopupCreation = true;
+                
+                // Prevención de eventos
                 if (event.originalEvent) {
                     event.originalEvent.stopPropagation();
                     event.originalEvent.preventDefault();
                 }
                 
-                // Limpiar popups existentes inmediatamente
-                const existingPopups = document.querySelectorAll('.mapboxgl-popup');
-                existingPopups.forEach(popup => {
-                    popup.remove();
-                    console.log('🗑️ Removed existing popup');
-                });
+                // Limpiar cualquier popup existente inmediatamente
+                document.querySelectorAll('.mapboxgl-popup').forEach(popup => popup.remove());
                 
+                // Abrir panel Master API
                 if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
                     console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
-                    try {
-                        window.MasterAPIPanels.showPanel(feature.properties.name);
-                        console.log('✅ MasterAPIPanels.showPanel() called successfully - NO popup');
-                        
-                        // Limpiar popups después de un delay
-                        setTimeout(() => {
-                            const laterPopups = document.querySelectorAll('.mapboxgl-popup');
-                            laterPopups.forEach(popup => popup.remove());
-                        }, 100);
-                        
-                    } catch (error) {
-                        console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
-                    }
+                    
+                    window.MasterAPIPanels.showPanel(feature.properties.name);
+                    console.log('✅ MasterAPIPanels.showPanel() called - popup prevented');
+                    
+                    // Limpiar agresivamente por 500ms
+                    const cleanupInterval = setInterval(() => {
+                        document.querySelectorAll('.mapboxgl-popup').forEach(popup => popup.remove());
+                    }, 10);
+                    
+                    setTimeout(() => {
+                        clearInterval(cleanupInterval);
+                        preventPopupCreation = false; // Reset flag
+                    }, 500);
                 }
                 
-                return; // Salir sin crear popup
+                return false;
                 
             } else {
-                console.log('⚪ This is a traditional SIMAT station - showing popup');
-                const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                    .setLngLat(feature.geometry.coordinates)
-                    .setHTML(createPopupContent(feature, null))
-                    .addTo(map);
+                // Solo crear popup si la flag no está activa
+                if (!preventPopupCreation) {
+                    console.log('⚪ This is a traditional SIMAT station - showing popup');
+                    const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                        .setLngLat(feature.geometry.coordinates)
+                        .setHTML(createPopupContent(feature, null))
+                        .addTo(map);
+                }
             }
         });
+
+        // NUEVO: Interceptar creación global de popups
+        const originalAddTo = mapboxgl.Popup.prototype.addTo;
+        mapboxgl.Popup.prototype.addTo = function(map) {
+            if (preventPopupCreation) {
+                console.log('🚫 Popup creation blocked by flag');
+                return this;
+            }
+            return originalAddTo.call(this, map);
+        };  
         
         // NUEVO: Click handler para el layer de texto también
         map.on('click', 'smaa_network_squares_text', (event) => {
