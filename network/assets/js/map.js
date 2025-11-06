@@ -549,7 +549,7 @@ function addMapLayers() {
                     'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
                     'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
                     'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
-                    'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', 'UAM', 'Tepeji', // ← NUEVAS
+                    'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', 'UAM SF IMSS', 'Tepeji HGO', // ← NUEVAS
                     
                     // Estaciones Reference activas (22 estaciones):
                     'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
@@ -610,7 +610,7 @@ function addMapLayers() {
                 'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
                 'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
                 'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
-                'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', 'UAM', 'Tepeji', // ← NUEVAS
+                'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', 'UAM SF IMSS', 'Tepeji HGO', // ← NUEVAS
                 'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
                 'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
                 'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
