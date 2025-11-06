@@ -55,13 +55,28 @@ window.MasterAPIPanels = (function() {
             console.log('✅ Panel forced visible in DEFAULT state');
         }
     
+        // NUEVO: Reset preventivo de colores antes de actualizar datos
+        const allElements = [
+            'masterAPIO3', 'masterAPICO', 'masterAPIPM25', 'masterAPIPM10',
+            'masterAPITemperature', 'masterAPIHumidity', 'masterAPIBattery',
+            'masterAPILocation', 'masterAPIDeviceMode', 'masterAPIReadingStatus',
+            'masterAPIDominantPollutant'
+        ];
+        
+        allElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.color = '#000000'; // Reset a negro por defecto
+            }
+        });
+    
         // Configuración default
         updatePanelColors('#ffff00', 0);
         setupChartControls();
         setState(2); // FORZAR estado default/compacto
-        updateWithRealData(stationName);
+        updateWithRealData(stationName); // ← SOLO UNA VEZ
         
-        console.log('✅ Panel opened in DEFAULT/COMPACT state');
+        console.log('✅ Panel opened with color reset and DEFAULT/COMPACT state');
     }
     
     /**
@@ -267,23 +282,27 @@ window.MasterAPIPanels = (function() {
         console.log(`⚪ ${stationName} panel set to offline state`);
     }
 
-        /**
-     * NUEVO: Datos detallados en estado offline
+    /**
+     * CORREGIDO: Datos detallados en estado offline - TODOS en gris
      */
     function setOfflineDetailedData() {
         const elements = [
             'masterAPIO3', 'masterAPICO', 'masterAPIPM25', 'masterAPIPM10',
             'masterAPITemperature', 'masterAPIHumidity', 'masterAPIBattery',
-            'masterAPILocation', 'masterAPIDeviceMode', 'masterAPIReadingStatus'
+            'masterAPILocation', 'masterAPIDeviceMode', 'masterAPIReadingStatus',
+            'masterAPIDominantPollutant'  // ← AGREGAR: El campo problemático
         ];
         
         elements.forEach(elementId => {
             const element = document.getElementById(elementId);
             if (element) {
                 element.textContent = 'N/A';
-                element.style.color = '#999';
+                element.style.color = '#999999'; // ← FORZAR: Gris claro para todos
+                console.log(`🔘 Set ${elementId} to offline state (gray)`);
             }
         });
+        
+        console.log('✅ All detailed data fields set to offline gray state');
     }
 
         /**
@@ -358,9 +377,25 @@ window.MasterAPIPanels = (function() {
     }
 
     /**
-     * Actualizar datos detallados
+     * CORREGIDO: Actualizar datos detallados con reset de colores
      */
     function updateDetailedData(panelData, stationData) {
+        console.log('🔄 Updating detailed data with color reset');
+        
+        // NUEVO: Reset de colores a negro para todos los elementos
+        const allDataElements = [
+            'masterAPIReadingStatus', 'masterAPIO3', 'masterAPICO', 'masterAPIPM25', 'masterAPIPM10',
+            'masterAPITemperature', 'masterAPIHumidity', 'masterAPIBattery',
+            'masterAPILocation', 'masterAPIDeviceMode', 'masterAPIDominantPollutant'
+        ];
+        
+        allDataElements.forEach(elementId => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.style.color = '#000000'; // ← RESETEAR: A negro original
+            }
+        });
+        
         // Reading Status
         const readingStatus = document.getElementById('masterAPIReadingStatus');
         if (readingStatus) readingStatus.textContent = getStatusLabel(stationData.reading_status);
@@ -392,9 +427,18 @@ window.MasterAPIPanels = (function() {
         if (location) location.textContent = panelData.placement;
         if (deviceMode) deviceMode.textContent = panelData.deviceMode;
         
+        // NUEVO: Asegurar que Dominant Pollutant también se resetee
+        const dominantPollutant = document.getElementById('masterAPIDominantPollutant');
+        if (dominantPollutant) {
+            dominantPollutant.style.color = '#000000'; // ← FORZAR negro
+            dominantPollutant.textContent = panelData.dominantPollutant || 'N/A';
+        }
+        
         // Footer
         const lastUpdate = document.getElementById('masterAPILastUpdate');
         if (lastUpdate) lastUpdate.textContent = `Last update: ${panelData.lastUpdate}`;
+        
+        console.log('✅ All colors reset to black for online station');
     }
 
         /**
