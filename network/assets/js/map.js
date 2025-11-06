@@ -557,7 +557,7 @@ function addMapLayers() {
                     'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
                     'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
                     'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
-                    'Acolman', 'UAM Iztapalapa' // ← NUEVA
+                    'Acolman', 'UAM Iztapalapa', 'Nezahualcoyotl' // ← NUEVA
                 ];
                 
                 if (masterAPIStations.includes(feature.properties.name)) {
@@ -616,7 +616,7 @@ function addMapLayers() {
                 'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
                 'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
                 'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
-                'Acolman', 'UAM Iztapalapa' // ← AGREGAR ESTA LÍNEA
+                'Acolman', 'UAM Iztapalapa', 'Nezahualcoyotl' // ← AGREGAR ESTA LÍNEA
             ];
         
             if (masterAPIStations.includes(feature.properties.name)) {
