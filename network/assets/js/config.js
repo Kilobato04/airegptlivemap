@@ -366,7 +366,7 @@ window.ALL_STATIONS_MAPPING = {
     'ANC': 'Anahuac Cancun',
     'MicroSensor-02': 'MicroSensor-02',
     'DIA': 'La Diana',              // ← NUEVA
-    'UNM': 'UNAM',      // ← NUEVA - OK
+    'UNAM': 'UNAM-ICAYCC',      // ← NUEVA - OK
     'UAM': 'UAM',      // ← NUEVA - OK
     'TPJ': 'Tepeji',      // ← NUEVA - OK
     'INS': 'INSYC',    // ← NUEVA - OK
