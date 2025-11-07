@@ -157,6 +157,10 @@ setTimeout(() => {
         console.log('Map setup complete');
         
         //NEW 07112025
+        // Configuración inicial del texto IAS
+        const initialZoom = map.getZoom();
+        const showTextInitially = initialZoom > 7.5;
+        toggleIASText(showTextInitially);
         //NEW 07112025
     });
 
@@ -395,7 +399,8 @@ function addMapLayers() {
             'text-ignore-placement': true
         },
         'paint': {
-            'text-color': '#FFFFFF'
+            'text-color': '#FFFFFF',
+            'text-opacity': 1  // ← 07112025
         }
     });
 
@@ -416,7 +421,8 @@ function addMapLayers() {
             'text-ignore-placement': true
         },
         'paint': {
-            'text-color': '#000000'  // ← CAMBIAR de '#FFFFFF' a '#000000'
+            'text-color': '#000000',  // ← CAMBIAR de '#FFFFFF' a '#000000'
+            'text-opacity': 1  // ← 07112025
         }
     });
 
@@ -673,6 +679,31 @@ function addMapLayers() {
         });
 
             // NUEVO: Control de texto IAS basado en zoom - 07112025
+            // CORREGIDO: Control de texto IAS basado en zoom
+            map.on('zoomend', () => {
+                const currentZoom = map.getZoom();
+                const showIASText = currentZoom > 7.5;
+                
+                console.log(`🔍 Zoom: ${currentZoom.toFixed(1)} - IAS text: ${showIASText ? 'visible' : 'hidden'}`);
+                
+                toggleIASText(showIASText);
+            });
+            // CORREGIDO: Solo controlar texto, sin modificar tamaños de markers
+            function toggleIASText(show) {
+                const textLayers = ['smaa_network_ias', 'smaa_network_squares_text'];
+                
+                textLayers.forEach(layerId => {
+                    try {
+                        if (map.getLayer(layerId)) {
+                            map.setPaintProperty(layerId, 'text-opacity', show ? 1 : 0);
+                        }
+                    } catch (error) {
+                        console.warn(`Error updating layer ${layerId}:`, error);
+                    }
+                });
+                
+                console.log(`📊 IAS text ${show ? 'shown' : 'hidden'} for zoom level`);
+            }
             // NUEVO: Control de texto IAS basado en zoom - 07112025
 
             // NUEVO: Interceptar creación global de popups
