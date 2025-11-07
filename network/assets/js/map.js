@@ -157,11 +157,6 @@ setTimeout(() => {
         console.log('Map setup complete');
         
         //NEW 07112025
-        const initialZoom = map.getZoom();
-        const showTextInitially = initialZoom > 7.5;
-        toggleIASText(showTextInitially);
-        
-        console.log(`🎯 Initial zoom: ${initialZoom.toFixed(1)} - Text initially ${showTextInitially ? 'visible' : 'hidden'}`);
         //NEW 07112025
     });
 
@@ -678,42 +673,6 @@ function addMapLayers() {
         });
 
             // NUEVO: Control de texto IAS basado en zoom - 07112025
-            map.on('zoomend', () => {  // ← 'zoomend' en lugar de 'zoom'
-                const currentZoom = map.getZoom();
-                const showIASText = currentZoom > 7.5;
-                
-                console.log(`🔍 Zoom: ${currentZoom.toFixed(1)} - IAS text: ${showIASText ? 'visible' : 'hidden'}`);
-                
-                toggleIASText(showIASText);
-            });
-            // NUEVO: Función para mostrar/ocultar texto IAS
-            function toggleIASText(show) {
-                const textLayers = ['smaa_network_ias', 'smaa_network_squares_text'];
-                
-                textLayers.forEach(layerId => {
-                    try {
-                        if (map.getLayer(layerId)) {
-                            map.setLayoutProperty(layerId, 'text-opacity', show ? 1 : 0);
-                        }
-                    } catch (error) {
-                        console.warn(`Error updating layer ${layerId}:`, error);
-                    }
-                });
-                
-                // Validar layers antes de cambiar propiedades
-                try {
-                    if (map.getLayer('smaa_network')) {
-                        map.setPaintProperty('smaa_network', 'circle-radius', show ? 6 : 8);
-                    }
-                    if (map.getLayer('smaa_network_border')) {
-                        map.setPaintProperty('smaa_network_border', 'circle-radius', show ? 8 : 10);
-                    }
-                } catch (error) {
-                    console.warn('Error updating circle properties:', error);
-                }
-                
-                console.log(`📊 IAS text ${show ? 'shown' : 'hidden'} for zoom level`);
-            }
             // NUEVO: Control de texto IAS basado en zoom - 07112025
 
             // NUEVO: Interceptar creación global de popups
