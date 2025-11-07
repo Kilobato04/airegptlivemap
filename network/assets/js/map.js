@@ -155,6 +155,14 @@ setTimeout(() => {
         }, 3000);
     
         console.log('Map setup complete');
+        
+        //NEW 07112025
+        const initialZoom = map.getZoom();
+        const showTextInitially = initialZoom > 7.5;
+        toggleIASText(showTextInitially);
+        
+        console.log(`🎯 Initial zoom: ${initialZoom.toFixed(1)} - Text initially ${showTextInitially ? 'visible' : 'hidden'}`);
+        //NEW 07112025
     });
 
     /**
@@ -669,30 +677,58 @@ function addMapLayers() {
             }
         });
 
-        // NUEVO: Interceptar creación global de popups
-        const originalAddTo = mapboxgl.Popup.prototype.addTo;
-        mapboxgl.Popup.prototype.addTo = function(map) {
-            if (preventPopupCreation) {
-                console.log('🚫 Popup creation blocked by flag');
-                return this;
-            }
-            return originalAddTo.call(this, map);
-        };  
-        
-        // NUEVO: Click handler para el layer de texto también
-        map.on('click', 'smaa_network_squares_text', (event) => {
-            const features = map.queryRenderedFeatures(event.point, {
-                layers: ['smaa_network_squares_text']
+            // NUEVO: Control de texto IAS basado en zoom - 07112025
+            map.on('zoom', () => {
+                const currentZoom = map.getZoom();
+                const showIASText = currentZoom > 7.5;
+                
+                console.log(`🔍 Zoom: ${currentZoom.toFixed(1)} - IAS text: ${showIASText ? 'visible' : 'hidden'}`);
+                
+                toggleIASText(showIASText);
             });
+            // NUEVO: Función para mostrar/ocultar texto IAS
+            function toggleIASText(show) {
+                const layers = ['smaa_network', 'smaa_network_squares'];
+                
+                layers.forEach(layerId => {
+                    if (map.getLayer(layerId)) {
+                        map.setLayoutProperty(layerId, 'text-opacity', show ? 1 : 0);
+                        
+                        // Opcional: Ajustar tamaño del marker cuando no hay texto
+                        if (layerId === 'smaa_network') {
+                            map.setPaintProperty(layerId, 'circle-radius', show ? 12 : 14);
+                        }
+                    }
+                });
+                
+                console.log(`📊 IAS text ${show ? 'shown' : 'hidden'} for zoom level`);
+            }
+            // NUEVO: Control de texto IAS basado en zoom - 07112025
+
+            // NUEVO: Interceptar creación global de popups
+            const originalAddTo = mapboxgl.Popup.prototype.addTo;
+            mapboxgl.Popup.prototype.addTo = function(map) {
+                if (preventPopupCreation) {
+                    console.log('🚫 Popup creation blocked by flag');
+                    return this;
+                }
+                return originalAddTo.call(this, map);
+            };  
             
-            if (!features.length) return;
-            
-            const feature = features[0];
-            const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                .setLngLat(feature.geometry.coordinates)
-                .setHTML(createPopupContent(feature, null))
-                .addTo(map);
-        });
+            // NUEVO: Click handler para el layer de texto también
+            map.on('click', 'smaa_network_squares_text', (event) => {
+                const features = map.queryRenderedFeatures(event.point, {
+                    layers: ['smaa_network_squares_text']
+                });
+                
+                if (!features.length) return;
+                
+                const feature = features[0];
+                const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                    .setLngLat(feature.geometry.coordinates)
+                    .setHTML(createPopupContent(feature, null))
+                    .addTo(map);
+            });
 
     
         /* ===== POPUP LEGACY COMENTADO - BACKUP =====
