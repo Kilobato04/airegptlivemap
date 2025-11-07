@@ -159,7 +159,7 @@ setTimeout(() => {
         //NEW 07112025
         // Configuración inicial del texto IAS
         const initialZoom = map.getZoom();
-        const showTextInitially = initialZoom > 7.5;
+        const showTextInitially = initialZoom > 8.0;
         toggleIASText(showTextInitially);
         //NEW 07112025
     });
@@ -682,7 +682,7 @@ function addMapLayers() {
             // CORREGIDO: Control de texto IAS basado en zoom
             map.on('zoomend', () => {
                 const currentZoom = map.getZoom();
-                const showIASText = currentZoom > 7.5;
+                const showIASText = currentZoom > 8.0;
                 
                 console.log(`🔍 Zoom: ${currentZoom.toFixed(1)} - IAS text: ${showIASText ? 'visible' : 'hidden'}`);
                 
