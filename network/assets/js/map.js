@@ -678,7 +678,7 @@ function addMapLayers() {
         });
 
             // NUEVO: Control de texto IAS basado en zoom - 07112025
-            map.on('zoom', () => {
+            map.on('zoomend', () => {  // ← 'zoomend' en lugar de 'zoom'
                 const currentZoom = map.getZoom();
                 const showIASText = currentZoom > 7.5;
                 
@@ -688,18 +688,29 @@ function addMapLayers() {
             });
             // NUEVO: Función para mostrar/ocultar texto IAS
             function toggleIASText(show) {
-                const layers = ['smaa_network', 'smaa_network_squares'];
+                const textLayers = ['smaa_network_ias', 'smaa_network_squares_text'];
                 
-                layers.forEach(layerId => {
-                    if (map.getLayer(layerId)) {
-                        map.setLayoutProperty(layerId, 'text-opacity', show ? 1 : 0);
-                        
-                        // Opcional: Ajustar tamaño del marker cuando no hay texto
-                        if (layerId === 'smaa_network') {
-                            map.setPaintProperty(layerId, 'circle-radius', show ? 12 : 14);
+                textLayers.forEach(layerId => {
+                    try {
+                        if (map.getLayer(layerId)) {
+                            map.setLayoutProperty(layerId, 'text-opacity', show ? 1 : 0);
                         }
+                    } catch (error) {
+                        console.warn(`Error updating layer ${layerId}:`, error);
                     }
                 });
+                
+                // Validar layers antes de cambiar propiedades
+                try {
+                    if (map.getLayer('smaa_network')) {
+                        map.setPaintProperty('smaa_network', 'circle-radius', show ? 6 : 8);
+                    }
+                    if (map.getLayer('smaa_network_border')) {
+                        map.setPaintProperty('smaa_network_border', 'circle-radius', show ? 8 : 10);
+                    }
+                } catch (error) {
+                    console.warn('Error updating circle properties:', error);
+                }
                 
                 console.log(`📊 IAS text ${show ? 'shown' : 'hidden'} for zoom level`);
             }
