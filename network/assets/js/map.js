@@ -651,83 +651,82 @@ function addMapLayers() {
                 }
             }
         });
-        
-        // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY CORREGIDO
-        // AGREGAR: Flag global para prevenir popups
-        let preventPopupCreation = false;
-        
-        map.on('click', 'smaa_network_squares', (event) => {
-            console.log('Click detected on smaa_network_squares layer');
-            
-            const features = map.queryRenderedFeatures(event.point, {
-                layers: ['smaa_network_squares']
-            });
-            
+
+        // Click handler para cuadrados (reutiliza lógica del handler principal)
+        map.on('click', 'smaa_network_squares', async (event) => {
+            const features = map.queryRenderedFeatures(event.point, { layers: ['smaa_network_squares'] });
             if (!features.length) return;
-            
-            const feature = features[0];
-            console.log('Clicked on SIMAT square station:', feature.properties.name);
-            
-            // Verificar si es estación Master API
-            const masterAPIStations = [
-                'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
-                'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
-                'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
-                'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', 'UAM SF IMSS', 'Tepeji HGO', // ← NUEVAS
-                'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
-                'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
-                'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
-                'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
-                'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
-                'Acolman', 'UAM Iztapalapa', 'Nezahualcoyotl' // ← AGREGAR ESTA LÍNEA
-            ];
         
-            if (masterAPIStations.includes(feature.properties.name)) {
-                console.log('🔵 This is a Master API station (Reference)');
+            // Crear evento simulado para reutilizar la lógica del click handler principal
+            const simulatedEvent = {
+                ...event,
+                point: event.point
+            };
+            
+            // Simular feature en smaa_network layer para reutilizar lógica
+            const simulatedFeatures = [{
+                properties: { name: features[0].properties.name },
+                geometry: features[0].geometry
+            }];
+            
+            // Reutilizar la lógica principal (sin duplicar código)
+            const stationName = features[0].properties.name;
+            console.log('🟦 Square clicked:', stationName);
+            
+            // Aplicar la misma lógica que el click handler principal
+            const currentMinute = new Date().getMinutes();
+            if (currentMinute <= 20 && window.ALL_STATIONS_MAPPING && 
+                Object.values(window.ALL_STATIONS_MAPPING).includes(stationName)) {
+                console.log('🔄 Quick sync for square click in desync window');
+                await window.updateReferenceStations?.();
+            }
+            
+            // Desactivar auto panel (misma lógica)
+            if (window.autoPanel && window.autoPanel.isActive) {
+                window.autoPanel.isActive = false;
                 
-                // NUEVO: Establecer flag inmediatamente
-                preventPopupCreation = true;
+                const now = new Date();
+                const currentMinute = now.getMinutes();
+                let minutesUntilNextRefresh;
                 
-                // Prevención de eventos
-                if (event.originalEvent) {
-                    event.originalEvent.stopPropagation();
-                    event.originalEvent.preventDefault();
+                if (currentMinute < 15) {
+                    minutesUntilNextRefresh = 15 - currentMinute;
+                } else if (currentMinute < 20) {
+                    minutesUntilNextRefresh = 20 - currentMinute;
+                } else {
+                    minutesUntilNextRefresh = (60 - currentMinute) + 15;
                 }
                 
-                // Limpiar cualquier popup existente inmediatamente
-                document.querySelectorAll('.mapboxgl-popup').forEach(popup => popup.remove());
-                
-                // Abrir panel Master API
-                if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
-                    console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
-                    
-                    window.MasterAPIPanels.showPanel(feature.properties.name);
-                    console.log('✅ MasterAPIPanels.showPanel() called - popup prevented');
-                    
-                    // Limpiar agresivamente por 500ms
-                    const cleanupInterval = setInterval(() => {
-                        document.querySelectorAll('.mapboxgl-popup').forEach(popup => popup.remove());
-                    }, 10);
-                    
-                    setTimeout(() => {
-                        clearInterval(cleanupInterval);
-                        preventPopupCreation = false; // Reset flag
-                    }, 500);
-                }
-                
-                return false;
-                
+                setTimeout(() => {
+                    if (window.autoPanel) {
+                        window.autoPanel.isActive = true;
+                    }
+                }, minutesUntilNextRefresh * 60 * 1000);
+            }
+            
+            // Lógica de panel (misma que círculos)
+            if (APP_SETTINGS.activeStations.includes(stationName)) {
+                window.SmabilityPanels?.showPanel?.(stationName);
             } else {
-                // Solo crear popup si la flag no está activa
-                if (!preventPopupCreation) {
-                    console.log('⚪ This is a traditional SIMAT station - showing popup');
-                    const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                        .setLngLat(feature.geometry.coordinates)
-                        .setHTML(createPopupContent(feature, null))
+                const isInMasterAPI = window.ALL_STATIONS_MAPPING && 
+                                     Object.values(window.ALL_STATIONS_MAPPING).includes(stationName);
+                
+                if (isInMasterAPI) {
+                    console.log('🔵 Square: Master API station');
+                    window.MasterAPIPanels?.showPanel?.(stationName);
+                } else {
+                    console.log('🟦 Square: Unmapped station - using popup');
+                    new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                        .setLngLat(features[0].geometry.coordinates)
+                        .setHTML(createPopupContent(features[0], null))
                         .addTo(map);
                 }
             }
         });
+        
+            // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY CORREGIDO
+            // AGREGAR: Flag global para prevenir popups
+            let preventPopupCreation = false;
 
             // NUEVO: Control de texto IAS basado en zoom - 07112025
             // CORREGIDO: Control de texto IAS basado en zoom
