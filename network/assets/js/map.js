@@ -126,20 +126,24 @@ setTimeout(() => {
             }
         }, 2000);
         
-        // Crear marcadores independientes
+        // SECUENCIA OPTIMIZADA - solo 2 timeouts:
+        
+        // 1. Setup inicial consolidado
         setTimeout(() => {
             createIndependentMarkers();
-        }, 1000);
-        
-        // Initialize IAS values after map loads
-        setTimeout(() => {
-            console.log('Initializing IAS values...');
             updateAllMarkerIAS();
             updateMasterAPISquares();
-        }, 2000);
+        }, 1500);
         
-        // Ensuring SmabilityPanels is ready
+        // 2. Auto panel + SmabilityPanels check
         setTimeout(() => {
+            // Auto panel system
+            window.autoPanel = { currentStation: null, isActive: true };
+            if (window.MasterAPI?.isInitialized?.()) {
+                manageAutoPanel();
+            }
+            
+            // SmabilityPanels check (código existente)
             console.log('🎯 Ensuring SmabilityPanels is ready...');
             if (window.SmabilityPanels) {
                 console.log('✅ SmabilityPanels module found');
@@ -152,8 +156,8 @@ setTimeout(() => {
             const mainPanel = document.getElementById('smabilityMainPanel');
             console.log('📦 Panel container exists:', !!container);
             console.log('📱 Main panel exists:', !!mainPanel);
-        }, 3000);
-    
+        }, 2000);
+        
         console.log('Map setup complete');
         
         //NEW 07112025
@@ -511,6 +515,44 @@ function addMapLayers() {
             }
         }, 1000); // Esperar 1 segundo después de crear los layers
     }
+
+        /**
+     * Sistema auto panel completo y optimizado
+     */
+    async function manageAutoPanel(isUpdate = false) {
+        try {
+            if (!window.autoPanel?.isActive) return;
+            
+            const stations = window.MASTER_API_CONFIG?.cache.get('all_stations') || 
+                            await window.fetchMasterAPIData?.() || [];
+            
+            const validStations = stations.filter(s => 
+                s.reading_status === 'current' && 
+                s.ias_numeric_value > 0 &&
+                window.ALL_STATIONS_MAPPING?.[s.station_id]
+            );
+            
+            if (!validStations.length) return;
+            
+            const highest = validStations.reduce((max, s) => 
+                s.ias_numeric_value > max.ias_numeric_value ? s : max);
+            
+            const stationName = window.ALL_STATIONS_MAPPING[highest.station_id];
+            const shouldShow = !isUpdate || window.autoPanel.currentStation !== stationName;
+            
+            if (shouldShow && !document.getElementById('masterAPIPanelContainer')?.style.display !== 'none') {
+                console.log(`🎯 Auto panel: ${stationName} (${highest.ias_numeric_value})`);
+                
+                window.MasterAPIPanels?.showPanel?.(stationName);
+                window.autoPanel.currentStation = stationName;
+            }
+            
+        } catch (error) {
+            console.error('❌ Auto panel error:', error);
+        }
+    }
+    
+    window.manageAutoPanel = manageAutoPanel;
 
     /**
      * Set up map click handlers
@@ -1171,6 +1213,8 @@ function addMapLayers() {
                     await updateMarkerColor(location);
                 }
             }
+
+            await manageAutoPanel(true);
             
             // 4. Update any visible popups
             const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
