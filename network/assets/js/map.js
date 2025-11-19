@@ -560,84 +560,93 @@ function addMapLayers() {
     function setupMapInteractions() {
         // Click handler principal para todas las estaciones
         map.on('click', 'smaa_network', async (event) => {
-            console.log('🖱️ Click detected on smaa_network layer');
-            
-            const features = map.queryRenderedFeatures(event.point, {
-                layers: ['smaa_network']
-            });
-            
-            if (!features.length) {
-                console.log('❌ No features found at click point');
-                return;
-            }
+            const features = map.queryRenderedFeatures(event.point, { layers: ['smaa_network'] });
+            if (!features.length) return;
         
-            const feature = features[0];
-            console.log('🎯 Clicked on station:', feature.properties.name);
-            console.log('📊 Station properties:', feature.properties);
+            const stationName = features[0].properties.name;
+            console.log('🎯 Clicked:', stationName);
             
-            if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
+            // Sincronización inteligente en ventana de desync
+            const currentMinute = new Date().getMinutes();
+            if (currentMinute <= 20 && window.ALL_STATIONS_MAPPING && 
+                Object.values(window.ALL_STATIONS_MAPPING).includes(stationName)) {
+                console.log('🔄 Quick sync for desync window - forcing data refresh');
+                await window.updateReferenceStations?.();
+            }
+            
+            // Desactivar auto panel hasta próximo refresh programado
+            if (window.autoPanel && window.autoPanel.isActive) {
+                console.log('👤 Manual click detected, disabling auto panel until next scheduled refresh');
+                window.autoPanel.isActive = false;
+                
+                const now = new Date();
+                const currentMinute = now.getMinutes();
+                let minutesUntilNextRefresh;
+                
+                if (currentMinute < 15) {
+                    minutesUntilNextRefresh = 15 - currentMinute;
+                } else if (currentMinute < 20) {
+                    minutesUntilNextRefresh = 20 - currentMinute;
+                } else {
+                    minutesUntilNextRefresh = (60 - currentMinute) + 15;
+                }
+                
+                console.log(`⏰ Auto panel will reactivate in ${minutesUntilNextRefresh} minutes at next refresh`);
+                
+                setTimeout(() => {
+                    if (window.autoPanel) {
+                        window.autoPanel.isActive = true;
+                        console.log('🔄 Auto panel reactivated on scheduled refresh cycle');
+                    }
+                }, minutesUntilNextRefresh * 60 * 1000);
+            }
+            
+            // LÓGICA OPTIMIZADA: Usar mappings dinámicos
+            if (APP_SETTINGS.activeStations.includes(stationName)) {
                 // Estaciones activas (biobox/minutales) - usar SmabilityPanels
                 console.log('✅ This is an ACTIVE station (Smability biobox/minutales)');
-                console.log('🔍 Checking SmabilityPanels...');
-                console.log('SmabilityPanels exists:', !!window.SmabilityPanels);
-                console.log('showPanel function exists:', !!window.SmabilityPanels?.showPanel);
                 
-                if (window.SmabilityPanels && window.SmabilityPanels.showPanel) {
+                if (window.SmabilityPanels?.showPanel) {
                     console.log('🚀 Calling SmabilityPanels.showPanel()...');
                     try {
-                        window.SmabilityPanels.showPanel(feature.properties.name);
+                        window.SmabilityPanels.showPanel(stationName);
                         console.log('✅ SmabilityPanels.showPanel() called successfully');
                     } catch (error) {
                         console.error('❌ Error calling showPanel:', error);
                     }
                 } else {
-                    console.error('❌ SmabilityPanels or showPanel not available');
+                    console.error('❌ SmabilityPanels not available');
                 }
             } else {
-                // Verificar si es estación Master API (círculo)
-                const masterAPIStations = [
-                    // Estaciones Smability (smaa, smaamicro, smaaso2- 18 estaciones):
-                    'Del Valle', 'Huerto IBERO', 'CENTRUS 2', 'CENTRUS 4', 
-                    'INIAT', 'CENTRUS 5', 'ITD', 'ALISBio-02', 'ALISBio', 
-                    'MicroSensor-03', 'Anahuac Cancun', 'MicroSensor-02',
-                    'INSYC-Smability', 'Hipódromo', 'La Diana', 'UNAM - ICAYCC', 'UAM SF IMSS', 'Tepeji HGO', // ← NUEVAS
-                    
-                    // Estaciones Reference activas (22 estaciones):
-                    'Cuautitlan', 'Merced', 'UAM Xochimilco', 'Atizapan', 'Tlalnepantla',
-                    'Santiago Acahualtepec', 'Hospital General de Mexico', 'Ajusco Medio',
-                    'Centro de Ciencias de la Atmosfera', 'FES Acatlan', 'Camarones',
-                    'Cuajimalpa', 'Pedregal', 'Miguel Hidalgo', 'Tultitlan', 'San Agustin',
-                    'Investigaciones Nucleares', 'Los Laureles', 'La Presa', 'Villa de las Flores',
-                    'Acolman', 'UAM Iztapalapa', 'Nezahualcoyotl' // ← NUEVA
-                ];
+                // Verificar si es estación Master API usando mappings existentes
+                const isInMasterAPI = window.ALL_STATIONS_MAPPING && 
+                                     Object.values(window.ALL_STATIONS_MAPPING).includes(stationName);
                 
-                if (masterAPIStations.includes(feature.properties.name)) {
-                    // Estaciones Master API - usar MasterAPIPanels
-                    console.log('🔵 This is a Master API station (circle)');
-                    console.log('🔍 Checking MasterAPIPanels...');
-                    console.log('MasterAPIPanels exists:', !!window.MasterAPIPanels);
+                if (isInMasterAPI) {
+                    // Estación Master API - usar MasterAPIPanels
+                    console.log('🔵 This is a Master API station');
                     
-                    if (window.MasterAPIPanels && window.MasterAPIPanels.showPanel) {
-                        console.log('🚀 Calling MasterAPIPanels.showPanel() for:', feature.properties.name);
+                    if (window.MasterAPIPanels?.showPanel) {
+                        console.log('🚀 Calling MasterAPIPanels.showPanel() for:', stationName);
                         try {
-                            window.MasterAPIPanels.showPanel(feature.properties.name);
+                            window.MasterAPIPanels.showPanel(stationName);
                             console.log('✅ MasterAPIPanels.showPanel() called successfully');
                         } catch (error) {
                             console.error('❌ Error calling MasterAPIPanels.showPanel:', error);
                         }
                     } else {
                         console.error('❌ MasterAPIPanels not available, using fallback popup');
-                        const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                            .setLngLat(feature.geometry.coordinates)
-                            .setHTML(createPopupContent(feature, null))
+                        new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                            .setLngLat(features[0].geometry.coordinates)
+                            .setHTML(createPopupContent(features[0], null))
                             .addTo(map);
                     }
                 } else {
-                    // Estaciones Reference (cuadrados) - popup original
-                    console.log('🟦 This is a Reference station (square)');
-                    const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                        .setLngLat(feature.geometry.coordinates)
-                        .setHTML(createPopupContent(feature, null))
+                    // Estación no mapeada - popup tradicional
+                    console.log('🟦 This is an unmapped station - using popup');
+                    new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
+                        .setLngLat(features[0].geometry.coordinates)
+                        .setHTML(createPopupContent(features[0], null))
                         .addTo(map);
                 }
             }
@@ -773,135 +782,74 @@ function addMapLayers() {
                     .addTo(map);
             });
 
-    
-        /* ===== POPUP LEGACY COMENTADO - BACKUP =====
-        const popup = new mapboxgl.Popup({ 
-            offset: [0, -15],
-            maxWidth: '300px'
-        })
-        .setLngLat(feature.geometry.coordinates);
-    
-        // Event listener para cerrar panel cuando se cierre el popup
-        popup.on('close', () => {
-            console.log('Popup closed, checking if chart panel should close...');
-            if (window.currentLocation === feature.properties.name) {
-                console.log('Closing chart panel because popup closed for current location');
-                closeChartPanel();
-            }
-        });
-    
-        if (APP_SETTINGS.activeStations.includes(feature.properties.name)) {
-            // Show loading popup first
-            popup.setHTML(createPopupContent(feature, null)).addTo(map);
-            
-            try {
-                console.log('Fetching sensor data for:', feature.properties.name);
-                const sensorData = await fetchSensorData(feature.properties.name);
-                console.log('Received sensor data:', sensorData);
-                popup.setHTML(createPopupContent(feature, sensorData));
+        
+            // OPCIONAL: Cerrar panel Smability cuando se hace click fuera
+            map.on('click', (event) => {
+                // Si no se hizo click en una estación y hay un panel Smability abierto, cerrarlo
+                const features = map.queryRenderedFeatures(event.point, {
+                    layers: ['smaa_network', 'smaa_network_squares']
+                });
                 
-                // Update marker color based on data
-                if (typeof updateMarkerColor === 'function') {
-                    updateMarkerColor(feature.properties.name);
-                }
-            } catch (error) {
-                console.error('Error fetching sensor data for popup:', error);
-                popup.setHTML(createPopupContent(feature, { error: 'Failed to load sensor data' }));
-            }
-        } else {
-            // For inactive stations, just show basic info
-            popup.setHTML(createPopupContent(feature)).addTo(map);
-        }
-        ===== FIN POPUP LEGACY COMENTADO - BACKUP ===== */
-    
-        /* ===== CERRAR CHART PANEL COMENTADO - BACKUP =====
-        // Cerrar panel cuando se hace click fuera de popup/panel
-        map.on('click', (event) => {
-            // Si no se hizo click en una estación y hay un panel abierto, cerrarlo
-            const features = map.queryRenderedFeatures(event.point, {
-                layers: ['smaa_network']
-            });
-            
-            if (features.length === 0 && window.currentLocation) {
-                console.log('Clicked outside station, closing chart panel if open');
-                setTimeout(() => {
-                    // Verificar si no hay popups visibles después de un pequeño delay
-                    const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
-                    if (visiblePopups.length === 0) {
-                        closeChartPanel();
-                    }
-                }, 100);
-            }
-        });
-        ===== FIN CERRAR CHART PANEL COMENTADO - BACKUP ===== */
-    
-        // OPCIONAL: Cerrar panel Smability cuando se hace click fuera
-        map.on('click', (event) => {
-            // Si no se hizo click en una estación y hay un panel Smability abierto, cerrarlo
-            const features = map.queryRenderedFeatures(event.point, {
-                layers: ['smaa_network', 'smaa_network_squares']
-            });
-            
-            // También verificar si no se hizo click en un marker de Mapbox
-            const clickedMarker = event.originalEvent && event.originalEvent.target && 
-                                 event.originalEvent.target.classList.contains('marker-pin');
-            
-            if (features.length === 0 && !clickedMarker) {
-                console.log('Clicked outside station, closing panels and legend if open');
-                setTimeout(() => {
-                    const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
-                    
-                    if (visiblePopups.length === 0) {
-                        // Cerrar ambos paneles si están abiertos
-                        if (window.SmabilityPanels && window.SmabilityPanels.closeMainPanel) {
-                            window.SmabilityPanels.closeMainPanel();
-                        }
+                // También verificar si no se hizo click en un marker de Mapbox
+                const clickedMarker = event.originalEvent && event.originalEvent.target && 
+                                     event.originalEvent.target.classList.contains('marker-pin');
+                
+                if (features.length === 0 && !clickedMarker) {
+                    console.log('Clicked outside station, closing panels and legend if open');
+                    setTimeout(() => {
+                        const visiblePopups = document.querySelectorAll('.mapboxgl-popup');
                         
-                        if (window.MasterAPIPanels && window.MasterAPIPanels.closePanel) {
-                            window.MasterAPIPanels.closePanel();
-                        }
-                        
-                        // CORREGIR: Usar la clase CSS collapsed en lugar de manipular display
-                        const legend = document.querySelector('.legend');
-                        const legendToggle = document.querySelector('.legend-toggle');
-                        
-                        if (legend && !legend.classList.contains('collapsed')) {
-                            // Aplicar la clase collapsed (igual que hace el CSS)
-                            legend.classList.add('collapsed');
-                            
-                            // Actualizar texto del botón
-                            if (legendToggle) {
-                                legendToggle.textContent = '+';
-                                legendToggle.style.backgroundColor = '#E2E2E2';
-                                legendToggle.style.color = '#666';
+                        if (visiblePopups.length === 0) {
+                            // Cerrar ambos paneles si están abiertos
+                            if (window.SmabilityPanels && window.SmabilityPanels.closeMainPanel) {
+                                window.SmabilityPanels.closeMainPanel();
                             }
                             
-                            console.log('✅ Legend collapsed by click outside');
+                            if (window.MasterAPIPanels && window.MasterAPIPanels.closePanel) {
+                                window.MasterAPIPanels.closePanel();
+                            }
+                            
+                            // CORREGIR: Usar la clase CSS collapsed en lugar de manipular display
+                            const legend = document.querySelector('.legend');
+                            const legendToggle = document.querySelector('.legend-toggle');
+                            
+                            if (legend && !legend.classList.contains('collapsed')) {
+                                // Aplicar la clase collapsed (igual que hace el CSS)
+                                legend.classList.add('collapsed');
+                                
+                                // Actualizar texto del botón
+                                if (legendToggle) {
+                                    legendToggle.textContent = '+';
+                                    legendToggle.style.backgroundColor = '#E2E2E2';
+                                    legendToggle.style.color = '#666';
+                                }
+                                
+                                console.log('✅ Legend collapsed by click outside');
+                            }
                         }
-                    }
-                }, 100);
-            }
-        });
+                    }, 100);
+                }
+            });
     
-        // Change cursor on hover - para todas las estaciones
-        map.on('mouseenter', 'smaa_network', () => {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-    
-        map.on('mouseleave', 'smaa_network', () => {
-            map.getCanvas().style.cursor = '';
-        });
+            // Change cursor on hover - para todas las estaciones
+            map.on('mouseenter', 'smaa_network', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
         
-        // Change cursor on hover - para markers cuadrados
-        map.on('mouseenter', 'smaa_network_squares', () => {
-            map.getCanvas().style.cursor = 'pointer';
-        });
-        
-        map.on('mouseleave', 'smaa_network_squares', () => {
-            map.getCanvas().style.cursor = '';
-        });
-        
-        console.log('✅ Map interactions setup complete');
+            map.on('mouseleave', 'smaa_network', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            // Change cursor on hover - para markers cuadrados
+            map.on('mouseenter', 'smaa_network_squares', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'smaa_network_squares', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            console.log('✅ Map interactions setup complete');
        
         // Click handler adicional para marcadores independientes
         document.addEventListener('click', (event) => {
