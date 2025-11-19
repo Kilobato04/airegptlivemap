@@ -723,10 +723,6 @@ function addMapLayers() {
                 }
             }
         });
-        
-            // Click handler para markers cuadrados (SIMAT) - SIN POPUP LEGACY CORREGIDO
-            // AGREGAR: Flag global para prevenir popups
-            let preventPopupCreation = false;
 
             // NUEVO: Control de texto IAS basado en zoom - 07112025
             // CORREGIDO: Control de texto IAS basado en zoom
@@ -765,22 +761,6 @@ function addMapLayers() {
                 }
                 return originalAddTo.call(this, map);
             };  
-            
-            // NUEVO: Click handler para el layer de texto también
-            map.on('click', 'smaa_network_squares_text', (event) => {
-                const features = map.queryRenderedFeatures(event.point, {
-                    layers: ['smaa_network_squares_text']
-                });
-                
-                if (!features.length) return;
-                
-                const feature = features[0];
-                const popup = new mapboxgl.Popup({ offset: [0, -15], maxWidth: '300px' })
-                    .setLngLat(feature.geometry.coordinates)
-                    .setHTML(createPopupContent(feature, null))
-                    .addTo(map);
-            });
-
         
             // OPCIONAL: Cerrar panel Smability cuando se hace click fuera
             map.on('click', (event) => {
