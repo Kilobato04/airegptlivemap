@@ -450,6 +450,8 @@ window.MasterAPIPanels = (function() {
             if (!lastUpdateElement) return;
             
             try {
+                let timeText = 'Recently updated'; // Valor por defecto
+                
                 if (stationData.reading_time_UTC6) {
                     // MOBILE FIX: Parsing más simple
                     const timeStr = stationData.reading_time_UTC6;
@@ -463,31 +465,71 @@ window.MasterAPIPanels = (function() {
                         updateTime = new Date(timeStr + ' UTC-6');
                     }
                     
-                    if (isNaN(updateTime.getTime())) {
-                        throw new Error('Invalid timestamp');
+                    if (!isNaN(updateTime.getTime())) {
+                        const diffMs = now - updateTime;
+                        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+                        const diffHours = Math.floor(diffMinutes / 60);
+                        
+                        let status = 'Live';
+                        if (diffHours > 8) status = 'Stale';
+                        if (diffHours > 24) status = 'Offline';
+                        
+                        const timeAgo = diffMinutes < 60 ? `${diffMinutes}m` : `${diffHours}h`;
+                        timeText = `Updated ${timeAgo} ago • ${status}`;
                     }
-                    
-                    const diffMs = now - updateTime;
-                    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-                    const diffHours = Math.floor(diffMinutes / 60);
-                    
-                    let status = 'Live';
-                    if (diffHours > 8) status = 'Stale';
-                    if (diffHours > 24) status = 'Offline';
-                    
-                    const timeAgo = diffMinutes < 60 ? `${diffMinutes}m` : `${diffHours}h`;
-                    
-                    lastUpdateElement.innerHTML = `Updated ${timeAgo} ago • ${status}`;
-                    lastUpdateElement.setAttribute('style', 'color: #00aa00; font-weight: bold;');
-                    
-                } else {
-                    lastUpdateElement.innerHTML = 'Data available';
-                    lastUpdateElement.setAttribute('style', 'color: #666; font-weight: bold;');
                 }
+                
+                // CREAR HTML del footer con el texto calculado
+                const footerHTML = `
+                    <span class="master-api-last-update" style="color: #00aa00; font-weight: bold;">${timeText}</span>
+                    <span style="display: flex; align-items: center;">
+                        <a href="https://smability.io/en/" target="_blank" class="master-api-branding">smability.io</a>
+                        <button class="master-api-share-btn" onclick="MasterAPIPanels.toggleShareModal()" title="Compartir lectura">
+                        </button>
+                        <div class="master-api-share-modal" id="masterAPIShareModal">
+                            <div class="master-api-share-title">🔗 Compartir lectura</div>
+                            <div class="master-api-share-options">
+                                <a href="#" class="master-api-share-option whatsapp" onclick="MasterAPIPanels.shareVia('whatsapp')">
+                                    <span class="master-api-share-option-icon">📲</span>
+                                    WhatsApp
+                                </a>
+                                <a href="#" class="master-api-share-option telegram" onclick="MasterAPIPanels.shareVia('telegram')">
+                                    <span class="master-api-share-option-icon">✈️</span>
+                                    Telegram
+                                </a>
+                                <a href="#" class="master-api-share-option twitter" onclick="MasterAPIPanels.shareVia('twitter')">
+                                    <span class="master-api-share-option-icon">🐦</span>
+                                    Twitter/X
+                                </a>
+                                <a href="#" class="master-api-share-option copy" onclick="MasterAPIPanels.shareVia('copy')">
+                                    <span class="master-api-share-option-icon">📋</span>
+                                    Copiar enlace
+                                </a>
+                            </div>
+                        </div>
+                    </span>
+                `;
+                
+                // Aplicar el HTML al footer
+                const footer = document.querySelector('.master-api-footer');
+                if (footer) {
+                    footer.innerHTML = footerHTML;
+                }
+                
             } catch (error) {
                 console.warn('Footer update error (using fallback):', error);
-                lastUpdateElement.innerHTML = 'Recently updated';
-                lastUpdateElement.setAttribute('style', 'color: #666; font-weight: bold;');
+                const footer = document.querySelector('.master-api-footer');
+                if (footer) {
+                    footer.innerHTML = `
+                        <span class="master-api-last-update" style="color: #666; font-weight: bold;">Recently updated</span>
+                        <span style="display: flex; align-items: center;">
+                            <a href="https://smability.io/en/" target="_blank" class="master-api-branding">smability.io</a>
+                            <button class="master-api-share-btn" onclick="MasterAPIPanels.toggleShareModal()" title="Compartir lectura">
+                            </button>
+                            <!-- Modal compartir aquí también -->
+                        </span>
+                    `;
+                }
             }
         }
 
@@ -1226,6 +1268,98 @@ window.MasterAPIPanels = (function() {
             }
         }
     });
+
+    /**
+ * Toggle del modal de compartir
+ */
+function toggleShareModal() {
+    const modal = document.getElementById('masterAPIShareModal');
+    if (modal) {
+        const isVisible = modal.classList.contains('show');
+        if (isVisible) {
+            modal.classList.remove('show');
+        } else {
+            modal.classList.add('show');
+            
+            // Cerrar al hacer click fuera
+            setTimeout(() => {
+                document.addEventListener('click', closeShareModal, true);
+            }, 100);
+        }
+    }
+}
+
+/**
+ * Cerrar modal de compartir
+ */
+function closeShareModal(event) {
+    const modal = document.getElementById('masterAPIShareModal');
+    const shareBtn = event.target.closest('.master-api-share-btn');
+    
+    if (modal && !modal.contains(event.target) && !shareBtn) {
+        modal.classList.remove('show');
+        document.removeEventListener('click', closeShareModal, true);
+    }
+}
+
+    /**
+     * Compartir vía diferentes plataformas
+     */
+    function shareVia(platform) {
+        if (!currentStation) return;
+        
+        // Obtener datos del panel actual
+        const iasValue = document.getElementById('masterAPIIasValue')?.textContent || 'N/A';
+        const category = document.getElementById('masterAPIStatusText1')?.textContent || 'Unknown';
+        
+        // Crear URL compartible
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?station=${encodeURIComponent(currentStation)}&autoOpen=true&ias=${iasValue}&time=${new Date().toISOString()}`;
+        
+        // Textos para compartir
+        const texts = {
+            whatsapp: `🌬️ Calidad del aire en ${currentStation}: IAS ${iasValue} (${category})\nMonitoreado en tiempo real con AIreGPT\n${shareUrl}`,
+            telegram: `🌬️ Calidad del aire en ${currentStation}: IAS ${iasValue} (${category})\nMonitoreado en tiempo real con AIreGPT\n${shareUrl}`,
+            twitter: `🌬️ #CalidadDelAire en ${currentStation}: IAS ${iasValue} (${category})\nDatos en tiempo real 📊\nVía @SmabilityAire\n${shareUrl}\n#CDMX #AirQuality`,
+            copy: shareUrl
+        };
+        
+        const urls = {
+            whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(texts.whatsapp)}`,
+            telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`🌬️ Calidad del aire en ${currentStation}: IAS ${iasValue} (${category}) - Monitoreado en tiempo real con AIreGPT`)}`,
+            twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(texts.twitter)}`
+        };
+        
+        // Ejecutar acción
+        switch(platform) {
+            case 'whatsapp':
+            case 'telegram':
+            case 'twitter':
+                window.open(urls[platform], '_blank');
+                break;
+            case 'copy':
+                navigator.clipboard.writeText(texts.copy).then(() => {
+                    // Feedback visual
+                    const copyBtn = document.querySelector('.master-api-share-option.copy');
+                    if (copyBtn) {
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<span class="master-api-share-option-icon">✅</span>¡Copiado!';
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                        }, 1500);
+                    }
+                });
+                break;
+        }
+        
+        // Cerrar modal
+        const modal = document.getElementById('masterAPIShareModal');
+        if (modal) {
+            modal.classList.remove('show');
+        }
+        
+        console.log(`🔗 Shared ${currentStation} via ${platform}`);
+    }
     
     // Actualizar el return del módulo:
     return {
@@ -1235,7 +1369,9 @@ window.MasterAPIPanels = (function() {
         toggleChart: toggleChart,        // ← AGREGAR
         resetChartArea: resetChartArea,
         getCurrentStation: () => currentStation,
-        getCurrentState: () => currentState
+        getCurrentState: () => currentState,
+        toggleShareModal: toggleShareModal,
+        shareVia: shareVia
     };
 })();
 
