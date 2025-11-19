@@ -583,12 +583,12 @@ function addMapLayers() {
                 const currentMinute = now.getMinutes();
                 let minutesUntilNextRefresh;
                 
-                if (currentMinute < 15) {
-                    minutesUntilNextRefresh = 15 - currentMinute;
+                if (currentMinute < 5) {
+                    minutesUntilNextRefresh = 5 - currentMinute;
                 } else if (currentMinute < 20) {
                     minutesUntilNextRefresh = 20 - currentMinute;
                 } else {
-                    minutesUntilNextRefresh = (60 - currentMinute) + 15;
+                    minutesUntilNextRefresh = (60 - currentMinute) + 5; // ← 5 en lugar de 15
                 }
                 
                 console.log(`⏰ Auto panel will reactivate in ${minutesUntilNextRefresh} minutes at next refresh`);
@@ -689,12 +689,12 @@ function addMapLayers() {
                 const currentMinute = now.getMinutes();
                 let minutesUntilNextRefresh;
                 
-                if (currentMinute < 15) {
-                    minutesUntilNextRefresh = 15 - currentMinute;
+                if (currentMinute < 5) {
+                    minutesUntilNextRefresh = 5 - currentMinute;
                 } else if (currentMinute < 20) {
                     minutesUntilNextRefresh = 20 - currentMinute;
                 } else {
-                    minutesUntilNextRefresh = (60 - currentMinute) + 15;
+                    minutesUntilNextRefresh = (60 - currentMinute) + 5; // ← 5 en lugar de 15
                 }
                 
                 setTimeout(() => {
