@@ -20,7 +20,7 @@ window.MASTER_API_CONFIG = {
     // Configuración de horarios específicos (15 y 20 min después de cada hora)
     scheduleConfig: {
         // Minutos después de cada hora para hacer las actualizaciones
-        updateMinutes: [15, 20],
+        updateMinutes: [5, 20],
         
         // Configuración de timeouts
         initialDelay: 3000,        // 3 segundos inicial
