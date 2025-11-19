@@ -1326,7 +1326,7 @@ function closeShareModal(event) {
         
         const urls = {
             whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(texts.whatsapp)}`,
-            telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(`🌬️ Calidad del aire en ${currentStation}: IAS ${iasValue} (${category}) - Monitoreado en tiempo real con AIreGPT`)}`,
+            telegram: `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(texts.telegram)}`,
             twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(texts.twitter)}`
         };
         
