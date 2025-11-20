@@ -600,8 +600,7 @@ window.MasterAPIPanels = (function() {
             
             if (!stationId) return null;
             
-            const response = await fetch("https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/current");
-            const data = await response.json();
+            const data = await window.APIProtection.call('current');
             const stations = Array.isArray(data) ? data : data.stations;
             
             return stations.find(s => s.station_id === stationId);
@@ -886,16 +885,10 @@ window.MasterAPIPanels = (function() {
             }
             
             const apiVariable = mapVariableToAPI(variable);
-            const url = `https://y4zwdmw7vf.execute-api.us-east-1.amazonaws.com/prod/api/air-quality/satation/${stationId}/historical/${requestedHours}h?variable=${apiVariable}`;
+            console.log(`🔐 Historical: ${requestedHours}h ${apiVariable} for ${stationName}`);
             
-            console.log(`🚀 Mobile-compatible fetch: ${requestedHours}h ${apiVariable} data for ${stationId}`);
-            
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`API responded with status: ${response.status}`);
-            }
-            
-            const apiResponse = await response.json();
+            const apiResponse = await window.APIProtection.call('historical', 
+                `/${stationId}/historical/${requestedHours}h?variable=${apiVariable}`);
             
             if (!apiResponse.data || !Array.isArray(apiResponse.data)) {
                 throw new Error('Invalid response format: missing data array');
