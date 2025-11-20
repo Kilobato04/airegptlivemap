@@ -84,10 +84,19 @@ window.APIProtection = (function() {
         const elapsed = Date.now() - startTime;
         const callsPerMinute = (callCount / elapsed) * 60000;
         
-        // Más de 10 llamadas por minuto = posible bot
-        if (callsPerMinute > 10 && callCount > 5) {
-            console.warn('🚨 High API usage detected - throttling');
-            return new Promise(resolve => setTimeout(resolve, 5000)); // 5s delay
+        // CONFIGURACIÓN MÁS PERMISIVA:
+        // 60 llamadas por minuto = 1 por segundo (uso normal)
+        // Solo throttle después de 20 llamadas iniciales
+        if (callsPerMinute > 60 && callCount > 20) {
+            console.warn('🚨 Very high API usage detected - light throttling');
+            return new Promise(resolve => setTimeout(resolve, 1000)); // Solo 1s delay
+        }
+        
+        // THROTTLING EXTREMO solo para casos obvios de bot:
+        // 120+ llamadas por minuto = 2+ por segundo (probable bot)
+        if (callsPerMinute > 120 && callCount > 10) {
+            console.warn('🚨 Extreme API usage - bot protection active');
+            return new Promise(resolve => setTimeout(resolve, 3000)); // 3s delay
         }
         
         return Promise.resolve();
