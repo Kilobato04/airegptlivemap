@@ -471,8 +471,22 @@ window.MasterAPIPanels = (function() {
                         const diffHours = Math.floor(diffMinutes / 60);
                         
                         let status = 'Live';
-                        if (diffHours > 8) status = 'Stale';
-                        if (diffHours > 24) status = 'Offline';
+                        let footerColor = '#00aa00';
+                        
+                        // NUEVA LÓGICA: Live solo ≤ 1 hora
+                        if (diffHours > 24) {
+                            status = 'Offline';
+                            footerColor = '#cc0000';
+                        } else if (diffHours > 8) {
+                            status = 'Stale';
+                            footerColor = '#888888';
+                        } else if (diffHours > 1) {
+                            status = 'Recent';
+                            footerColor = '#ff8800';
+                        } else {
+                            status = 'Live';
+                            footerColor = '#00aa00';
+                        }
                         
                         const timeAgo = diffMinutes < 60 ? `${diffMinutes}m` : `${diffHours}h`;
                         timeText = `Updated ${timeAgo} ago • ${status}`;
@@ -481,7 +495,7 @@ window.MasterAPIPanels = (function() {
                 
                 // CREAR HTML del footer con el texto calculado
                 const footerHTML = `
-                    <span class="master-api-last-update" style="color: #00aa00; font-weight: bold;">${timeText}</span>
+                    <span class="master-api-last-update" style="color: ${footerColor}; font-weight: bold;">${timeText}</span>
                     <span style="display: flex; align-items: center;">
                         <a href="https://smability.io/en/" target="_blank" class="master-api-branding">smability.io</a>
                         <button class="master-api-share-btn" onclick="MasterAPIPanels.toggleShareModal()" title="Compartir lectura">
