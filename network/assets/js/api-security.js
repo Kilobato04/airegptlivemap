@@ -60,7 +60,7 @@ window.APIProtection = (function() {
             const response = await fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'Cache-Control': 'no-cache',
+                    // REMOVIDO: 'Cache-Control': 'no-cache' - causa CORS error
                     ...options.headers
                 }
             });
