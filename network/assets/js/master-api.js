@@ -31,24 +31,9 @@ async function fetchMasterAPIData() {
         console.log('🌐 Fetching from Master API...');
         window.logSchedule('Fetching fresh data from API');
         
-        const params = new URLSearchParams(window.MASTER_API_CONFIG.params);
-        const url = `${window.MASTER_API_CONFIG.baseUrl}?${params.toString()}`;
+        console.log('🔐 Secure API call: current endpoint');
         
-        console.log('📍 API URL:', url);
-        
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Master API failed with status: ${response.status} - ${response.statusText}`);
-        }
-
-        const data = await response.json();
+        const data = await window.APIProtection.call('current');
         
         console.log('📊 Raw API response type:', typeof data);
         console.log('📊 API response structure:', Object.keys(data));
