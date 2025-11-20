@@ -232,24 +232,16 @@ window.MasterAPIPanels = (function() {
     function setOfflineState(stationData, stationName) {
         console.log(`❌ Setting offline state for ${stationName}`);
         
-        // Determinar tipo de dispositivo y ubicación
-        let deviceType = 'Monitor';
-        let location = 'Mexico City';
+        // SOLUCIÓN ELEGANTE: N/A cuando no hay datos del API
+        let deviceType = 'N/A';
+        let location = 'N/A';
         
         if (stationData) {
+            // Solo usar datos reales del API cuando estén disponibles
             deviceType = getDeviceTypeLabel(stationData.device_type);
-            location = stationData.city || 'Mexico City';
-        } else {
-            // Si no hay datos, inferir del nombre de estación
-            const stationMapping = window.ALL_STATIONS_MAPPING || {};
-            const stationId = Object.keys(stationMapping).find(id => stationMapping[id] === stationName);
-            
-            if (stationId && stationId.length === 3) {
-                deviceType = 'Reference'; // Estaciones con códigos de 3 letras son Reference
-            } else {
-                deviceType = 'Smability'; // Otras son Smability
-            }
+            location = stationData.city || 'N/A';
         }
+        // NO hardcodear nada - dejar N/A hasta que el API proporcione datos
         
         const subtitle = `${deviceType} - ${location}`;
         
