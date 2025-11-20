@@ -447,10 +447,19 @@ window.MasterAPIPanels = (function() {
             
             if (!lastUpdateElement) return;
             
-            // AGREGAR: Solo estas líneas de verificación
+            // VERIFICACIÓN MEJORADA: Permite forzar actualización live
             if (!stationData || !stationData.reading_time_UTC6 || stationData.reading_status !== 'current') {
                 console.log('📅 Station has no current data, maintaining offline footer state');
-                return; // Mantener footer offline establecido por setOfflineState()
+                return;
+            }
+            
+            // NUEVO: Detectar si el footer actual está en estado offline y forzar actualización
+            const currentFooter = document.getElementById('masterAPILastUpdate');
+            const isCurrentlyOffline = currentFooter && currentFooter.textContent.includes('Offline');
+            
+            if (isCurrentlyOffline) {
+                console.log('🔄 Footer was offline, forcing update to live state');
+                // Continuar con actualización normal para sobrescribir estado offline
             }
             
             try {
@@ -547,6 +556,7 @@ window.MasterAPIPanels = (function() {
                 const footer = document.querySelector('.master-api-footer');
                 if (footer) {
                     footer.innerHTML = footerHTML;
+                    console.log(`✅ Footer updated: ${timeText} (was offline: ${isCurrentlyOffline || false})`);
                 }
                 
             } catch (error) {
