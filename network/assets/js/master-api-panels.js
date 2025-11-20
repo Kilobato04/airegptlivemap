@@ -268,7 +268,7 @@ window.MasterAPIPanels = (function() {
         const footer = document.querySelector('.master-api-footer');
         if (footer) {
             footer.innerHTML = `
-                <span class="master-api-last-update" style="color: #cc0000; font-weight: bold;">Status: Offline</span>
+                <span id="masterAPILastUpdate" class="master-api-last-update" style="color: #cc0000; font-weight: bold;">Status: Offline</span>
                 <span style="display: flex; align-items: center;">
                     <a href="https://smability.io/en/" target="_blank" class="master-api-branding">smability.io</a>
                     <button class="master-api-share-btn" onclick="MasterAPIPanels.toggleShareModal()" title="Compartir lectura">
