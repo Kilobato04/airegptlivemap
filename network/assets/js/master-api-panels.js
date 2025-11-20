@@ -449,8 +449,15 @@ window.MasterAPIPanels = (function() {
             
             if (!lastUpdateElement) return;
             
+            // AGREGAR: Solo estas líneas de verificación
+            if (!stationData || !stationData.reading_time_UTC6 || stationData.reading_status !== 'current') {
+                console.log('📅 Station has no current data, maintaining offline footer state');
+                return; // Mantener footer offline establecido por setOfflineState()
+            }
+            
             try {
                 let timeText = 'Recently updated'; // Valor por defecto
+                let footerColor = '#00aa00'; 
                 
                 if (stationData.reading_time_UTC6) {
                     // MOBILE FIX: Parsing más simple
@@ -471,7 +478,6 @@ window.MasterAPIPanels = (function() {
                         const diffHours = Math.floor(diffMinutes / 60);
                         
                         let status = 'Live';
-                        let footerColor = '#00aa00';
                         
                         // NUEVA LÓGICA: Live solo ≤ 1 hora
                         if (diffHours > 24) {
