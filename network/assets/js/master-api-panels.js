@@ -252,8 +252,8 @@ window.MasterAPIPanels = (function() {
             ias: 'N/A',
             color: '#cccccc',
             colorName: 'Gris',
-            category: 'No Data',
-            risk: 'Unknown',
+            category: 'N/A',
+            risk: 'N/A',
             dominantPollutant: 'N/A',
             lastUpdate: 'Offline'
         });
