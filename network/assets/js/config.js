@@ -10,32 +10,7 @@ window.MAPBOX_CONFIG = {
 window.APP_SETTINGS = {
     refreshInterval: 3000,
     maxRetries: 3,
-    activeStations: [
-        // 'MicroSensor-01',    // EN REPARACIÓN
-        // 'MicroSensor-02',    // EN REPARACIÓN 
-        // 'MicroSensor-03',    // EN REPARACIÓN
-        //  'UNAM-CCA',         // EN REPARACIÓN
-        // 'CENTRUS 8',         // EN REPARACIÓN
-        // 'CENTRUS 7',         // EN REPARACIÓN
-        // 'D.Valle'
-        // 'CEN 5' 
-        // 'Huerto INIAT',
-        // 'INIAT IBERO',
-        // 'IBERO A',           // EN REPARACIÓN
-        // 'Zacatlan 1',         // MINA
-        // 'Zacatlan 2',         // MINA
-        // 'La Diana',        // EN REPARACIÓN
-        // 'CENTRUS 4',         // EN REPARACIÓN
-        // 'Popocatépetl',        // EN REPARACIÓN
-        //  'UAM',                // EN REPARACIÓN
-        //  'INSYC',            // EN REPARACIÓN
-        // 'UNAM-II-SMAA',      // EN REPARACIÓN
-        // 'Anahuac-Cancun',       // NUEVO
-        // 'ITD-Durango',                  // NUEVO
-        // 'Tepeji',            // EN REPARACIÓN
-        // 'Alis-Bio',              // NUEVO
-        // 'Alis-Bio2'              // NUEVO - ACTIVO
-    ],
+    activeStations: [],
     whatsappNumber: '525519566483',
     brandUrl: 'http://www.smability.io'
 };
