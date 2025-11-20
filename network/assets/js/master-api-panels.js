@@ -447,19 +447,23 @@ window.MasterAPIPanels = (function() {
             
             if (!lastUpdateElement) return;
             
-            // VERIFICACIÓN MEJORADA: Permite forzar actualización live
-            if (!stationData || !stationData.reading_time_UTC6 || stationData.reading_status !== 'current') {
-                console.log('📅 Station has no current data, maintaining offline footer state');
-                return;
-            }
-            
-            // NUEVO: Detectar si el footer actual está en estado offline y forzar actualización
+            // NUEVO: PRIMERO detectar si el footer está offline
             const currentFooter = document.getElementById('masterAPILastUpdate');
             const isCurrentlyOffline = currentFooter && currentFooter.textContent.includes('Offline');
             
+            // VERIFICACIÓN MEJORADA: Solo salir si NO hay datos Y NO había footer offline
+            if (!stationData || !stationData.reading_time_UTC6 || stationData.reading_status !== 'current') {
+                if (!isCurrentlyOffline) {
+                    console.log('📅 Station has no current data, maintaining offline footer state');
+                    return;
+                } else {
+                    console.log('⚠️ Station has no current data but footer was offline - this should not happen');
+                    return;
+                }
+            }
+            
             if (isCurrentlyOffline) {
-                console.log('🔄 Footer was offline, forcing update to live state');
-                // Continuar con actualización normal para sobrescribir estado offline
+                console.log('🔄 Footer was offline, forcing update to live state for valid station data');
             }
             
             try {
