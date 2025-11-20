@@ -46,24 +46,18 @@ window.APIProtection = (function() {
         }
     }
     
-    // Llamada segura con logs inteligentes
+    // Llamada segura MINIMALISTA - Sin headers CORS problemáticos
     async function secureCall(endpoint, params = '', options = {}) {
         try {
             const url = buildSecureURL(endpoint) + params;
             
-            // Log inteligente - útil para debugging pero confuso para extractores
             const logId = Math.random().toString(36).substring(7);
             const endpointHash = btoa(endpoint).substring(0, 6);
             
             console.log(`🔐 APISecCall[${logId}] ${endpointHash} -> Checking...`);
             
-            const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    // REMOVIDO: 'Cache-Control': 'no-cache' - causa CORS error
-                    ...options.headers
-                }
-            });
+            // FETCH MINIMALISTA - Sin headers que causen CORS preflight
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
@@ -76,7 +70,6 @@ window.APIProtection = (function() {
             return data;
             
         } catch (error) {
-            // Error logging sin exponer detalles
             console.error(`❌ APISecCall error: ${error.message}`);
             throw new Error('API communication failed');
         }
