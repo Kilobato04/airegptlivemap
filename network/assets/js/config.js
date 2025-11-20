@@ -333,7 +333,7 @@ window.ALL_STATIONS_MAPPING = {
     'CN4': 'CENTRUS 4', 
     'CN5': 'CENTRUS 5',
     'HI': 'Huerto IBERO',
-    'INIAT': 'INIAT',
+    'INIAT': 'INIAT',  // ← Ajustar ID a 3 Carcateres
     'ITD': 'ITD',
     'ALISBio-02': 'ALISBio-02',
     'ALISBio': 'ALISBio',
@@ -347,7 +347,7 @@ window.ALL_STATIONS_MAPPING = {
     'INSMAA': 'INSYC-Smability',    // ← NUEVA - OK
     'HIP': 'Hipódromo',  // ← NUEVA  -OK
     
-    // === ESTACIONES REFERENCE ACTIVAS (23 estaciones) ===
+    // === ESTACIONES REFERENCE ACTIVAS (24 estaciones) ===
     'CUT': 'Cuautitlan',
     'MER': 'Merced',
     'UAX': 'UAM Xochimilco',
@@ -369,8 +369,9 @@ window.ALL_STATIONS_MAPPING = {
     'LPR': 'La Presa',
     'VIF': 'Villa de las Flores',
     'ACO': 'Acolman', 
-    'UIZ': 'UAM Iztapalapa', // ← NUEVA
-    'NEZ': 'Nezahualcoyotl'
+    'UIZ': 'UAM Iztapalapa', 
+    'NEZ': 'Nezahualcoyotl',
+    'MPA': 'Milpa Alta' // ← NUEVA
 };
 
 // NUEVO: Mapping completo de estaciones Reference (para referencia)
@@ -413,5 +414,6 @@ window.REFERENCE_STATION_MAPPING = {
     'INN': 'Investigaciones Nucleares', // 36
     'CCA': 'Centro de Ciencias de la Atmosfera', // 37
     'ACO': 'Acolman', // 38
-    'VIF': 'Villa de las Flores' // 39
+    'VIF': 'Villa de las Flores', // 39
+    'MPA': 'Milpa Alta' // 40
 };
