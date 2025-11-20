@@ -76,7 +76,8 @@ window.REFERENCE_STATION_MAPPING = {
     'INN': 'Investigaciones Nucleares', // 36
     'CCA': 'Centro de Ciencias de la Atmosfera', // 37
     'ACO': 'Acolman', // 38
-    'VIF': 'Villa de las Flores' // 39
+    'VIF': 'Villa de las Flores', // 39
+    'MPA': 'Milpa Alta' // 40 ← NUEVA
 };
 
 /**
@@ -92,10 +93,10 @@ window.SMAA_STATION_MAPPING = {
     'ITD': 'ITD', // 46 - Smability - 2043/OK
     'ANC': 'Anahuac Cancun', // 47 - Smability/353c
     'DIA': 'La Diana', // 48 Test on Map
-    'SMAA': 'Hipódromo', // 49 Test on Map
-    'INSMAA': 'INSYC-Smability', // 50 Test on Map
+    'SMAA': 'Hipódromo', // 49 Test on Map - AJUSTAR ID a 3 Caracteres
+    'INSMAA': 'INSYC-Smability', // 50 Test on Map - AJUSTAR ID a 3 Caracteres
     'UAM': 'UAM SF IMSS', // 51 Test on Map
-    'ICAYCC': 'UNAM - ICAYCC', // 52 Test on Map
+    'ICAYCC': 'UNAM - ICAYCC', // 52 Test on Map - - AJUSTAR ID a 3 Caracteres
     'TPJ': 'Tepeji HGO' // 53 Test on Map
 };
 
