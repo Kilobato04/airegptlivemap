@@ -371,7 +371,12 @@ window.MasterAPIPanels = (function() {
         
         updatePanelColors(panelData.color, panelData.iasValue);
         updateDetailedData(panelData, stationData);
+        // AGREGAR LOG TEMPORAL:
+        console.log('🔄 About to call updatePanelFooter for:', currentStation);
+        console.log('📊 Footer data check - reading_status:', stationData.reading_status);
+        console.log('📊 Footer data check - reading_time_UTC6:', stationData.reading_time_UTC6);
         updatePanelFooter(stationData);
+        console.log('✅ updatePanelFooter completed for:', currentStation);
     }
 
     /**
@@ -443,6 +448,8 @@ window.MasterAPIPanels = (function() {
          * MOBILE-COMPATIBLE: Footer simplificado
          */
         function updatePanelFooter(stationData) {
+            console.log('🚀 updatePanelFooter STARTED for station data:', stationData?.station_name || 'unknown');
+            
             const lastUpdateElement = document.getElementById('masterAPILastUpdate');
             
             if (!lastUpdateElement) return;
